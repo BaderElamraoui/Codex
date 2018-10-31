@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="Carta.External.API.Service1" CodeBehind="Service1.svc.cs" %>

@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.External.API", "Carta.External.API\Carta.External.API.csproj", "{241093E1-6036-42A6-B26A-67B9E53E52B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.External.Dal", "Carta.External.Dal\Carta.External.Dal.csproj", "{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.External.Logic", "Carta.External.Logic\Carta.External.Logic.csproj", "{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{241093E1-6036-42A6-B26A-67B9E53E52B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{241093E1-6036-42A6-B26A-67B9E53E52B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{241093E1-6036-42A6-B26A-67B9E53E52B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

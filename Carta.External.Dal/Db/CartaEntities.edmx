@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="CARTA_UK_V3Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="V3_API_EXTERNAL_SERVICE">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="SERVICE_GTW_ID" />
+          </Key>
+          <Property Name="UID" Type="int" Nullable="false" />
+          <Property Name="SERVICE_GTW_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SERVICE_GTW_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="EXTERNAL_SERVICE_NAME" Type="varchar" MaxLength="50" />
+          <Property Name="REQUEST_MAP" Type="varchar(max)" />
+          <Property Name="RESPONSE_MAP" Type="varchar(max)" />
+          <Property Name="CRITERIA" Type="varchar" MaxLength="250" />
+          <Property Name="HEADERS" Type="varchar" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="V3_API_EXTERNAL_SERVICE_PARAMS">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="EXTERNAL_SERVICE_NAME" />
+            <PropertyRef Name="PARAMS_NAME" />
+          </Key>
+          <Property Name="UID" Type="int" Nullable="false" />
+          <Property Name="EXTERNAL_SERVICE_NAME" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PARAMS_NAME" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PARAMS_TO_SEND" Type="varchar" MaxLength="50" />
+          <Property Name="DEFAULT_VALUE" Type="varchar" MaxLength="250" />
+          <Property Name="IS_INPUT" Type="bit" />
+          <Property Name="IS_SENSITIVE" Type="bit" />
+          <Property Name="KEY_ALGORITHM" Type="varchar" MaxLength="50" />
+          <Property Name="KEY_INDEX" Type="varchar" MaxLength="10" />
+          <Property Name="SERVICE_ID" Type="varchar" MaxLength="6" />
+          <Property Name="PROC_ID" Type="int" />
+          <Property Name="ORDINAL" Type="int" />
+          <Property Name="FIELD_FORMAT_TYPE" Type="varchar" MaxLength="50" />
+          <Property Name="FIELD_FORMAT" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="V3_API_LOGIN_ENDPOINTS">
+          <Key>
+            <PropertyRef Name="BRANCH_API_LOGIN_UID" />
+            <PropertyRef Name="SERVICE_ID" />
+          </Key>
+          <Property Name="BRANCH_API_LOGIN_UID" Type="int" Nullable="false" />
+          <Property Name="SERVICE_ID" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="ENDPOINT" Type="varchar" MaxLength="250" />
+          <Property Name="WRRAPED_VALUE" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="V3_EXTERNAL_BRANCH_API_LOGINS">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="SERVICE_ID" />
+          </Key>
+          <Property Name="UID" Type="int" Nullable="false" />
+          <Property Name="INSTITUTION_ID" Type="char" MaxLength="6" />
+          <Property Name="BRANCH_ID" Type="char" MaxLength="6" />
+          <Property Name="LOGIN" Type="varchar" MaxLength="50" />
+          <Property Name="PASS" Type="nvarchar(max)" />
+          <Property Name="CHANNEL_TYPE" Type="char" MaxLength="3" />
+          <Property Name="CHANNEL_ID" Type="char" MaxLength="2" />
+          <Property Name="SERVICE_ID" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="JWE_ENABLED" Type="bit" />
+          <Property Name="JWE_ALGORITHM" Type="varchar" MaxLength="50" />
+          <Property Name="KEY_INDEX" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityContainer Name="CARTA_UK_V3ModelStoreContainer">
+          <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="Self.V3_API_EXTERNAL_SERVICE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="Self.V3_API_LOGIN_ENDPOINTS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="CARTA_UK_V3Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="V3_API_EXTERNAL_SERVICE_PARAMS">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="EXTERNAL_SERVICE_NAME" />
+            <PropertyRef Name="PARAMS_NAME" />
+          </Key>
+          <Property Name="UID" Type="Int32" Nullable="false" />
+          <Property Name="EXTERNAL_SERVICE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PARAMS_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PARAMS_TO_SEND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DEFAULT_VALUE" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IS_INPUT" Type="Boolean" />
+          <Property Name="IS_SENSITIVE" Type="Boolean" />
+          <Property Name="KEY_ALGORITHM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="KEY_INDEX" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SERVICE_ID" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="PROC_ID" Type="Int32" />
+          <Property Name="ORDINAL" Type="Int32" />
+          <Property Name="FIELD_FORMAT_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FIELD_FORMAT" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="V3_API_LOGIN_ENDPOINTS">
+          <Key>
+            <PropertyRef Name="BRANCH_API_LOGIN_UID" />
+            <PropertyRef Name="SERVICE_ID" />
+          </Key>
+          <Property Name="BRANCH_API_LOGIN_UID" Type="Int32" Nullable="false" />
+          <Property Name="SERVICE_ID" Type="String" MaxLength="6" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ENDPOINT" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="WRRAPED_VALUE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="V3_EXTERNAL_BRANCH_API_LOGINS">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="SERVICE_ID" />
+          </Key>
+          <Property Name="UID" Type="Int32" Nullable="false" />
+          <Property Name="INSTITUTION_ID" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="BRANCH_ID" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="LOGIN" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PASS" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CHANNEL_TYPE" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="CHANNEL_ID" Type="String" MaxLength="2" FixedLength="true" Unicode="false" />
+          <Property Name="SERVICE_ID" Type="String" MaxLength="6" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="JWE_ENABLED" Type="Boolean" />
+          <Property Name="JWE_ALGORITHM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="KEY_INDEX" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityContainer Name="CARTA_UK_V3Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" />
+          <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="Self.V3_API_LOGIN_ENDPOINTS" />
+          <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" />
+          <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE" />
+        </EntityContainer>
+        <EntityType Name="V3_API_EXTERNAL_SERVICE">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="SERVICE_GTW_ID" />
+          </Key>
+          <Property Name="UID" Type="Int32" Nullable="false" />
+          <Property Name="SERVICE_GTW_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SERVICE_GTW_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EXTERNAL_SERVICE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="REQUEST_MAP" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="RESPONSE_MAP" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CRITERIA" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="HEADERS" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="CARTA_UK_V3ModelStoreContainer" CdmEntityContainer="CARTA_UK_V3Entities">
+          <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE_PARAMS">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE_PARAMS">
+              <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE_PARAMS">
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="EXTERNAL_SERVICE_NAME" ColumnName="EXTERNAL_SERVICE_NAME" />
+                <ScalarProperty Name="PARAMS_NAME" ColumnName="PARAMS_NAME" />
+                <ScalarProperty Name="PARAMS_TO_SEND" ColumnName="PARAMS_TO_SEND" />
+                <ScalarProperty Name="DEFAULT_VALUE" ColumnName="DEFAULT_VALUE" />
+                <ScalarProperty Name="IS_INPUT" ColumnName="IS_INPUT" />
+                <ScalarProperty Name="IS_SENSITIVE" ColumnName="IS_SENSITIVE" />
+                <ScalarProperty Name="KEY_ALGORITHM" ColumnName="KEY_ALGORITHM" />
+                <ScalarProperty Name="KEY_INDEX" ColumnName="KEY_INDEX" />
+                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
+                <ScalarProperty Name="PROC_ID" ColumnName="PROC_ID" />
+                <ScalarProperty Name="ORDINAL" ColumnName="ORDINAL" />
+                <ScalarProperty Name="FIELD_FORMAT_TYPE" ColumnName="FIELD_FORMAT_TYPE" />
+                <ScalarProperty Name="FIELD_FORMAT" ColumnName="FIELD_FORMAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_API_LOGIN_ENDPOINTS">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_LOGIN_ENDPOINTS">
+              <MappingFragment StoreEntitySet="V3_API_LOGIN_ENDPOINTS">
+                <ScalarProperty Name="BRANCH_API_LOGIN_UID" ColumnName="BRANCH_API_LOGIN_UID" />
+                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
+                <ScalarProperty Name="ENDPOINT" ColumnName="ENDPOINT" />
+                <ScalarProperty Name="WRRAPED_VALUE" ColumnName="WRRAPED_VALUE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_EXTERNAL_BRANCH_API_LOGINS">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_EXTERNAL_BRANCH_API_LOGINS">
+              <MappingFragment StoreEntitySet="V3_EXTERNAL_BRANCH_API_LOGINS">
+                <ScalarProperty Name="UID" ColumnName="UID" />
+                <ScalarProperty Name="INSTITUTION_ID" ColumnName="INSTITUTION_ID" />
+                <ScalarProperty Name="BRANCH_ID" ColumnName="BRANCH_ID" />
+                <ScalarProperty Name="LOGIN" ColumnName="LOGIN" />
+                <ScalarProperty Name="PASS" ColumnName="PASS" />
+                <ScalarProperty Name="CHANNEL_TYPE" ColumnName="CHANNEL_TYPE" />
+                <ScalarProperty Name="CHANNEL_ID" ColumnName="CHANNEL_ID" />
+                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
+                <ScalarProperty Name="JWE_ENABLED" ColumnName="JWE_ENABLED" />
+                <ScalarProperty Name="JWE_ALGORITHM" ColumnName="JWE_ALGORITHM" />
+                <ScalarProperty Name="KEY_INDEX" ColumnName="KEY_INDEX" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE">
+              <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE">
+                <ScalarProperty Name="HEADERS" ColumnName="HEADERS" />
+                <ScalarProperty Name="CRITERIA" ColumnName="CRITERIA" />
+                <ScalarProperty Name="RESPONSE_MAP" ColumnName="RESPONSE_MAP" />
+                <ScalarProperty Name="REQUEST_MAP" ColumnName="REQUEST_MAP" />
+                <ScalarProperty Name="EXTERNAL_SERVICE_NAME" ColumnName="EXTERNAL_SERVICE_NAME" />
+                <ScalarProperty Name="SERVICE_GTW_NAME" ColumnName="SERVICE_GTW_NAME" />
+                <ScalarProperty Name="SERVICE_GTW_ID" ColumnName="SERVICE_GTW_ID" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
