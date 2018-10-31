@@ -15,7 +15,7 @@ namespace Carta.External.API
     {
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "CartaServices",
+        [WebInvoke(UriTemplate = "CartaExternalAPI",
         ResponseFormat = WebMessageFormat.Json,
         RequestFormat = WebMessageFormat.Json,
         BodyStyle = WebMessageBodyStyle.Bare,

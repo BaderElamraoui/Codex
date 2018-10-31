@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Logic.Request
+namespace Carta.External.Logic.Processor
 {
     public class RequestProcessor
     {
 
-        public string PrepareRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams)
+        public string PrepareRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
         {
             return null;
         }
