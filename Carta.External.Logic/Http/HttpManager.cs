@@ -15,7 +15,8 @@ namespace Carta.External.Logic.Http
 
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string Process(string request, List<Header> headers, string endpoint)
+
+        public string Post(string request, List<Header> headers, string endpoint)
         {
 
             string response = string.Empty;
@@ -24,7 +25,7 @@ namespace Carta.External.Logic.Http
             try
             {
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
-                httpWebRequest.Method = "POST";
+                httpWebRequest.Method = WebRequestMethods.Http.Post;
                 log.Info("Adding headers to HTTP Request");
                 headers.ForEach(x =>
                 {
@@ -38,12 +39,18 @@ namespace Carta.External.Logic.Http
                     streamWriter.Write(request);
                 }
 
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    response = streamReader.ReadToEnd();
+                    log.Info(string.Format("Server response: {0}", httpResponse.StatusCode));
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            response = streamReader.ReadToEnd();
+                        }
+                    }
                 }
+                
             }
             catch (Exception ex)
             {

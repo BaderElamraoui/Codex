@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Carta.External.Dal.Cache
 {
-    class CacheContainer
+    public class CacheContainer
     {
 
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -58,12 +58,11 @@ namespace Carta.External.Dal.Cache
                     container.ApiExternalBranchApiLogins = db.V3_EXTERNAL_BRANCH_API_LOGINS.ToList();
                     container.ApiExternalServiceParams = db.V3_API_EXTERNAL_SERVICE_PARAMS.ToList();
                     container.ApiExternalServices = db.V3_API_EXTERNAL_SERVICE.ToList();
-                    container.ApiLoginEndpoint = db.V3_API_LOGIN_ENDPOINTS.ToList();
+                    container.ApiLoginEndpoint = db.V3_EXTERNAL_ENDPOINTS.ToList();
                 }
 
                 container.ApiExternalServices.ForEach(a =>
                 {
-                    a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
                     a.PARSED_RESPONSE_MAP = JToken.Parse(a.RESPONSE_MAP);
 
                     if (!string.IsNullOrEmpty(a.HEADERS))

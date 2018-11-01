@@ -18,7 +18,6 @@ namespace Carta.External.Dal.Db
         public string SERVICE_GTW_ID { get; set; }
         public string SERVICE_GTW_NAME { get; set; }
         public string EXTERNAL_SERVICE_NAME { get; set; }
-        public string REQUEST_MAP { get; set; }
         public string RESPONSE_MAP { get; set; }
         public string CRITERIA { get; set; }
         public string HEADERS { get; set; }

@@ -39,6 +39,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Http\HttpManager.cs" />
+    <Compile Include="Objects\Constants.cs" />
     <Compile Include="Objects\ServiceRequest.cs" />
     <Compile Include="Objects\ServiceResponse.cs" />
     <Compile Include="Processor\GtwApiProcessor.cs" />

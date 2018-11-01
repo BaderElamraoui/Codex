@@ -39,7 +39,9 @@ namespace Carta.External.API
 
                 GtwApiProcessor gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString());
 
-                string response = gtwApiProcessor.Process();
+                string response = gtwApiProcessor.ProcessPostRequest();
+                if(string.IsNullOrEmpty(response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
