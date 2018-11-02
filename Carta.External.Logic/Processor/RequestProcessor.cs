@@ -37,9 +37,9 @@ namespace Carta.External.Logic.Processor
 
         public List<Header> PrepareHeaders(IDictionary<string, object> inputParams, List<Header> headers)
         {
-            foreach(Header header in headers)
+            foreach (Header header in headers)
             {
-                if(header.value == "#")
+                if (string.IsNullOrEmpty(header.value) && header.value.Contains("#"))
                 {
                     header.value?.Replace("#", inputParams[header.id].ToString());
                 }
@@ -65,7 +65,7 @@ namespace Carta.External.Logic.Processor
                     log.Info("Response is valid");
 
                     List<V3_API_EXTERNAL_SERVICE_PARAMS> outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && !x.IS_INPUT.Value).ToList();
-                    
+
 
                     foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in outputExternalServiceParams)
                     {
@@ -75,7 +75,7 @@ namespace Carta.External.Logic.Processor
                                 outputParams[item.PARAMS_NAME] = prop.Value;
                         }
                     }
-                   
+
                 }
                 return true;
 
@@ -86,7 +86,7 @@ namespace Carta.External.Logic.Processor
                 outputParams = null;
                 return false;
             }
-            
+
 
         }
 
