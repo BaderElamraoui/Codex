@@ -93,11 +93,12 @@ namespace Carta.External.Logic.Processor
 
             List<V3_API_EXTERNAL_SERVICE_PARAMS> externalParams = CacheContainer.Instance.Container.ApiExternalServiceParams.Where(x => x.EXTERNAL_SERVICE_NAME == externalService.EXTERNAL_SERVICE_NAME && x.UID == int.Parse(uid)).ToList();
 
+            List<Header> requestHeaders = requestProcessor.PrepareHeaders(serviceParams, externalService.PARSED_HEADERS);
 
 
             string request = requestProcessor.PrepareRequest(externalService.PARSED_REQUEST_MAP, externalParams, serviceParams);
 
-            string externalResponse = httpManager.Post(request, externalService.PARSED_HEADERS, externalEndpoint.ENDPOINT);
+            string externalResponse = httpManager.Post(request, requestHeaders, externalEndpoint.ENDPOINT);
 
             Dictionary<string, object> outputParams;
 

@@ -35,6 +35,18 @@ namespace Carta.External.Logic.Processor
             return jsonRequest.ToString(Formatting.None);
         }
 
+        public List<Header> PrepareHeaders(IDictionary<string, object> inputParams, List<Header> headers)
+        {
+            foreach(Header header in headers)
+            {
+                if(header.value == "#")
+                {
+                    header.value?.Replace("#", inputParams[header.id].ToString());
+                }
+            }
+            return headers;
+        }
+
         public bool TryParseAndPrepareResponse(string externalResponse, string criteria, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, out Dictionary<string, object> outputParams)
         {
             try
