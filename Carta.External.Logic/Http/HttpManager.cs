@@ -24,16 +24,21 @@ namespace Carta.External.Logic.Http
             log.Debug(string.Format("REQUEST: {0}", request));
             try
             {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
                 httpWebRequest.Method = WebRequestMethods.Http.Post;
                 log.Info("Adding headers to HTTP Request");
-                headers.ForEach(x =>
+                if(headers != null && headers.Any())
                 {
+                    headers.ForEach(x =>
+                    {
 
-                    log.Info(string.Format("Header ID to add: {0}", x.id));
-                    httpWebRequest.Headers[x.id] = x.value;
+                        log.Info(string.Format("Header ID to add: {0}", x.id));
+                        httpWebRequest.Headers[x.id] = x.value;
 
-                });
+                    });
+                }
+               
                 using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                 {
                     streamWriter.Write(request);

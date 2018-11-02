@@ -16,16 +16,13 @@ namespace Carta.External.Logic.Objects
         public string serviceResponseCode { get; set; }       // Response Code
         public string serviceResponseLabel { get; set; }       // Response Label
         public dynamic serviceResponseData { get; set; }       // Output Data
-
-        public ServiceResponse()
-        {
-            serviceResponseData = new ExpandoObject();
-        }
+       
         public ServiceResponse(ServiceRequest serviceRequest)
         {
-            this.serviceRequestId = serviceRequest.serviceRequestId;
-            this.serviceResponseCode = "900";
-            this.serviceResponseLabel = "System Error";
+            serviceRequestId = serviceRequest.serviceRequestId;
+            serviceResponseCode = "900";
+            serviceResponseLabel = "System Error";
+            serviceResponseData = new ExpandoObject();
         }
 
     }

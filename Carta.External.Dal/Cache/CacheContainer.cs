@@ -63,7 +63,9 @@ namespace Carta.External.Dal.Cache
 
                 container.ApiExternalServices.ForEach(a =>
                 {
-                    a.PARSED_RESPONSE_MAP = JToken.Parse(a.RESPONSE_MAP);
+
+                    if (!string.IsNullOrEmpty(a.REQUEST_MAP))
+                        a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
 
                     if (!string.IsNullOrEmpty(a.HEADERS))
                     {

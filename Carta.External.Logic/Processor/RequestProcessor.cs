@@ -20,10 +20,16 @@ namespace Carta.External.Logic.Processor
 
             foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in inputExternalServiceParams)
             {
-                JProperty propertyToken = jsonRequest.SelectToken(item.PARAMS_NAME) as JProperty;
                 object value;
                 if (inputParams.TryGetValue(item.PARAMS_NAME, out value) && value != null)
-                    propertyToken.Value = value.ToString();
+                {
+                    foreach (JProperty prop in jsonRequest.Children<JProperty>())
+                    {
+                        if (prop.Name == item.PARAMS_NAME)
+                            prop.Value = value.ToString();
+                    }
+                }
+
             }
 
             return jsonRequest.ToString(Formatting.None);
@@ -40,30 +46,36 @@ namespace Carta.External.Logic.Processor
                 }
 
                 JToken jsonExternalResponse = JToken.Parse(externalResponse);
+                outputParams = new Dictionary<string, object>();
 
                 if (IsResponseValid(jsonExternalResponse, criteria))
                 {
                     log.Info("Response is valid");
 
-                    List<V3_API_EXTERNAL_SERVICE_PARAMS> outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
-                    outputParams = new Dictionary<string, object>();
+                    List<V3_API_EXTERNAL_SERVICE_PARAMS> outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && !x.IS_INPUT.Value).ToList();
+                    
 
                     foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in outputExternalServiceParams)
                     {
-                        JProperty propertyToken = jsonExternalResponse.SelectToken(item.PARAMS_NAME) as JProperty;
-                        outputParams[item.PARAMS_NAME] = propertyToken.Value;
+                        foreach (JProperty prop in jsonExternalResponse.Children<JProperty>())
+                        {
+                            if (prop.Name == item.PARAMS_NAME)
+                                outputParams[item.PARAMS_NAME] = prop.Value;
+                        }
                     }
-
+                   
                 }
+                return true;
 
             }
             catch (Exception ex)
             {
                 log.Error("Error during parsing external response:", ex);
+                outputParams = null;
+                return false;
             }
+            
 
-            outputParams = null;
-            return false;
         }
 
         public bool IsResponseValid(JToken jsonResponse, string criteria)

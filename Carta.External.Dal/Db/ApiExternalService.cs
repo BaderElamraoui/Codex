@@ -11,7 +11,6 @@ namespace Carta.External.Dal.Db
     {
 
         public JToken PARSED_REQUEST_MAP { get; set; }
-        public JToken PARSED_RESPONSE_MAP { get; set; }
         public List<Header> PARSED_HEADERS { get; set; }
 
     }

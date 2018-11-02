@@ -27,7 +27,7 @@ namespace Carta.External.Dal.Db
     
         public virtual DbSet<V3_API_EXTERNAL_SERVICE_PARAMS> V3_API_EXTERNAL_SERVICE_PARAMS { get; set; }
         public virtual DbSet<V3_EXTERNAL_BRANCH_API_LOGINS> V3_EXTERNAL_BRANCH_API_LOGINS { get; set; }
-        public virtual DbSet<V3_API_EXTERNAL_SERVICE> V3_API_EXTERNAL_SERVICE { get; set; }
         public virtual DbSet<V3_EXTERNAL_ENDPOINTS> V3_EXTERNAL_ENDPOINTS { get; set; }
+        public virtual DbSet<V3_API_EXTERNAL_SERVICE> V3_API_EXTERNAL_SERVICE { get; set; }
     }
 }

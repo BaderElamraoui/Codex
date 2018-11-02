@@ -25,6 +25,7 @@ namespace Carta.External.Logic.Processor
         private readonly RequestProcessor requestProcessor;
         private readonly HttpManager httpManager;
         private const string SUCCESS = "000";
+        private const string SUCCESS_LABEL = "Successful Operation";
 
         public GtwApiProcessor(string request)
         {
@@ -103,6 +104,7 @@ namespace Carta.External.Logic.Processor
             if (requestProcessor.TryParseAndPrepareResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
             {
                 serviceResponse.serviceResponseCode = SUCCESS;
+                serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
                 foreach (KeyValuePair<string, object> entry in outputParams)
                 {
                     ((IDictionary<string, object>)serviceResponse.serviceResponseData)[entry.Key] = entry.Value;

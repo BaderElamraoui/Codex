@@ -7,8 +7,8 @@
       <Diagram DiagramId="4ee11f6f7029473fa879242d3cf99a3c" Name="Diagram1">
         <EntityTypeShape EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE_PARAMS" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="CARTA_UK_V3Model.V3_EXTERNAL_BRANCH_API_LOGINS" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE" Width="1.5" PointX="0.75" PointY="5.75" />
         <EntityTypeShape EntityType="CARTA_UK_V3Model.V3_EXTERNAL_ENDPOINTS" Width="1.5" PointX="7.75" PointY="0.75" />
+        <EntityTypeShape EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE" Width="1.5" PointX="0.75" PointY="5.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
