@@ -28,17 +28,20 @@ namespace Carta.External.Logic.Http
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
                 httpWebRequest.Method = WebRequestMethods.Http.Post;
                 log.Info("Adding headers to HTTP Request");
-                if(headers != null && headers.Any())
+                if (headers != null && headers.Any())
                 {
                     headers.ForEach(x =>
                     {
 
                         log.Info(string.Format("Header ID to add: {0}", x.id));
-                        httpWebRequest.Headers[x.id] = x.value;
+                        if (x.id == "Content-Type")
+                            httpWebRequest.ContentType = x.value;
+                        else
+                            httpWebRequest.Headers[x.id] = x.value;
 
                     });
                 }
-               
+
                 using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                 {
                     streamWriter.Write(request);
@@ -55,7 +58,7 @@ namespace Carta.External.Logic.Http
                         }
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {

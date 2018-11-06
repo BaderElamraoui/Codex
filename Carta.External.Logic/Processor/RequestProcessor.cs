@@ -39,9 +39,16 @@ namespace Carta.External.Logic.Processor
         {
             foreach (Header header in headers)
             {
-                if (string.IsNullOrEmpty(header.value) && header.value.Contains("#"))
+                if (string.IsNullOrEmpty(header.value))
                 {
-                    header.value?.Replace("#", inputParams[header.id].ToString());
+                    log.Info("Header value is null");
+                    header.value = inputParams[header.id].ToString();
+                }
+
+                else if (header.value.Contains("#"))
+                {
+                    log.Info("Header value contain #");
+                    header.value = header.value.Replace("#", inputParams[header.id].ToString());
                 }
             }
             return headers;

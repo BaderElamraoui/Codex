@@ -64,18 +64,25 @@ namespace Carta.External.Dal.Cache
                 container.ApiExternalServices.ForEach(a =>
                 {
 
+                    log.Info("Caching Parsed Data");
+
                     if (!string.IsNullOrEmpty(a.REQUEST_MAP))
                         a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
 
                     if (!string.IsNullOrEmpty(a.HEADERS))
                     {
+                        log.Info("Custom Header are configured");
+                        log.Debug(string.Format("Header Values:{0}", a.HEADERS));
                         a.PARSED_HEADERS = new List<Header>();
                         string[] headers = a.HEADERS.Split('|');
                         for (int i = 0; i < headers.Length; i++)
                         {
+
                             Header header = new Header();
                             header.id = headers[i].Split(':')[0];
                             header.value = headers[i].Split(':')[1];
+                            log.Info(string.Format("Header Id={0}, Header Value={1}", header.id, header.value));
+                            a.PARSED_HEADERS.Add(header);
                         }
 
                     }
