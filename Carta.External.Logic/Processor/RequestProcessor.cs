@@ -14,7 +14,7 @@ namespace Carta.External.Logic.Processor
     {
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string PrepareRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
+        public string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
         {
             List<V3_API_EXTERNAL_SERVICE_PARAMS> inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
 
@@ -35,7 +35,7 @@ namespace Carta.External.Logic.Processor
             return jsonRequest.ToString(Formatting.None);
         }
 
-        public List<Header> PrepareHeaders(IDictionary<string, object> inputParams, List<Header> headers)
+        public List<Header> PrepareExternalRequestHeaders(IDictionary<string, object> inputParams, List<Header> headers)
         {
             foreach (Header header in headers)
             {
@@ -54,7 +54,7 @@ namespace Carta.External.Logic.Processor
             return headers;
         }
 
-        public bool TryParseAndPrepareResponse(string externalResponse, string criteria, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, out Dictionary<string, object> outputParams)
+        public bool TryParseAndPrepareExternalResponse(string externalResponse, string criteria, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, out Dictionary<string, object> outputParams)
         {
             try
             {

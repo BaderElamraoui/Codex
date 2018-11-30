@@ -26,6 +26,7 @@ namespace Carta.External.Logic.Processor
         private readonly HttpManager httpManager;
         private const string SUCCESS = "000";
         private const string SUCCESS_LABEL = "Successful Operation";
+        
 
         public GtwApiProcessor(string request)
         {
@@ -41,9 +42,9 @@ namespace Carta.External.Logic.Processor
             serviceParams = (IDictionary<string, object>)serviceRequest.serviceData;
         }
 
-        public string ProcessPostRequest()
+        public bool TryProcessPostRequest(out string response)
         {
-            string response = string.Empty;
+            response = string.Empty;
 
             string serviceName = serviceRequest.serviceName;
 
@@ -53,7 +54,7 @@ namespace Carta.External.Logic.Processor
             if (string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(serviceId))
             {
                 log.Error("UID is mandatory in the request for unicity selection");
-                return response;
+                return false;
             }
 
             V3_EXTERNAL_BRANCH_API_LOGINS externalBranchApiLogin = CacheContainer.Instance.Container.ApiExternalBranchApiLogins.FirstOrDefault(x => x.LOGIN == serviceRequest.requestorId && x.PASS == serviceRequest.requestorCredential && x.UID == int.Parse(uid) && x.SERVICE_ID == serviceId);
@@ -74,7 +75,7 @@ namespace Carta.External.Logic.Processor
             if (externalService == null)
             {
                 log.Error("No Configuration has been found for called service");
-                return response;
+                return false;
             }
 
             log.Info("Getting service endpoint");
@@ -86,23 +87,23 @@ namespace Carta.External.Logic.Processor
             if (externalEndpoint == null)
             {
                 log.Error("No endpoint has been found");
-                return response;
+                return false;
             }
 
             log.Info("Getting service param to prepare the external Request");
 
             List<V3_API_EXTERNAL_SERVICE_PARAMS> externalParams = CacheContainer.Instance.Container.ApiExternalServiceParams.Where(x => x.EXTERNAL_SERVICE_NAME == externalService.EXTERNAL_SERVICE_NAME && x.UID == int.Parse(uid)).ToList();
 
-            List<Header> requestHeaders = requestProcessor.PrepareHeaders(serviceParams, externalService.PARSED_HEADERS);
+            List<Header> requestHeaders = requestProcessor.PrepareExternalRequestHeaders(serviceParams, externalService.PARSED_HEADERS);
 
 
-            string request = requestProcessor.PrepareRequest(externalService.PARSED_REQUEST_MAP, externalParams, serviceParams);
+            string request = requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, serviceParams);
 
             string externalResponse = httpManager.Post(request, requestHeaders, externalEndpoint.ENDPOINT);
 
             Dictionary<string, object> outputParams;
 
-            if (requestProcessor.TryParseAndPrepareResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
+            if (requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
             {
                 serviceResponse.serviceResponseCode = SUCCESS;
                 serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
@@ -113,7 +114,7 @@ namespace Carta.External.Logic.Processor
                 response = JsonConvert.SerializeObject(serviceResponse);
             }
 
-            return response;
+            return true;
         }
 
         public object GetParamValue(string key)

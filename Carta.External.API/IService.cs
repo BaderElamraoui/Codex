@@ -16,12 +16,21 @@ namespace Carta.External.API
 
         [OperationContract]
         [WebInvoke(UriTemplate = "CartaExternalAPI",
-        ResponseFormat = WebMessageFormat.Json,
-        RequestFormat = WebMessageFormat.Json,
-        BodyStyle = WebMessageBodyStyle.Bare,
-        Method = "POST"
-        )]
-        Stream GetData(Stream streamRequest);
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+            )]
+        Stream PostData(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "CartaAPI",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream PostExternalData(Stream streamRequest);
 
     }
 }

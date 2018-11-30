@@ -53,6 +53,7 @@
     <Compile Include="Objects\Constants.cs" />
     <Compile Include="Objects\ServiceRequest.cs" />
     <Compile Include="Objects\ServiceResponse.cs" />
+    <Compile Include="Processor\ExternalApiProcessor.cs" />
     <Compile Include="Processor\GtwApiProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Processor\RequestProcessor.cs" />
