@@ -18,15 +18,28 @@ namespace Carta.External.Logic.Processor
         {
             List<V3_API_EXTERNAL_SERVICE_PARAMS> inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
 
+            JToken jToken = new JObject();
+
             foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in inputExternalServiceParams)
             {
                 object value;
                 if (inputParams.TryGetValue(item.PARAMS_NAME, out value) && value != null)
                 {
-                    foreach (JProperty prop in jsonRequest.Children<JProperty>())
+
+                    var token = jsonRequest.SelectToken(item.PARAMS_NAME);
+                    if (token != null)
                     {
-                        if (prop.Name == item.PARAMS_NAME)
-                            prop.Value = value.ToString();
+                        token.Replace(value.ToString());
+                    }
+
+                }
+                else
+                {
+                    //Make sure that we don't send # to external parties
+                    var token = jsonRequest.SelectToken(item.PARAMS_NAME);
+                    if (token != null)
+                    {
+                        token.Replace(null);
                     }
                 }
 

@@ -84,10 +84,10 @@
     <Compile Include="Db\V3_API_EXTERNAL_SERVICE_PARAMS.cs">
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="Db\V3_EXTERNAL_BRANCH_API_LOGINS.cs">
+    <Compile Include="Db\V3_API_LOGIN_ENDPOINTS.cs">
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="Db\V3_EXTERNAL_ENDPOINTS.cs">
+    <Compile Include="Db\V3_EXTERNAL_BRANCH_API_LOGINS.cs">
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

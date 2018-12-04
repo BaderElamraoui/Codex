@@ -39,6 +39,18 @@
           <Property Name="FIELD_FORMAT_TYPE" Type="varchar" MaxLength="50" />
           <Property Name="FIELD_FORMAT" Type="varchar" MaxLength="50" />
         </EntityType>
+        <EntityType Name="V3_API_LOGIN_ENDPOINTS">
+          <Key>
+            <PropertyRef Name="BRANCH_API_LOGIN_UID" />
+            <PropertyRef Name="SERVICE_ID" />
+            <PropertyRef Name="CONCERNED_ENTITY" />
+          </Key>
+          <Property Name="BRANCH_API_LOGIN_UID" Type="int" Nullable="false" />
+          <Property Name="SERVICE_ID" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="ENDPOINT" Type="varchar" MaxLength="250" />
+          <Property Name="WRRAPED_VALUE" Type="varchar" MaxLength="50" />
+          <Property Name="CONCERNED_ENTITY" Type="varchar" MaxLength="10" Nullable="false" />
+        </EntityType>
         <EntityType Name="V3_EXTERNAL_BRANCH_API_LOGINS">
           <Key>
             <PropertyRef Name="UID" />
@@ -56,24 +68,11 @@
           <Property Name="JWE_ALGORITHM" Type="varchar" MaxLength="50" />
           <Property Name="KEY_INDEX" Type="varchar" MaxLength="10" />
         </EntityType>
-        <EntityType Name="V3_EXTERNAL_ENDPOINTS">
-          <Key>
-            <PropertyRef Name="ENDPOINT_ID" />
-          </Key>
-          <Property Name="ENDPOINT_ID" Type="varchar" MaxLength="20" Nullable="false" />
-          <Property Name="ENDPOINT" Type="varchar" MaxLength="250" />
-          <Property Name="LOGIN" Type="varchar" MaxLength="50" />
-          <Property Name="PASS" Type="varchar" MaxLength="250" />
-          <Property Name="CHANNEL_TYPE" Type="varchar" MaxLength="50" />
-          <Property Name="CHANNEL_ID" Type="varchar" MaxLength="50" />
-          <Property Name="OPTIONAL_FIELD_1" Type="varchar" MaxLength="50" />
-          <Property Name="OPTIONAL_FIELD_2" Type="varchar" MaxLength="50" />
-        </EntityType>
         <EntityContainer Name="CARTA_UK_V3ModelStoreContainer">
           <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="Self.V3_API_EXTERNAL_SERVICE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="Self.V3_API_LOGIN_ENDPOINTS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="V3_EXTERNAL_ENDPOINTS" EntityType="Self.V3_EXTERNAL_ENDPOINTS" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -120,22 +119,9 @@
         <EntityContainer Name="CARTA_UK_V3Entities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" />
           <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" />
-          <EntitySet Name="V3_EXTERNAL_ENDPOINTS" EntityType="CARTA_UK_V3Model.V3_EXTERNAL_ENDPOINTS" />
           <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE" />
+          <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="CARTA_UK_V3Model.V3_API_LOGIN_ENDPOINTS" />
         </EntityContainer>
-        <EntityType Name="V3_EXTERNAL_ENDPOINTS">
-          <Key>
-            <PropertyRef Name="ENDPOINT_ID" />
-          </Key>
-          <Property Name="ENDPOINT_ID" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ENDPOINT" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="LOGIN" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PASS" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="CHANNEL_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="CHANNEL_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="OPTIONAL_FIELD_1" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="OPTIONAL_FIELD_2" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="V3_API_EXTERNAL_SERVICE">
           <Key>
             <PropertyRef Name="UID" />
@@ -148,6 +134,18 @@
           <Property Name="REQUEST_MAP" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CRITERIA" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="HEADERS" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="V3_API_LOGIN_ENDPOINTS">
+          <Key>
+            <PropertyRef Name="BRANCH_API_LOGIN_UID" />
+            <PropertyRef Name="SERVICE_ID" />
+            <PropertyRef Name="CONCERNED_ENTITY" />
+          </Key>
+          <Property Name="BRANCH_API_LOGIN_UID" Type="Int32" Nullable="false" />
+          <Property Name="SERVICE_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="ENDPOINT" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="WRRAPED_VALUE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CONCERNED_ENTITY" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -192,20 +190,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="V3_EXTERNAL_ENDPOINTS">
-            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_EXTERNAL_ENDPOINTS">
-              <MappingFragment StoreEntitySet="V3_EXTERNAL_ENDPOINTS">
-                <ScalarProperty Name="OPTIONAL_FIELD_2" ColumnName="OPTIONAL_FIELD_2" />
-                <ScalarProperty Name="OPTIONAL_FIELD_1" ColumnName="OPTIONAL_FIELD_1" />
-                <ScalarProperty Name="CHANNEL_ID" ColumnName="CHANNEL_ID" />
-                <ScalarProperty Name="CHANNEL_TYPE" ColumnName="CHANNEL_TYPE" />
-                <ScalarProperty Name="PASS" ColumnName="PASS" />
-                <ScalarProperty Name="LOGIN" ColumnName="LOGIN" />
-                <ScalarProperty Name="ENDPOINT" ColumnName="ENDPOINT" />
-                <ScalarProperty Name="ENDPOINT_ID" ColumnName="ENDPOINT_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE">
             <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE">
               <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE">
@@ -216,6 +200,17 @@
                 <ScalarProperty Name="SERVICE_GTW_NAME" ColumnName="SERVICE_GTW_NAME" />
                 <ScalarProperty Name="SERVICE_GTW_ID" ColumnName="SERVICE_GTW_ID" />
                 <ScalarProperty Name="UID" ColumnName="UID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_API_LOGIN_ENDPOINTS">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_LOGIN_ENDPOINTS">
+              <MappingFragment StoreEntitySet="V3_API_LOGIN_ENDPOINTS">
+                <ScalarProperty Name="CONCERNED_ENTITY" ColumnName="CONCERNED_ENTITY" />
+                <ScalarProperty Name="WRRAPED_VALUE" ColumnName="WRRAPED_VALUE" />
+                <ScalarProperty Name="ENDPOINT" ColumnName="ENDPOINT" />
+                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
+                <ScalarProperty Name="BRANCH_API_LOGIN_UID" ColumnName="BRANCH_API_LOGIN_UID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

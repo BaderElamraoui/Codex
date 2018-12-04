@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Http\HttpManager.cs" />
     <Compile Include="Objects\Constants.cs" />
+    <Compile Include="Objects\ExternalServiceRequest.cs" />
     <Compile Include="Objects\ServiceRequest.cs" />
     <Compile Include="Objects\ServiceResponse.cs" />
     <Compile Include="Processor\ExternalApiProcessor.cs" />
