@@ -22,6 +22,9 @@ namespace Carta.External.Logic.Http
             string response = string.Empty;
             log.Info("Start HTTP Call to: " + endpoint);
             log.Debug(string.Format("REQUEST: {0}", request));
+            if (string.IsNullOrEmpty(request) || string.IsNullOrEmpty(endpoint))
+                return response;
+
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -33,7 +36,7 @@ namespace Carta.External.Logic.Http
                     headers.ForEach(x =>
                     {
 
-                        log.Info(string.Format("Header ID to add: {0}", x.id));
+                        log.InfoFormat("Header ID to add: {0}", x.id);
                         if (x.id == "Content-Type")
                             httpWebRequest.ContentType = x.value;
                         else
@@ -49,7 +52,7 @@ namespace Carta.External.Logic.Http
 
                 using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    log.Info(string.Format("Server response: {0}", httpResponse.StatusCode));
+                    log.InfoFormat("Server response: {0}", httpResponse.StatusCode);
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
                     {
                         using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
@@ -62,11 +65,11 @@ namespace Carta.External.Logic.Http
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error During HTTP Call: {0}", ex.Message));
+                log.ErrorFormat("Error During HTTP Call: {0}", ex.Message);
             }
 
 
-            log.Debug(string.Format("RESPONSE: {0}", response));
+            log.DebugFormat("RESPONSE: {0}", response);
             log.Info("End HTTP Call");
 
             return response;

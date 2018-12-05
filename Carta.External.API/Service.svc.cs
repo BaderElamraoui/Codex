@@ -49,7 +49,7 @@ namespace Carta.External.API
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return GetResponse(response);
+                return new MemoryStream(0);
 
             }
         }
