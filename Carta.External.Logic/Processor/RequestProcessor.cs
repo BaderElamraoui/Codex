@@ -18,8 +18,6 @@ namespace Carta.External.Logic.Processor
         {
             List<V3_API_EXTERNAL_SERVICE_PARAMS> inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
 
-            JToken jToken = new JObject();
-
             foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in inputExternalServiceParams)
             {
                 object value;
