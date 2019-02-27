@@ -94,6 +94,7 @@ namespace Carta.Api.External.Logic.Processor
 
                 serviceData = GetServiceData(externalServiceRequest)
             };
+            serviceRequest.serviceData.actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
 
             string request = JsonConvert.SerializeObject(serviceRequest);
 
