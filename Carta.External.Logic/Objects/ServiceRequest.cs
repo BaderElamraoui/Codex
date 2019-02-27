@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Logic.Objects
+namespace Carta.Api.External.Logic.Objects
 {
     public class ServiceRequest
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Carta.External.Logic</RootNamespace>
-    <AssemblyName>Carta.External.Logic</AssemblyName>
+    <RootNamespace>Carta.Api.External.Logic</RootNamespace>
+    <AssemblyName>Carta.Api.External.Logic</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -63,9 +63,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Carta.External.Dal\Carta.External.Dal.csproj">
+    <ProjectReference Include="..\Carta.External.Dal\Carta.Api.External.Dal.csproj">
       <Project>{c7f6ea89-4eee-4f32-a376-3ce206601b5f}</Project>
-      <Name>Carta.External.Dal</Name>
+      <Name>Carta.Api.External.Dal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

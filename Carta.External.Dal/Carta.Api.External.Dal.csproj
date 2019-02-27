@@ -7,8 +7,8 @@
     <ProjectGuid>{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Carta.External.Dal</RootNamespace>
-    <AssemblyName>Carta.External.Dal</AssemblyName>
+    <RootNamespace>Carta.Api.External.Dal</RootNamespace>
+    <AssemblyName>Carta.Api.External.Dal</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

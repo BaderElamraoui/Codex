@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Dal.Db
+namespace Carta.Api.External.Dal.Db
 {
     public partial class V3_API_EXTERNAL_SERVICE
     {

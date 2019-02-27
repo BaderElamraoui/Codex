@@ -12,7 +12,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Carta.External.API</RootNamespace>
-    <AssemblyName>Carta.External.API</AssemblyName>
+    <AssemblyName>Carta.Api.External</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -23,6 +23,7 @@
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <TargetFrameworkProfile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -107,13 +108,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Carta.External.Dal\Carta.External.Dal.csproj">
+    <ProjectReference Include="..\Carta.External.Dal\Carta.Api.External.Dal.csproj">
       <Project>{c7f6ea89-4eee-4f32-a376-3ce206601b5f}</Project>
-      <Name>Carta.External.Dal</Name>
+      <Name>Carta.Api.External.Dal</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Carta.External.Logic\Carta.External.Logic.csproj">
+    <ProjectReference Include="..\Carta.External.Logic\Carta.Api.External.Logic.csproj">
       <Project>{c216f5b6-9ee7-426b-89bc-01f2a8185ea0}</Project>
-      <Name>Carta.External.Logic</Name>
+      <Name>Carta.Api.External.Logic</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

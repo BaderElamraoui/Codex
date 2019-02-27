@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Carta.External.Dal.Db
+namespace Carta.Api.External.Dal.Db
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using Carta.External.Dal.Db;
+﻿using Carta.Api.External.Dal.Db;
 using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Logic.Processor
+namespace Carta.Api.External.Logic.Processor
 {
     public class RequestProcessor
     {

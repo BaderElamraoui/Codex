@@ -1,5 +1,5 @@
-﻿using Carta.External.Logic.Objects;
-using Carta.External.Logic.Processor;
+﻿using Carta.Api.External.Logic.Objects;
+using Carta.Api.External.Logic.Processor;
 using log4net;
 using Newtonsoft.Json;
 using System;
@@ -15,7 +15,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
 
-namespace Carta.External.API
+namespace Carta.Api.External.API
 {
 
     public class Service : IService

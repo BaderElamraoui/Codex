@@ -1,5 +1,5 @@
-﻿using Carta.External.Logic.Http;
-using Carta.External.Logic.Objects;
+﻿using Carta.Api.External.Logic.Http;
+using Carta.Api.External.Logic.Objects;
 using log4net;
 using Newtonsoft.Json;
 using System;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Logic.Processor
+namespace Carta.Api.External.Logic.Processor
 {
 
     public class ExternalApiProcessor

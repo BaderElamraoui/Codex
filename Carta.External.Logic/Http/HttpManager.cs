@@ -1,4 +1,4 @@
-﻿using Carta.External.Dal.Db;
+﻿using Carta.Api.External.Dal.Db;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Logic.Http
+namespace Carta.Api.External.Logic.Http
 {
     public class HttpManager
     {

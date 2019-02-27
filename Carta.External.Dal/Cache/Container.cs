@@ -1,11 +1,11 @@
-﻿using Carta.External.Dal.Db;
+﻿using Carta.Api.External.Dal.Db;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Dal.Cache
+namespace Carta.Api.External.Dal.Cache
 {
     public class Container
     {

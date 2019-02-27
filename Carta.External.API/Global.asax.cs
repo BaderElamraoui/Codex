@@ -1,4 +1,4 @@
-﻿using Carta.External.Dal.Cache;
+﻿using Carta.Api.External.Dal.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
 
-namespace Carta.External.API
+namespace Carta.Api.External.API
 {
     public class Global : System.Web.HttpApplication
     {

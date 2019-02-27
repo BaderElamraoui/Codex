@@ -1,4 +1,4 @@
-﻿using Carta.External.Dal.Db;
+﻿using Carta.Api.External.Dal.Db;
 using log4net;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,7 +8,7 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carta.External.Dal.Cache
+namespace Carta.Api.External.Dal.Cache
 {
     public class CacheContainer
     {
