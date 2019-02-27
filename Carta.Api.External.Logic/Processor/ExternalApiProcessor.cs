@@ -2,6 +2,7 @@
 using Carta.Api.External.Logic.Objects;
 using log4net;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -30,22 +31,24 @@ namespace Carta.Api.External.Logic.Processor
             response = string.Empty;
             try
             {
-                ExternalServiceRequest externalServiceRequest = JsonConvert.DeserializeObject<ExternalServiceRequest>(_request);
+                //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
+
+                JObject externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
                 string serviceName = string.Empty;
-                if (externalServiceRequest.state == Constants.EXECUTED)
+                if ((string)externalServiceRequest["state"] == Constants.EXECUTED)
                 {
-                    if (externalServiceRequest.transferType == Constants.DEBIT)
+                    if ((string)externalServiceRequest["transferType"] == Constants.DEBIT)
                         serviceName = ConfigurationManager.AppSettings[Constants.CONFIRM_TRANSFER_SERVICE];
-                    if (externalServiceRequest.transferType == Constants.CREDIT)
+                    if ((string)externalServiceRequest["transferType"] == Constants.CREDIT)
                         serviceName = ConfigurationManager.AppSettings[Constants.EXTERNAL_TRANSFER_SERVICE];
                 }
                 else
                 {
-                    if (externalServiceRequest.transferType == Constants.CREDIT)
+                    if ((string)externalServiceRequest["transferType"] == Constants.CREDIT)
                         serviceName = ConfigurationManager.AppSettings[Constants.ROLLBACK_TRANSFER_SERVICE];
                 }
                 log.InfoFormat("Service name to execute = {0}", serviceName);
@@ -76,9 +79,9 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        private string PrepareGtwRequest(string guid, string serviceName, ExternalServiceRequest externalServiceRequest)
+        private string PrepareGtwRequest(string guid, string serviceName, JObject externalServiceRequest)
         {
-            
+
 
             ServiceRequest serviceRequest = new ServiceRequest()
             {
@@ -88,24 +91,25 @@ namespace Carta.Api.External.Logic.Processor
                 channelType = ConfigurationManager.AppSettings[Constants.CHANNEL_TYPE],
                 requestorId = ConfigurationManager.AppSettings[Constants.REQUESTOR_ID],
                 requestorCredential = ConfigurationManager.AppSettings[Constants.REQUESTOR_CREDENTIALS],
-                serviceData = {
-                    accountIBAN = externalServiceRequest.accountIBAN,
-                    accountNumber = externalServiceRequest.accountNumber,
-                    messageId = externalServiceRequest.messageId,
-                    paymentId = externalServiceRequest.paymentId,
-                    processingTime = externalServiceRequest.processingTime,
-                    rejectionReason = externalServiceRequest.rejectionReason,
-                    currency = externalServiceRequest.currency,
-                    transferType = externalServiceRequest.transferType,
-                    state = externalServiceRequest.state,
-                    paymentAmount= externalServiceRequest.paymentAmount,
-                    actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"])
-                }
+
+                serviceData = GetServiceData(externalServiceRequest)
             };
 
             string request = JsonConvert.SerializeObject(serviceRequest);
 
             return request;
+        }
+
+        private dynamic GetServiceData(JObject externalServiceRequest)
+        {
+            ExpandoObject serviceData = new ExpandoObject();
+
+            foreach(var item in externalServiceRequest)
+            {
+               ((IDictionary<string, object>) serviceData)[item.Key] = item.Value;
+            }
+
+            return serviceData;
         }
 
 
