@@ -15,7 +15,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
 
-namespace Carta.Api.External.API
+namespace Carta.Api.External
 {
 
     public class Service : IService
