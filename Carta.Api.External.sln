@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External", "Carta.External.API\Carta.Api.External.csproj", "{241093E1-6036-42A6-B26A-67B9E53E52B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External", "Carta.Api.External\Carta.Api.External.csproj", "{241093E1-6036-42A6-B26A-67B9E53E52B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External.Dal", "Carta.External.Dal\Carta.Api.External.Dal.csproj", "{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External.Dal", "Carta.Api.External.Dal\Carta.Api.External.Dal.csproj", "{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External.Logic", "Carta.External.Logic\Carta.Api.External.Logic.csproj", "{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Carta.Api.External.Logic", "Carta.Api.External.Logic\Carta.Api.External.Logic.csproj", "{C216F5B6-9EE7-426B-89BC-01F2A8185EA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

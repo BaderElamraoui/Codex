@@ -63,7 +63,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Carta.External.Dal\Carta.Api.External.Dal.csproj">
+    <ProjectReference Include="..\Carta.Api.External.Dal\Carta.Api.External.Dal.csproj">
       <Project>{c7f6ea89-4eee-4f32-a376-3ce206601b5f}</Project>
       <Name>Carta.Api.External.Dal</Name>
     </ProjectReference>
