@@ -98,6 +98,7 @@ namespace Carta.External.Logic.Processor
                     currency = externalServiceRequest.currency,
                     transferType = externalServiceRequest.transferType,
                     state = externalServiceRequest.state,
+                    paymentAmount= externalServiceRequest.paymentAmount,
                     actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"])
                 }
             };

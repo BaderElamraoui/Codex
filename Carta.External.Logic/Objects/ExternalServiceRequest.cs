@@ -18,6 +18,7 @@ namespace Carta.External.Logic.Objects
         public string rejectionReason { get; set; }
         public string state { get; set; }
         public string transferType { get; set; }
+        public string paymentAmount { get; set; }
 
     }
 }
