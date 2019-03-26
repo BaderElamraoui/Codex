@@ -44,7 +44,7 @@ namespace Carta.Api.External
                 ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (externalApiProcessor.TryProcessPostRequest(GUID, out response))
+                if (!externalApiProcessor.TryProcessPostRequest(GUID, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
