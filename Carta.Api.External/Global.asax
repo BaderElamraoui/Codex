@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="Carta.External.API.Global" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="Carta.Api.External.Global" Language="C#" %>
