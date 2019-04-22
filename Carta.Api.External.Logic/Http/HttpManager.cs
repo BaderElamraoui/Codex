@@ -16,7 +16,7 @@ namespace Carta.Api.External.Logic.Http
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
-        public string Post(string request, List<Header> headers, string endpoint)
+        public string Call(string request, List<Header> headers, string endpoint , string httpMethod)
         {
 
             string response = string.Empty;
@@ -28,8 +28,21 @@ namespace Carta.Api.External.Logic.Http
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+
+
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
-                httpWebRequest.Method = WebRequestMethods.Http.Post;
+                 
+                if (httpMethod == "POST") {
+                    httpWebRequest.Method = WebRequestMethods.Http.Post;
+                }
+                else if (httpMethod == "PUT")
+                {
+                    httpWebRequest.Method = WebRequestMethods.Http.Put;
+                }
+                else
+                    httpWebRequest.Method = WebRequestMethods.Http.Get;
+
                 log.Info("Adding headers to HTTP Request");
                 if (headers != null && headers.Any())
                 {

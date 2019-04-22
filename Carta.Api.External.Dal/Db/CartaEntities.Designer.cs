@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'E:\TFS_UAT_80.83\Carta.External.API\Carta.External.Dal\Db\CartaEntities.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Users\onajib\Source\Repos\Carta.Api.External\Carta.Api.External.Dal\Db\CartaEntities.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.
