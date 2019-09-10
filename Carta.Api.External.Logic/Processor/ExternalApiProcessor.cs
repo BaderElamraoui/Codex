@@ -7,9 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carta.Api.External.Logic.Processor
 {
@@ -58,7 +55,7 @@ namespace Carta.Api.External.Logic.Processor
                 log.Info("Preparing Gtw Request");
                 string gtwRequest = PrepareGtwRequest(guid, serviceName, externalServiceRequest);
 
-                log.DebugFormat("Request={0}",gtwRequest);
+                log.DebugFormat("Request={0}", gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
                 response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
@@ -100,18 +97,80 @@ namespace Carta.Api.External.Logic.Processor
             return request;
         }
 
+        private string Prepare3dsGtwRequest(string guid, string serviceName, JObject externalServiceRequest)
+        {
+
+
+            ServiceRequest serviceRequest = new ServiceRequest()
+            {
+                serviceRequestId = guid,
+                serviceName = serviceName,
+                channelId = ConfigurationManager.AppSettings[Constants.WEB_CHANNEL_ID],
+                channelType = ConfigurationManager.AppSettings[Constants.WEB_CHANNEL_TYPE],
+                requestorId = ConfigurationManager.AppSettings[Constants.WEB_REQUESTOR_ID],
+                requestorCredential = ConfigurationManager.AppSettings[Constants.WEB_REQUESTOR_CREDENTIALS],
+
+                serviceData = GetServiceData(externalServiceRequest)
+            };
+
+            string request = JsonConvert.SerializeObject(serviceRequest);
+
+            return request;
+        }
+
         private dynamic GetServiceData(JObject externalServiceRequest)
         {
             ExpandoObject serviceData = new ExpandoObject();
 
-            foreach(var item in externalServiceRequest)
+            foreach (var item in externalServiceRequest)
             {
-               ((IDictionary<string, object>) serviceData)[item.Key] = item.Value;
+                ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
             }
             ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
             return serviceData;
         }
 
+
+        public bool TryProcess3dsChallengeRequest(string guid, out string response)
+        {
+            log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+                //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
+
+                JObject externalServiceRequest = JObject.Parse(_request);
+
+                if (externalServiceRequest == null)
+                    return false;
+
+                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.CHALLENGE_REQUEST];
+                log.InfoFormat("Service name to execute = {0}", serviceName);
+                if (string.IsNullOrEmpty(serviceName))
+                    return false;
+
+                log.Info("Preparing Gtw Request");
+                string gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+
+                log.DebugFormat("Request={0}", gtwRequest);
+
+                HttpManager httpManager = new HttpManager();
+                response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
+
+                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                log.Warn(ex.Message);
+                log.Debug(ex);
+                return false;
+            }
+
+            return true;
+        }
 
     }
 }

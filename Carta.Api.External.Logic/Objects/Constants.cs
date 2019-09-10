@@ -22,6 +22,12 @@ namespace Carta.Api.External.Logic.Objects
         public const string CHANNEL_TYPE = "CHANNEL_TYPE";
         public const string REQUESTOR_ID = "REQUESTOR_ID";
         public const string REQUESTOR_CREDENTIALS = "REQUESTOR_CREDENTIALS";
+        public const string CHALLENGE_REQUEST = "CHALLANGE_REQUEST";
+
+        public const string WEB_CHANNEL_ID = "WEB_CHANNEL_ID";
+        public const string WEB_CHANNEL_TYPE = "WEB_CHANNEL_TYPE";
+        public const string WEB_REQUESTOR_ID = "WEB_REQUESTOR_ID";
+        public const string WEB_REQUESTOR_CREDENTIALS = "WEB_REQUESTOR_CREDENTIALS";
 
     }
 }

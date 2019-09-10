@@ -1,16 +1,10 @@
-﻿using Carta.Api.External.Logic.Objects;
-using Carta.Api.External.Logic.Processor;
+﻿using Carta.Api.External.Logic.Processor;
 using log4net;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
-using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
@@ -82,7 +76,7 @@ namespace Carta.Api.External
                     processingResult = gtwApiProcessor.TryProcessPostRequest(out response);
                     count--;
                 }
-                if(!processingResult)
+                if (!processingResult)
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -93,13 +87,43 @@ namespace Carta.Api.External
 
         }
 
+        public Stream Post3dsChallengeRequest(Stream streamRequest)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+                StreamReader sReader = new StreamReader(streamRequest);
+                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+
+                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+
+                string response;
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(GUID, out response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return new MemoryStream(0);
+
+            }
+        }
+
         public Stream GetResponse(string response)
         {
             byte[] resultByte = Encoding.UTF8.GetBytes(response);
             return new MemoryStream(resultByte);
         }
 
-       
+
     }
 
     public class RawWebContentTypeMapper : WebContentTypeMapper

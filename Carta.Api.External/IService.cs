@@ -32,5 +32,14 @@ namespace Carta.Api.External
            )]
         Stream PostExternalData(Stream streamRequest);
 
+        [OperationContract]
+        [WebInvoke(UriTemplate = "Carta3dsChallengeRequest",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream Post3dsChallengeRequest(Stream streamRequest);
+
     }
 }
