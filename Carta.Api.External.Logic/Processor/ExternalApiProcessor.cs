@@ -172,5 +172,48 @@ namespace Carta.Api.External.Logic.Processor
             return true;
         }
 
+
+        public bool TryProcess3dsChallengeRequestCancel(string guid, out string response)
+        {
+            log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+                //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
+
+                JObject externalServiceRequest = JObject.Parse(_request);
+
+                if (externalServiceRequest == null)
+                    return false;
+
+                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.CHALLENGE_REQUEST_CANCEL];
+                log.InfoFormat("Service name to execute = {0}", serviceName);
+                if (string.IsNullOrEmpty(serviceName))
+                    return false;
+
+                log.Info("Preparing Gtw Request");
+                string gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+
+                log.DebugFormat("Request={0}", gtwRequest);
+
+                HttpManager httpManager = new HttpManager();
+                response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
+
+                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                log.Warn(ex.Message);
+                log.Debug(ex);
+                return false;
+            }
+
+            return true;
+        }
+
+
     }
 }

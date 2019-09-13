@@ -41,5 +41,14 @@ namespace Carta.Api.External
            )]
         Stream Post3dsChallengeRequest(Stream streamRequest);
 
+        [OperationContract]
+        [WebInvoke(UriTemplate = "Carta3dsChallengeRequestCancel",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream Post3dsChallengeRequestCancel(Stream streamRequest);
+
     }
 }
