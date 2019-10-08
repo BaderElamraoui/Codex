@@ -61,7 +61,8 @@ namespace Carta.Api.External.Logic.Processor
                 log.DebugFormat("Request={0}",gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
-                response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response))
+                    return false;
 
                 ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)

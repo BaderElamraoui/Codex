@@ -16,20 +16,31 @@ namespace Carta.Api.External.Logic.Http
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
-        public string Post(string request, List<Header> headers, string endpoint)
+        public bool TryCall(string request, List<Header> headers, string endpoint , string httpMethod, out string response)
         {
 
-            string response = string.Empty;
+            response = string.Empty;
             log.Info("Start HTTP Call to: " + endpoint);
             log.Debug(string.Format("REQUEST: {0}", request));
             if (string.IsNullOrEmpty(request) || string.IsNullOrEmpty(endpoint))
-                return response;
+                return false;
 
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
-                httpWebRequest.Method = WebRequestMethods.Http.Post;
+                 
+                if (httpMethod == "POST") {
+                    httpWebRequest.Method = WebRequestMethods.Http.Post;
+                }
+                else if (httpMethod == "PUT")
+                {
+                    httpWebRequest.Method = WebRequestMethods.Http.Put;
+                }
+                else
+                    httpWebRequest.Method = WebRequestMethods.Http.Get;
+
                 log.Info("Adding headers to HTTP Request");
                 if (headers != null && headers.Any())
                 {
@@ -66,13 +77,13 @@ namespace Carta.Api.External.Logic.Http
             catch (Exception ex)
             {
                 log.ErrorFormat("Error During HTTP Call: {0}", ex.Message);
+                return false;
             }
-
 
             log.DebugFormat("RESPONSE: {0}", response);
             log.Info("End HTTP Call");
 
-            return response;
+            return true;
 
         }
 

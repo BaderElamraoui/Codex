@@ -17,6 +17,7 @@
           <Property Name="REQUEST_MAP" Type="varchar(max)" />
           <Property Name="CRITERIA" Type="varchar" MaxLength="250" />
           <Property Name="HEADERS" Type="varchar" MaxLength="1000" />
+          <Property Name="METHOD" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="V3_API_EXTERNAL_SERVICE_PARAMS">
           <Key>
@@ -134,6 +135,7 @@
           <Property Name="REQUEST_MAP" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="CRITERIA" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="HEADERS" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="METHOD" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="V3_API_LOGIN_ENDPOINTS">
           <Key>
@@ -193,6 +195,7 @@
           <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE">
             <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE">
               <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE">
+                <ScalarProperty Name="METHOD" ColumnName="METHOD" />
                 <ScalarProperty Name="HEADERS" ColumnName="HEADERS" />
                 <ScalarProperty Name="CRITERIA" ColumnName="CRITERIA" />
                 <ScalarProperty Name="REQUEST_MAP" ColumnName="REQUEST_MAP" />

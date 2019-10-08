@@ -100,7 +100,9 @@ namespace Carta.Api.External.Logic.Processor
 
             string request = _requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
-            string externalResponse = _httpManager.Post(request, requestHeaders, externalEndpoint.ENDPOINT);
+            string externalResponse;
+            if(!_httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT , externalService.METHOD, out externalResponse))
+                return false;
 
             Dictionary<string, object> outputParams;
 
