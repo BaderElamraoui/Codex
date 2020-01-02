@@ -144,7 +144,7 @@ namespace Carta.Api.External.Logic.Processor
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.CHALLENGE_REQUEST];
+                string serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHANLLENCE];
                 log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
@@ -186,7 +186,7 @@ namespace Carta.Api.External.Logic.Processor
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.CHALLENGE_REQUEST_CANCEL];
+                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHALLENGE_CANCEL];
                 log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;

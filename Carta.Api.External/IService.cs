@@ -33,22 +33,22 @@ namespace Carta.Api.External
         Stream PostExternalData(Stream streamRequest);
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "Carta3dsChallengeRequest",
+        [WebInvoke(UriTemplate = "ChallengeRequest",
            ResponseFormat = WebMessageFormat.Json,
            RequestFormat = WebMessageFormat.Json,
            BodyStyle = WebMessageBodyStyle.Bare,
            Method = "POST"
            )]
-        Stream Post3dsChallengeRequest(Stream streamRequest);
+        Stream ChallengeRequest(Stream streamRequest);
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "Carta3dsChallengeRequestCancel",
+        [WebInvoke(UriTemplate = "ChallengeRequestCancel",
            ResponseFormat = WebMessageFormat.Json,
            RequestFormat = WebMessageFormat.Json,
            BodyStyle = WebMessageBodyStyle.Bare,
            Method = "POST"
            )]
-        Stream Post3dsChallengeRequestCancel(Stream streamRequest);
+        Stream ChallengeRequestCancel(Stream streamRequest);
 
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Carta.Api.External.Logic.Objects
+﻿namespace Carta.Api.External.Logic.Objects
 {
     public class Constants
     {
@@ -22,13 +16,15 @@ namespace Carta.Api.External.Logic.Objects
         public const string CHANNEL_TYPE = "CHANNEL_TYPE";
         public const string REQUESTOR_ID = "REQUESTOR_ID";
         public const string REQUESTOR_CREDENTIALS = "REQUESTOR_CREDENTIALS";
-        public const string CHALLENGE_REQUEST = "CHALLANGE_REQUEST";
-        public const string CHALLENGE_REQUEST_CANCEL = "CHALLENGE_REQUEST_CANCEL";
+        public const string AUTHORISATION_CHANLLENCE = "AUTHORISATION_CHANLLENCE";
+        public const string AUTHORISATION_CHALLENGE_CANCEL = "AUTHORISATION_CHALLENGE_CANCEL";
 
         public const string WEB_CHANNEL_ID = "WEB_CHANNEL_ID";
         public const string WEB_CHANNEL_TYPE = "WEB_CHANNEL_TYPE";
         public const string WEB_REQUESTOR_ID = "WEB_REQUESTOR_ID";
         public const string WEB_REQUESTOR_CREDENTIALS = "WEB_REQUESTOR_CREDENTIALS";
+        public const string JWS_PUBLIC_KEY = "JWS_PUBLIC_KEY";
+        public const string JWS_PRIVATE_KEY = "JWS_PRIVATE_KEY";
 
     }
 }

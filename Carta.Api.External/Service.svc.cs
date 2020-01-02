@@ -8,7 +8,6 @@ using System.Net;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
-
 namespace Carta.Api.External
 {
 
@@ -86,67 +85,6 @@ namespace Carta.Api.External
             }
 
         }
-        public Stream Post3dsChallengeRequest(Stream streamRequest)
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            if (streamRequest == null)
-                throw new WebFaultException(HttpStatusCode.BadRequest);
-
-            string GUID = Guid.NewGuid().ToString("N");
-
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
-            {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
-
-                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
-
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
-
-                string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(GUID, out response))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
-
-                stopwatch.Stop();
-                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return new MemoryStream(0);
-
-            }
-        }
-
-
-        public Stream Post3dsChallengeRequestCancel(Stream streamRequest)
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            if (streamRequest == null)
-                throw new WebFaultException(HttpStatusCode.BadRequest);
-
-            string GUID = Guid.NewGuid().ToString("N");
-
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
-            {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
-
-                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
-
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
-
-                string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(GUID, out response))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
-
-                stopwatch.Stop();
-                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return new MemoryStream(0);
-
-            }
-        }
-
 
         public Stream GetResponse(string response)
         {
@@ -154,9 +92,78 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
+        public Stream ChallengeRequest(Stream streamRequest)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+                StreamReader sReader = new StreamReader(streamRequest);
+
+
+
+                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                string JwsDecrypted = JwsTools.Jws.GetDecryptedPayload(sbRequest.ToString());
+                log.InfoFormat("EXTERNAL API JWS DECRYPTED REQUEST: {0}", sbRequest.ToString());
+
+                if (string.IsNullOrWhiteSpace(JwsDecrypted))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(JwsDecrypted);
+
+                string response;
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(GUID, out response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetResponse(response);
+            }
+        }
+
+        public Stream ChallengeRequestCancel(Stream streamRequest)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+                StreamReader sReader = new StreamReader(streamRequest);
+                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                string JwsDecrypted = JwsTools.Jws.GetDecryptedPayload(sbRequest.ToString());
+                log.InfoFormat("EXTERNAL API JWS DECRYPTED REQUEST: {0}", sbRequest.ToString());
+
+                if (string.IsNullOrWhiteSpace(JwsDecrypted))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(JwsDecrypted);
+
+                string response;
+                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(GUID, out response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetResponse(response);
+            }
+        }
 
     }
-
     public class RawWebContentTypeMapper : WebContentTypeMapper
     {
         /// <summary>
