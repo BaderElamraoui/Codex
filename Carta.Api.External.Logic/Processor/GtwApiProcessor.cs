@@ -2,16 +2,12 @@
 using Carta.Api.External.Dal.Db;
 using Carta.Api.External.Logic.Http;
 using Carta.Api.External.Logic.Objects;
+using Carta.Security.Cryptography.Software.Jws;
 using log4net;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Carta.Api.External.Logic.Processor
 {
     public class GtwApiProcessor
@@ -27,7 +23,7 @@ namespace Carta.Api.External.Logic.Processor
         private const string SUCCESS = "000";
         private const string SUCCESS_LABEL = "Successful Operation";
         private const string CONCERNED_ENTITY = "CEA";
-
+        private string _privateKey;
 
         public GtwApiProcessor(string request)
         {
@@ -36,6 +32,7 @@ namespace Carta.Api.External.Logic.Processor
             MapRequestParams();
             _requestProcessor = new RequestProcessor();
             _httpManager = new HttpManager();
+            _privateKey = ConfigurationManager.AppSettings[Constants.JWS_PRIVATE_KEY];
         }
 
         private void MapRequestParams()
@@ -100,6 +97,26 @@ namespace Carta.Api.External.Logic.Processor
 
             string request = _requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
+            if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
+            {
+                string algorithm = externalBranchApiLogin.JWS_ALGORITHM;
+                string payload = request;
+                string header = JsonConvert.SerializeObject(requestHeaders);
+
+                JwsObject jwsObj = new JwsObject(JwsType.Flattened);
+
+
+                string[] configuredAlgorithm = externalBranchApiLogin.JWS_ALGORITHM.Split('|');
+                _privateKey = configuredAlgorithm[2].ToLower();
+                string jwsEncryptionData;
+                if (jwsObj.TryJwsSign(header, payload, _privateKey, out jwsEncryptionData))
+                {
+                    request = jwsEncryptionData;
+                }
+                else
+                    request = payload;
+
+            }
             string externalResponse = _httpManager.Post(request, requestHeaders, externalEndpoint.ENDPOINT);
 
             Dictionary<string, object> outputParams;

@@ -21,5 +21,6 @@ namespace Carta.Api.External.Dal.Db
         public string REQUEST_MAP { get; set; }
         public string CRITERIA { get; set; }
         public string HEADERS { get; set; }
+        public string METHOD { get; set; }
     }
 }
