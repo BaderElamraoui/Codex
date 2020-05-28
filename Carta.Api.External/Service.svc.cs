@@ -82,8 +82,6 @@ namespace Carta.Api.External
                     processingResult = gtwApiProcessor.TryProcessPostRequest(out response);
                     count--;
                 }
-                if(!processingResult)
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
