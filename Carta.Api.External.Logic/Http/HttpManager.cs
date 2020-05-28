@@ -14,12 +14,13 @@ namespace Carta.Api.External.Logic.Http
     {
 
         private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        HttpWebResponse httpResponse = null;
 
-
-        public bool TryCall(string request, List<Header> headers, string endpoint , string httpMethod, out string response)
+        public bool TryCall(string request, List<Header> headers, string endpoint, string httpMethod, out string response, out HttpStatusCode statusCode)
         {
 
             response = string.Empty;
+            statusCode = HttpStatusCode.BadRequest;
             log.Info("Start HTTP Call to: " + endpoint);
             log.Debug(string.Format("REQUEST: {0}", request));
             if (string.IsNullOrEmpty(request) || string.IsNullOrEmpty(endpoint))
@@ -30,8 +31,9 @@ namespace Carta.Api.External.Logic.Http
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
-                 
-                if (httpMethod == "POST") {
+
+                if (httpMethod == "POST")
+                {
                     httpWebRequest.Method = WebRequestMethods.Http.Post;
                 }
                 else if (httpMethod == "PUT")
@@ -61,7 +63,7 @@ namespace Carta.Api.External.Logic.Http
                     streamWriter.Write(request);
                 }
 
-                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                using (httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
                     log.InfoFormat("Server response: {0}", httpResponse.StatusCode);
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
@@ -69,20 +71,32 @@ namespace Carta.Api.External.Logic.Http
                         using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                         {
                             response = streamReader.ReadToEnd();
+                            statusCode = HttpStatusCode.OK;
                         }
                     }
                 }
 
             }
+            catch (WebException ex)
+            {
+                httpResponse = (HttpWebResponse)ex.Response;
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    response = streamReader.ReadToEnd();
+                    statusCode = httpResponse.StatusCode;
+                }
+                log.ErrorFormat("Error During HTTP status Code Call: {0}", ex.Message);
+                return false;
+            }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error During HTTP Call: {0}", ex.Message);
+                statusCode = HttpStatusCode.BadRequest;
                 return false;
             }
 
             log.DebugFormat("RESPONSE: {0}", response);
             log.Info("End HTTP Call");
-
             return true;
 
         }

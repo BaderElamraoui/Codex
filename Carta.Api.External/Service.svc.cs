@@ -76,15 +76,18 @@ namespace Carta.Api.External
 
                 string response;
                 int count = RETRY_MANAGEMENT_COUNT;
-                bool processingResult = gtwApiProcessor.TryProcessPostRequest(out response);
+                HttpStatusCode httpResponse = HttpStatusCode.BadRequest;
+                bool processingResult = gtwApiProcessor.TryProcessPostRequest(out response, out httpResponse);
                 while (count > 0 && !processingResult)
                 {
-                    processingResult = gtwApiProcessor.TryProcessPostRequest(out response);
+                    processingResult = gtwApiProcessor.TryProcessPostRequest(out response, out httpResponse);
                     count--;
                 }
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                WebOperationContext ctx = WebOperationContext.Current;
+                ctx.OutgoingResponse.StatusCode = httpResponse;
                 return GetResponse(response);
 
             }
@@ -97,7 +100,7 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
-       
+
     }
 
     public class RawWebContentTypeMapper : WebContentTypeMapper
