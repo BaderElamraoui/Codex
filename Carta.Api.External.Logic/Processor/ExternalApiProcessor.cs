@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Dynamic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,7 +62,8 @@ namespace Carta.Api.External.Logic.Processor
                 log.DebugFormat("Request={0}",gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
-                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response))
+                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
                 ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);

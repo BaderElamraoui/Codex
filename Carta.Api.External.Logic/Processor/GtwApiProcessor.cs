@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,10 +44,10 @@ namespace Carta.Api.External.Logic.Processor
             _serviceParams = (IDictionary<string, object>)_serviceRequest.serviceData;
         }
 
-        public bool TryProcessPostRequest(out string response)
+        public bool TryProcessPostRequest(out string response, out HttpStatusCode statusCode)
         {
             response = string.Empty;
-
+            statusCode = HttpStatusCode.BadRequest;
             string serviceName = _serviceRequest.serviceName;
 
             string uid = GetParamValue("uid") != null ? GetParamValue("uid").ToString() : string.Empty;
@@ -101,22 +102,30 @@ namespace Carta.Api.External.Logic.Processor
             string request = _requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
             string externalResponse;
-            if(!_httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT , externalService.METHOD, out externalResponse))
-                return false;
+            HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+            _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
 
             Dictionary<string, object> outputParams;
 
-            if (_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
+            if (externalStatusCode == HttpStatusCode.OK)
             {
-                _serviceResponse.serviceResponseCode = SUCCESS;
-                _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
-                foreach (KeyValuePair<string, object> entry in outputParams)
+                if (_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
                 {
-                    ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
+                    _serviceResponse.serviceResponseCode = SUCCESS;
+                    _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
+                    foreach (KeyValuePair<string, object> entry in outputParams)
+                    {
+                        ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
+                    }
+                    response = JsonConvert.SerializeObject(_serviceResponse);
+                    statusCode = externalStatusCode;
                 }
-                response = JsonConvert.SerializeObject(_serviceResponse);
             }
-
+            else
+            {
+                response = externalResponse;
+                statusCode = externalStatusCode;
+            }
             return true;
         }
 
