@@ -32,5 +32,13 @@ namespace Carta.Api.External
            )]
         Stream PostExternalData(Stream streamRequest);
 
+        [OperationContract]
+        [WebInvoke(UriTemplate = "GetClientId",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+            )]
+        Stream GetClientId(Stream streamRequest);
     }
 }

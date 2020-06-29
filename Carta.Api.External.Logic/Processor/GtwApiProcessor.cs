@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using System.Net.WebSockets;
+using System.ServiceModel.Web;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,13 +30,21 @@ namespace Carta.Api.External.Logic.Processor
         private const string SUCCESS = "000";
         private const string SUCCESS_LABEL = "Successful Operation";
         private const string CONCERNED_ENTITY = "CEA";
+        private readonly string _Request;
 
 
-        public GtwApiProcessor(string request)
+        public GtwApiProcessor(string request, bool convert = true)
         {
-            _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
-            _serviceResponse = new ServiceResponse(_serviceRequest);
+            if (convert)
+            {
+                _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
+                _serviceResponse = new ServiceResponse(_serviceRequest);
             MapRequestParams();
+            }
+            else
+            {
+                _Request = request;
+            }
             _requestProcessor = new RequestProcessor();
             _httpManager = new HttpManager();
         }
@@ -126,6 +136,18 @@ namespace Carta.Api.External.Logic.Processor
                 response = externalResponse;
                 statusCode = externalStatusCode;
             }
+            return true;
+        }
+
+        public bool TryProcessGetClientRequest(out string response, out HttpStatusCode statusCode)
+        {
+            response = string.Empty;
+            statusCode = HttpStatusCode.BadRequest;
+
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            if (!_httpManager.TryCallGetClientId(_Request,Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
+                return false;
+
             return true;
         }
 

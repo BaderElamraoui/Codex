@@ -100,7 +100,43 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
+        public Stream GetClientId(Stream streamRequest)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
 
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+                StreamReader sReader = new StreamReader(streamRequest);
+                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+
+                log.Info(string.Format("GTW API REQUEST: {0}", sbRequest.ToString()));
+                
+                GtwApiProcessor gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString(), false);
+
+                string response;
+                int count = RETRY_MANAGEMENT_COUNT;
+                HttpStatusCode httpResponse = HttpStatusCode.BadRequest;
+                bool processingResult = gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
+                while (count > 0 && !processingResult)
+                {
+                    processingResult = gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
+                    count--;
+                }
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                WebOperationContext ctx = WebOperationContext.Current;
+                ctx.OutgoingResponse.StatusCode = httpResponse;
+                return GetResponse(response);
+
+            }
+        }
     }
 
     public class RawWebContentTypeMapper : WebContentTypeMapper
