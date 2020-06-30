@@ -120,15 +120,9 @@ namespace Carta.Api.External
                 GtwApiProcessor gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString(), false);
 
                 string response;
-                int count = RETRY_MANAGEMENT_COUNT;
                 HttpStatusCode httpResponse = HttpStatusCode.BadRequest;
                 bool processingResult = gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
-                while (count > 0 && !processingResult)
-                {
-                    processingResult = gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
-                    count--;
-                }
-
+                
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
                 WebOperationContext ctx = WebOperationContext.Current;
