@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Dynamic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using Carta.Security.Cryptography.Software.Encryption;
 
 namespace Carta.Api.External.Logic.Processor
 {
@@ -236,7 +234,18 @@ namespace Carta.Api.External.Logic.Processor
 
             foreach (var item in externalServiceRequest)
             {
-                ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
+                if (item.Key == "pan")
+                {
+                    string[] encryptionInfos = ConfigurationManager.AppSettings["ANTELOP_ALGO"].Split('|');
+                    string keyValue = ConfigurationManager.AppSettings["ANTELOP_KEY"];
+                    EncryptionEngine encryptionEngine = new EncryptionEngine(encryptionInfos[0], encryptionInfos[1], encryptionInfos[2]);
+                    string clearValue = encryptionEngine.Decrypt(keyValue, item.Value.ToString(), encryptionInfos[3], encryptionInfos[4]);
+                    ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
+                }
+                else
+                {
+                    ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
+                }
             }
            ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
             return serviceData;
