@@ -135,73 +135,89 @@ namespace Carta.Api.External
 
         public Stream AntelopCheckCard(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            if (streamRequest == null)
-                throw new WebFaultException(HttpStatusCode.BadRequest);
-
-            string GUID = Guid.NewGuid().ToString("N");
-
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            try
             {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
 
-                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+                if (streamRequest == null)
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                string GUID = Guid.NewGuid().ToString("N");
 
-                string response;
-                externalApiProcessor.TryProcessCheckCard(GUID, out response);
-
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
-
-                JObject outpuResponse = new JObject(
-                    new JProperty("decision", serviceResponse.serviceResponseCode == Constants.SUCCESS ? decision.CONTINUE : decision.DECLINE),
-                    new JProperty("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
-                                                     serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
-                                                     serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
-                                                     DeclineReason.OTHER)
-                                                    );
-                if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+                using (ThreadContext.Stacks["NDC"].Push(GUID))
                 {
-                    JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
+                    StreamReader sReader = new StreamReader(streamRequest);
+                    StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
 
-                    outpuResponse.Add("issuerCardId", issuerCardId.ToString());
+                    log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+
+                    string response;
+                    externalApiProcessor.TryProcessCheckCard(GUID, out response);
+
+                    ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+
+                    JObject outpuResponse = new JObject(
+                        new JProperty("decision", serviceResponse.serviceResponseCode == Constants.SUCCESS ? decision.CONTINUE : decision.DECLINE),
+                        new JProperty("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                                                         serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                                                         serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                         DeclineReason.OTHER)
+                                                        );
+                    if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+                    {
+                        JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
+
+                        outpuResponse.Add("issuerCardId", issuerCardId.ToString());
+                    }
+                    stopwatch.Stop();
+                    log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                    return GetResponse(outpuResponse.ToString());
+
                 }
-                stopwatch.Stop();
-                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return GetResponse(outpuResponse.ToString());
-
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                throw new WebFaultException(HttpStatusCode.InternalServerError);
             }
         }
 
         public Stream AntelopGetCard(string issuerCardId)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            if (string.IsNullOrWhiteSpace(issuerCardId))
-                throw new WebFaultException(HttpStatusCode.BadRequest);
-
-            string GUID = Guid.NewGuid().ToString("N");
-
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            try
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
 
-
-                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
-
-                string response;
-                if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, out response))
+                if (string.IsNullOrWhiteSpace(issuerCardId))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                stopwatch.Stop();
-                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return GetResponse(response);
+                string GUID = Guid.NewGuid().ToString("N");
+
+                using (ThreadContext.Stacks["NDC"].Push(GUID))
+                {
+
+
+                    log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+
+                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                    string response;
+                    if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, out response))
+                        throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                    stopwatch.Stop();
+                    log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                    return GetResponse(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                throw new WebFaultException(HttpStatusCode.InternalServerError);
             }
         }
     }
