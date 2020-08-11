@@ -57,7 +57,7 @@ namespace Carta.Api.External.Logic.Objects
     public class decision
     {
         protected decision() { }
-        public const string CONTINUE = "CONTINUE";
+        public const string SUCCESS = "SUCCESS";
         public const string DECLINE = "DECLINE";
     }
 }

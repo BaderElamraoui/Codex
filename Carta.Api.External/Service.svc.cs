@@ -157,24 +157,9 @@ namespace Carta.Api.External
                     string response;
                     externalApiProcessor.TryProcessCheckCard(GUID, out response);
 
-                    ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
-
-                    JObject outpuResponse = new JObject(
-                        new JProperty("decision", serviceResponse.serviceResponseCode == Constants.SUCCESS ? decision.CONTINUE : decision.DECLINE),
-                        new JProperty("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
-                                                         serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
-                                                         serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
-                                                         DeclineReason.OTHER)
-                                                        );
-                    if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
-                    {
-                        JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
-
-                        outpuResponse.Add("issuerCardId", issuerCardId.ToString());
-                    }
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetResponse(outpuResponse.ToString());
+                    return GetCheckCardResponse(response);
 
                 }
             }
@@ -219,6 +204,29 @@ namespace Carta.Api.External
                 log.Error(ex);
                 throw new WebFaultException(HttpStatusCode.InternalServerError);
             }
+        }
+
+        public Stream GetCheckCardResponse(string response)
+        {
+            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+
+            JObject outpuResponse = new JObject();
+            if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            {
+                JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
+                outpuResponse.Add("issuerCardId", issuerCardId.ToString());
+                outpuResponse.Add("decision", decision.SUCCESS);
+            }
+            else
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                                                 serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                                                 serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 DeclineReason.OTHER);
+            }
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            return new MemoryStream(resultByte);
         }
     }
     public class RawWebContentTypeMapper : WebContentTypeMapper
