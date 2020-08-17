@@ -140,6 +140,21 @@ namespace Carta.Api.External
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
+                WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+                }
+
+                if (!Headers.AllKeys.Contains("requestorId"))
+                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+
+                if (!Headers.AllKeys.Contains("requestorCredential"))
+                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+
                 if (streamRequest == null)
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
@@ -155,7 +170,7 @@ namespace Carta.Api.External
                     ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                     string response;
-                    externalApiProcessor.TryProcessCheckCard(GUID, out response);
+                    externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
@@ -177,6 +192,14 @@ namespace Carta.Api.External
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
+                WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+                if (!Headers.AllKeys.Contains("requestorId"))
+                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+
+                if (!Headers.AllKeys.Contains("requestorCredential"))
+                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+
                 if (string.IsNullOrWhiteSpace(issuerCardId))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
@@ -191,7 +214,7 @@ namespace Carta.Api.External
                     ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                     string response;
-                    if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, out response))
+                    if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
                         throw new WebFaultException(HttpStatusCode.BadRequest);
 
                     stopwatch.Stop();

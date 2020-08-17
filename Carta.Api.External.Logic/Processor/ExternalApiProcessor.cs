@@ -114,7 +114,7 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        public bool TryProcessCheckCard(string guid, out string response)
+        public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response)
         {
             log.Info("Trying To process GTW Request");
             response = string.Empty;
@@ -135,7 +135,7 @@ namespace Carta.Api.External.Logic.Processor
                     return false;
 
                 log.Info("Preparing Gtw Request");
-                string gtwRequest = PrepareAntelopRequest(guid, serviceName, externalServiceRequest);
+                string gtwRequest = PrepareAntelopRequest(guid, serviceName, externalServiceRequest, Headers);
 
                 log.DebugFormat("Request={0}", gtwRequest);
 
@@ -154,7 +154,7 @@ namespace Carta.Api.External.Logic.Processor
             return true;
         }
 
-        public bool TryProcessGetCard(string guid, string issuerCardId, out string response)
+        public bool TryProcessGetCard(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
         {
             log.Info("Trying To process GTW Request");
             response = string.Empty;
@@ -177,8 +177,8 @@ namespace Carta.Api.External.Logic.Processor
                     serviceName = serviceName,
                     channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
                     channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
-                    requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
-                    requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
+                    requestorId = Headers.Get("requestorId"),
+                    requestorCredential = Headers.Get("requestorCredential"),
                     actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
                     serviceData = serviceData
                 };
@@ -207,7 +207,7 @@ namespace Carta.Api.External.Logic.Processor
             return true;
         }
 
-        private string PrepareAntelopRequest(string guid, string serviceName, JObject externalServiceRequest)
+        private string PrepareAntelopRequest(string guid, string serviceName, JObject externalServiceRequest, WebHeaderCollection Headers)
         {
 
 
@@ -217,8 +217,8 @@ namespace Carta.Api.External.Logic.Processor
                 serviceName = serviceName,
                 channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
                 channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
-                requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
-                requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
+                requestorId = Headers.Get("requestorId"),
+                requestorCredential = Headers.Get("requestorCredential"),
                 actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
                 serviceData = GetAntelopServiceData(externalServiceRequest)
             };
