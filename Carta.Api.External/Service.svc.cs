@@ -149,10 +149,13 @@ namespace Carta.Api.External
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
                 }
 
-                if (!Headers.AllKeys.Contains("requestorId"))
+                string requestorId = Headers["requestorId"];
+                string requestorCredential = Headers["requestorCredential"];
+
+                if (string.IsNullOrWhiteSpace(requestorId))
                     throw new WebFaultException(HttpStatusCode.Unauthorized);
 
-                if (!Headers.AllKeys.Contains("requestorCredential"))
+                if (string.IsNullOrWhiteSpace(requestorCredential))
                     throw new WebFaultException(HttpStatusCode.Unauthorized);
 
                 if (streamRequest == null)
@@ -194,6 +197,13 @@ namespace Carta.Api.External
 
                 WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
                 var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+
+                }
                 string requestorId = Headers["requestorId"];
                 string requestorCredential = Headers["requestorCredential"];
 
