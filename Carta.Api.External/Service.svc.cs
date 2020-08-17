@@ -194,10 +194,13 @@ namespace Carta.Api.External
 
                 WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
                 var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-                if (!Headers.AllKeys.Contains("requestorId"))
+                string requestorId = Headers["requestorId"];
+                string requestorCredential = Headers["requestorCredential"];
+
+                if (string.IsNullOrWhiteSpace(requestorId))
                     throw new WebFaultException(HttpStatusCode.Unauthorized);
 
-                if (!Headers.AllKeys.Contains("requestorCredential"))
+                if (string.IsNullOrWhiteSpace(requestorCredential))
                     throw new WebFaultException(HttpStatusCode.Unauthorized);
 
                 if (string.IsNullOrWhiteSpace(issuerCardId))
