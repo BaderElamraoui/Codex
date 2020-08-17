@@ -232,7 +232,7 @@ namespace Carta.Api.External
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetResponse(response);
+                    return GetCardResponse(response);
                 }
             }
             catch (Exception ex)
@@ -264,6 +264,31 @@ namespace Carta.Api.External
             byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
             return new MemoryStream(resultByte);
         }
+
+        public Stream GetCardResponse(string response)
+        {
+            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+
+            JObject outpuResponse = new JObject();
+            if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            {
+                JToken pan = serviceResponse.serviceResponseData.SelectToken("pan");
+                JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
+                outpuResponse.Add("pan", pan.ToString());
+                outpuResponse.Add("expiryDate", expiryDate.ToString());
+            }
+            else
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                                                 serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                                                 serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 DeclineReason.OTHER);
+            }
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            return new MemoryStream(resultByte);
+        }
+
     }
     public class RawWebContentTypeMapper : WebContentTypeMapper
     {
