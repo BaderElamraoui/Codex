@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Carta.Api.External.Logic.Objects
+﻿namespace Carta.Api.External.Logic.Objects
 {
     public class Constants
     {
@@ -12,8 +6,8 @@ namespace Carta.Api.External.Logic.Objects
 
         public const string SUCCESS = "000";
         public const string EXECUTED = "Executed";
-        public const string DEBIT = "Debit";
-        public const string CREDIT = "Credit";
+        public const string DEBIT = "DEBIT";
+        public const string CREDIT = "CREDIT";
         public const string CONFIRM_TRANSFER_SERVICE = "CONFIRM_SERVICE";
         public const string ROLLBACK_TRANSFER_SERVICE = "ROLLBACK_SERVICE";
         public const string EXTERNAL_TRANSFER_SERVICE = "EXTERNAL_SERVICE";
@@ -22,6 +16,15 @@ namespace Carta.Api.External.Logic.Objects
         public const string CHANNEL_TYPE = "CHANNEL_TYPE";
         public const string REQUESTOR_ID = "REQUESTOR_ID";
         public const string REQUESTOR_CREDENTIALS = "REQUESTOR_CREDENTIALS";
+        public const string AUTHORISATION_CHANLLENCE = "AUTHORISATION_CHANLLENCE";
+        public const string AUTHORISATION_CHALLENGE_CANCEL = "AUTHORISATION_CHALLENGE_CANCEL";
+
+        public const string WEB_CHANNEL_ID = "WEB_CHANNEL_ID";
+        public const string WEB_CHANNEL_TYPE = "WEB_CHANNEL_TYPE";
+        public const string WEB_REQUESTOR_ID = "WEB_REQUESTOR_ID";
+        public const string WEB_REQUESTOR_CREDENTIALS = "WEB_REQUESTOR_CREDENTIALS";
+        public const string JWS_PUBLIC_KEY = "JWS_PUBLIC_KEY";
+        public const string JWS_PRIVATE_KEY = "JWS_PRIVATE_KEY";
         public const string ANTELOP_CHECK_CARD = "ANTELOP_CHECK_CARD";
         public const string ANTELOP_GET_CARD = "ANTELOP_GET_CARD";
 
@@ -31,6 +34,9 @@ namespace Carta.Api.External.Logic.Objects
         public const string ANTELOP_REQUESTOR_ID = "ANTELOP_REQUESTOR_ID";
         public const string ANTELOP_REQUESTOR_CREDENTIALS = "ANTELOP_REQUESTOR_CREDENTIALS";
 
+        public const string JWE_CARTA_PUBLIC_KEY = "JWE_CARTA_PUBLIC_KEY";
+        public const string JWE_CARTA_PRIVATE_KEY = "JWE_CARTA_PRIVATE_KEY";
+        public const string JWE_ANTELOP_PUBLIC_KEY = "JWE_ANTELOP_PUBLIC_KEY";
     }
     public class statusDecline
     {

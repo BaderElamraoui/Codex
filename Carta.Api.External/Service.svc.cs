@@ -1,17 +1,14 @@
 ﻿using Carta.Api.External.Logic.Objects;
 using Carta.Api.External.Logic.Processor;
+using Carta.Security.Cryptography.Software.Jwe;
 using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
-using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
@@ -140,44 +137,39 @@ namespace Carta.Api.External
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
-                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-
-                foreach (var header in Headers.AllKeys)
-                {
-                    string headerContent = Headers[header];
-                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
-                }
-
-                //string requestorId = Headers["requestorId"];
-                //string requestorCredential = Headers["requestorCredential"];
-
-                //if (string.IsNullOrWhiteSpace(requestorId))
-                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
-
-                //if (string.IsNullOrWhiteSpace(requestorCredential))
-                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
-
                 if (streamRequest == null)
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 string GUID = Guid.NewGuid().ToString("N");
-
                 using (ThreadContext.Stacks["NDC"].Push(GUID))
                 {
+                    var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+
+                    foreach (var header in Headers.AllKeys)
+                    {
+                        string headerContent = Headers[header];
+                        log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+                    }
                     StreamReader sReader = new StreamReader(streamRequest);
                     StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                    string encryptedRequest = sbRequest.ToString();
 
-                    log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+                    log.InfoFormat("EXTERNAL CRYPTED API REQUEST: {0}", encryptedRequest);
 
-                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                    var enc = new JweRsaEncryption();
+                    var privateKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY]);
+                    var decryptedRequest = enc.RsaDecryptWithPrivate(encryptedRequest, privateKey);
+
+                    log.InfoFormat("EXTERNAL DECRYPTED API REQUEST: {0}", decryptedRequest);
+
+                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(decryptedRequest);
 
                     string response;
                     externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetCheckCardResponse(response);
+                    return GetCheckCardResponse(response, enc);
 
                 }
             }
@@ -195,33 +187,20 @@ namespace Carta.Api.External
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
-                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-
-                foreach (var header in Headers.AllKeys)
-                {
-                    string headerContent = Headers[header];
-                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
-
-                }
-                //string requestorId = Headers["requestorId"];
-                //string requestorCredential = Headers["requestorCredential"];
-
-                //if (string.IsNullOrWhiteSpace(requestorId))
-                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
-
-                //if (string.IsNullOrWhiteSpace(requestorCredential))
-                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
-
                 if (string.IsNullOrWhiteSpace(issuerCardId))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 string GUID = Guid.NewGuid().ToString("N");
-
+                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
                 using (ThreadContext.Stacks["NDC"].Push(GUID))
                 {
 
+                    foreach (var header in Headers.AllKeys)
+                    {
+                        string headerContent = Headers[header];
+                        log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
+                    }
                     log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
 
                     ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
@@ -230,9 +209,10 @@ namespace Carta.Api.External
                     if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
                         throw new WebFaultException(HttpStatusCode.BadRequest);
 
+                    var enc = new JweRsaEncryption();
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetCardResponse(response);
+                    return GetCardResponse(response, enc);
                 }
             }
             catch (Exception ex)
@@ -242,7 +222,7 @@ namespace Carta.Api.External
             }
         }
 
-        public Stream GetCheckCardResponse(string response)
+        public Stream GetCheckCardResponse(string response, JweRsaEncryption enc)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -261,11 +241,14 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
+            var encryptedRequest = enc.RsaEncryptWithPublic(outpuResponse.ToString(), publicKey);
+
+            byte[] resultByte = Encoding.UTF8.GetBytes(encryptedRequest);
             return new MemoryStream(resultByte);
         }
 
-        public Stream GetCardResponse(string response)
+        public Stream GetCardResponse(string response, JweRsaEncryption enc)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -275,7 +258,7 @@ namespace Carta.Api.External
                 JToken pan = serviceResponse.serviceResponseData.SelectToken("pan");
                 JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
                 outpuResponse.Add("pan", pan.ToString());
-                outpuResponse.Add("expiryDate", expiryDate.ToString());
+                outpuResponse.Add("expiryDate", expiryDate);
             }
             else
             {
@@ -285,7 +268,10 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
+            var encryptedRequest = enc.RsaEncryptWithPublic(outpuResponse.ToString(), publicKey);
+
+            byte[] resultByte = Encoding.UTF8.GetBytes(encryptedRequest);
             return new MemoryStream(resultByte);
         }
 
