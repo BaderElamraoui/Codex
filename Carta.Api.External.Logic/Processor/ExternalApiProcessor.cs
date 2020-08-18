@@ -177,8 +177,8 @@ namespace Carta.Api.External.Logic.Processor
                     serviceName = serviceName,
                     channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
                     channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
-                    requestorId = Headers.Get("requestorId"),
-                    requestorCredential = Headers.Get("requestorCredential"),
+                    requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
+                    requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
                     actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
                     serviceData = serviceData
                 };
@@ -217,8 +217,8 @@ namespace Carta.Api.External.Logic.Processor
                 serviceName = serviceName,
                 channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
                 channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
-                requestorId = Headers.Get("requestorId"),
-                requestorCredential = Headers.Get("requestorCredential"),
+                requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
+                requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
                 actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
                 serviceData = GetAntelopServiceData(externalServiceRequest)
             };

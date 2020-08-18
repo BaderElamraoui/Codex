@@ -149,14 +149,14 @@ namespace Carta.Api.External
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
                 }
 
-                string requestorId = Headers["requestorId"];
-                string requestorCredential = Headers["requestorCredential"];
+                //string requestorId = Headers["requestorId"];
+                //string requestorCredential = Headers["requestorCredential"];
 
-                if (string.IsNullOrWhiteSpace(requestorId))
-                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+                //if (string.IsNullOrWhiteSpace(requestorId))
+                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
 
-                if (string.IsNullOrWhiteSpace(requestorCredential))
-                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+                //if (string.IsNullOrWhiteSpace(requestorCredential))
+                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
 
                 if (streamRequest == null)
                     throw new WebFaultException(HttpStatusCode.BadRequest);
@@ -204,14 +204,14 @@ namespace Carta.Api.External
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
                 }
-                string requestorId = Headers["requestorId"];
-                string requestorCredential = Headers["requestorCredential"];
+                //string requestorId = Headers["requestorId"];
+                //string requestorCredential = Headers["requestorCredential"];
 
-                if (string.IsNullOrWhiteSpace(requestorId))
-                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+                //if (string.IsNullOrWhiteSpace(requestorId))
+                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
 
-                if (string.IsNullOrWhiteSpace(requestorCredential))
-                    throw new WebFaultException(HttpStatusCode.Unauthorized);
+                //if (string.IsNullOrWhiteSpace(requestorCredential))
+                //    throw new WebFaultException(HttpStatusCode.Unauthorized);
 
                 if (string.IsNullOrWhiteSpace(issuerCardId))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
