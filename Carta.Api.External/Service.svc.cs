@@ -262,6 +262,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
+            log.Info("Final Response :" + outpuResponse.ToString());
             byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
             return new MemoryStream(resultByte);
         }
