@@ -238,7 +238,7 @@ namespace Carta.Api.External.Logic.Processor
             {
                 if (item.Key == "pan")
                 {
-                    var jweObject = new JweObject(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
+                    var jweObject = new JweObject("");
                     var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
                     jweObject.keyPath = privateKey;
                     var clearValue = "";
