@@ -9,6 +9,8 @@ using System.Configuration;
 using System.Dynamic;
 using System.Net;
 using Carta.Security.Cryptography.Software.Encryption;
+using Carta.Security.Cryptography.Software.Jwe;
+using System.IO;
 
 namespace Carta.Api.External.Logic.Processor
 {
@@ -236,10 +238,9 @@ namespace Carta.Api.External.Logic.Processor
             {
                 if (item.Key == "pan")
                 {
-                    string[] encryptionInfos = ConfigurationManager.AppSettings["ANTELOP_ALGO"].Split('|');
-                    string keyValue = ConfigurationManager.AppSettings["ANTELOP_KEY"];
-                    EncryptionEngine encryptionEngine = new EncryptionEngine(encryptionInfos[0], encryptionInfos[1], encryptionInfos[2]);
-                    string clearValue = encryptionEngine.Decrypt(keyValue, item.Value.ToString(), encryptionInfos[3], encryptionInfos[4]);
+                    var enc = new JweRsaEncryption();
+                    var privateKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY]);
+                    var clearValue = enc.RsaDecryptWithPrivate(item.Value.ToString(), privateKey);
                     ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
                 }
                 else

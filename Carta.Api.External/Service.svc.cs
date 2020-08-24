@@ -152,24 +152,19 @@ namespace Carta.Api.External
                     }
                     StreamReader sReader = new StreamReader(streamRequest);
                     StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
-                    string encryptedRequest = sbRequest.ToString();
+                    string Request = sbRequest.ToString();
 
-                    log.InfoFormat("EXTERNAL CRYPTED API REQUEST: {0}", encryptedRequest);
+                    log.InfoFormat("EXTERNAL CRYPTED API REQUEST: {0}", Request);
 
-                    var enc = new JweRsaEncryption();
-                    var privateKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY]);
-                    var decryptedRequest = enc.RsaDecryptWithPrivate(encryptedRequest, privateKey);
-
-                    log.InfoFormat("EXTERNAL DECRYPTED API REQUEST: {0}", decryptedRequest);
-
-                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(decryptedRequest);
+                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(Request);
 
                     string response;
                     externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetCheckCardResponse(response, enc);
+                    var enc = new JweRsaEncryption();
+                    return GetCheckCardResponse(response);
 
                 }
             }
@@ -222,7 +217,7 @@ namespace Carta.Api.External
             }
         }
 
-        public Stream GetCheckCardResponse(string response, JweRsaEncryption enc)
+        public Stream GetCheckCardResponse(string response)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -241,10 +236,8 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
-            var encryptedRequest = enc.RsaEncryptWithPublic(outpuResponse.ToString(), publicKey);
 
-            byte[] resultByte = Encoding.UTF8.GetBytes(encryptedRequest);
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
             return new MemoryStream(resultByte);
         }
 
@@ -257,7 +250,11 @@ namespace Carta.Api.External
             {
                 JToken pan = serviceResponse.serviceResponseData.SelectToken("pan");
                 JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
-                outpuResponse.Add("pan", pan.ToString());
+
+                var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
+                var encryptedPan = enc.RsaEncryptWithPublic(pan.ToString(), publicKey);
+
+                outpuResponse.Add("pan", encryptedPan);
                 outpuResponse.Add("expiryDate", expiryDate);
             }
             else
@@ -268,10 +265,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
-            var encryptedRequest = enc.RsaEncryptWithPublic(outpuResponse.ToString(), publicKey);
-
-            byte[] resultByte = Encoding.UTF8.GetBytes(encryptedRequest);
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
             return new MemoryStream(resultByte);
         }
 
