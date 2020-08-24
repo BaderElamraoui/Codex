@@ -196,14 +196,14 @@ namespace Carta.Api.External
 
                 }
                 log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-                //issuerCardId = "DEU" + issuerCardId;
+                issuerCardId = "DEU" + issuerCardId;
                 ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                 string response;
                 if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
                     throw new WebFaultException((HttpStatusCode)422);
 
-                var enc = new JweRsaEncryption();
+                var enc = new JweObject("");
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
                 return GetCardResponse(response, enc);
@@ -235,7 +235,7 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
-        public Stream GetCardResponse(string response, JweRsaEncryption enc)
+        public Stream GetCardResponse(string response, JweObject jweObject)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -245,8 +245,11 @@ namespace Carta.Api.External
                 JToken pan = serviceResponse.serviceResponseData.SelectToken("pan");
                 JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
 
-                var publicKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
-                var encryptedPan = enc.RsaEncryptWithPublic(pan.ToString(), publicKey);
+                var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
+                string cardNumber = pan.ToString();
+                string encryptedPan = "";
+                jweObject.keyPath = pathKey;
+                jweObject.TryAsymmetricJweEncrypt(cardNumber, "RSA-OAEP-256", "A128CBC-HS256", pathKey, out encryptedPan);
 
                 outpuResponse.Add("pan", encryptedPan);
                 outpuResponse.Add("expiryDate", expiryDate);

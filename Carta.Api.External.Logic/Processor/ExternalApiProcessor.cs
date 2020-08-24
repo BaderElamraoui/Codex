@@ -238,9 +238,11 @@ namespace Carta.Api.External.Logic.Processor
             {
                 if (item.Key == "pan")
                 {
-                    var enc = new JweRsaEncryption();
-                    var privateKey = File.ReadAllText(ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY]);
-                    var clearValue = enc.RsaDecryptWithPrivate(item.Value.ToString(), privateKey);
+                    var jweObject = new JweObject(ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY]);
+                    var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                    jweObject.keyPath = privateKey;
+                    var clearValue = "";
+                    jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A128CBC-HS256", privateKey, out clearValue);
                     ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
                 }
                 else
