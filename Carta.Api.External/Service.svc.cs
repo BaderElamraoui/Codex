@@ -177,44 +177,38 @@ namespace Carta.Api.External
 
         public Stream AntelopGetCard(string issuerCardId)
         {
-            try
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (string.IsNullOrWhiteSpace(issuerCardId))
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
 
-                if (string.IsNullOrWhiteSpace(issuerCardId))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
-
-                string GUID = Guid.NewGuid().ToString("N");
-                var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-                using (ThreadContext.Stacks["NDC"].Push(GUID))
+                foreach (var header in Headers.AllKeys)
                 {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
-                    foreach (var header in Headers.AllKeys)
-                    {
-                        string headerContent = Headers[header];
-                        log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
-
-                    }
-                    log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-
-                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
-
-                    string response;
-                    if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
-                        throw new WebFaultException(HttpStatusCode.BadRequest);
-
-                    var enc = new JweRsaEncryption();
-                    stopwatch.Stop();
-                    log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                    return GetCardResponse(response, enc);
                 }
+                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                string response;
+                if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
+                    throw new WebFaultException((HttpStatusCode)422);
+
+                var enc = new JweRsaEncryption();
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetCardResponse(response, enc);
             }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-                throw new WebFaultException(HttpStatusCode.InternalServerError);
-            }
+
         }
 
         public Stream GetCheckCardResponse(string response)
