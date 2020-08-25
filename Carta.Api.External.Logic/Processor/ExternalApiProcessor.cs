@@ -240,9 +240,10 @@ namespace Carta.Api.External.Logic.Processor
                 {
                     var jweObject = new JweObject("");
                     var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                    string keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
                     jweObject.keyPath = privateKey;
                     var clearValue = "";
-                    jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A128CBC-HS256", privateKey, out clearValue);
+                    jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A128CBC-HS256", privateKey, keyId, out clearValue);
                     ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
                 }
                 else

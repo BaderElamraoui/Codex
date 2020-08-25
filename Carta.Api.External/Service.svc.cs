@@ -248,10 +248,11 @@ namespace Carta.Api.External
                 JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
 
                 var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
+                string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
                 string cardNumber = pan.ToString();
                 string encryptedPan = "";
                 jweObject.keyPath = pathKey;
-                jweObject.TryAsymmetricJweEncrypt(cardNumber, "RSA-OAEP-256", "A128CBC-HS256", pathKey, out encryptedPan);
+                jweObject.TryAsymmetricJweEncrypt(cardNumber, "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
 
                 outpuResponse.Add("pan", encryptedPan);
                 outpuResponse.Add("expiryDate", expiryDate);

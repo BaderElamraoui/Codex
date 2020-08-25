@@ -37,6 +37,8 @@
         public const string JWE_CARTA_PUBLIC_KEY = "JWE_CARTA_PUBLIC_KEY";
         public const string JWE_CARTA_PRIVATE_KEY = "JWE_CARTA_PRIVATE_KEY";
         public const string JWE_ANTELOP_PUBLIC_KEY = "JWE_ANTELOP_PUBLIC_KEY";
+        public const string ANTELOP_KEY = "ANTELOP_KEY";
+        public const string CARTA_KEY = "CARTA_KEY";
     }
     public class statusDecline
     {
