@@ -143,6 +143,7 @@ namespace Carta.Api.External
                 string GUID = Guid.NewGuid().ToString("N");
                 using (ThreadContext.Stacks["NDC"].Push(GUID))
                 {
+                    WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
                     var Headers = WebOperationContext.Current.IncomingRequest.Headers;
 
                     foreach (var header in Headers.AllKeys)
@@ -185,6 +186,7 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
             var Headers = WebOperationContext.Current.IncomingRequest.Headers;
             using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
