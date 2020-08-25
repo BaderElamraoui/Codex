@@ -50,7 +50,7 @@
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="Carta.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Carta.Security.Cryptography.1.0.0.20208251\lib\net471\Carta.Security.Cryptography.dll</HintPath>
+      <HintPath>..\packages\Carta.Security.Cryptography.1.0.0.20208252\lib\net471\Carta.Security.Cryptography.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
