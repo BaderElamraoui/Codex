@@ -198,7 +198,6 @@ namespace Carta.Api.External
 
                 }
                 log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-                issuerCardId = "DEU" + issuerCardId;
                 ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                 string response;
