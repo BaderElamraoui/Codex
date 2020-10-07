@@ -17,6 +17,7 @@ namespace Carta.Api.External.Logic.Objects
         public string channelType { get; set; }        
         public string channelId { get; set; }                                                                                                                                                                                                                                                                                                                                                                                                                                                               
         public dynamic serviceData { get; set; }
+        public string actionDatetimestamp { get; set; }
 
         public ServiceRequest()
         {

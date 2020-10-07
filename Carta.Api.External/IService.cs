@@ -40,5 +40,18 @@ namespace Carta.Api.External
             Method = "POST"
             )]
         Stream GetClientId(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "api/v1/cards/checkCard",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+            )]
+        Stream AntelopCheckCard(Stream streamRequest);
+
+        [WebGet(UriTemplate = "api/v1/cards/{issuerCardId}")]
+        [OperationContract]
+        Stream AntelopGetCard(string issuerCardId);
     }
 }
