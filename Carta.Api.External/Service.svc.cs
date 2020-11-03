@@ -255,6 +255,18 @@ namespace Carta.Api.External
 
                 outpuResponse.Add("pan", encryptedPan);
                 outpuResponse.Add("expiryDate", expiryDate);
+
+                JToken previousPan = serviceResponse.serviceResponseData.SelectToken("previousPan");
+                JToken previousExpiryDate = serviceResponse.serviceResponseData.SelectToken("previousExpiryDate");
+
+                if (!string.IsNullOrWhiteSpace(previousPan.ToString()))
+                {
+                    jweObject.TryAsymmetricJweEncrypt(previousPan.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
+                    outpuResponse.Add("previousPan", encryptedPan);
+                }
+                if (!string.IsNullOrWhiteSpace(previousExpiryDate.ToString()))
+                    outpuResponse.Add("previousExpiryDate", previousExpiryDate);
+
             }
             else
             {
