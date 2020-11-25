@@ -176,7 +176,7 @@ namespace Carta.Api.External
             }
         }
 
-        public Stream AntelopGetCard(string issuerCardId)
+        public Stream AntelopGetCard(string issuerCardId, bool includePreviousCard)
         {
 
             Stopwatch stopwatch = new Stopwatch();
@@ -207,7 +207,7 @@ namespace Carta.Api.External
                 var enc = new JweObject("");
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                return GetCardResponse(response, enc);
+                return GetCardResponse(response, enc, includePreviousCard);
             }
 
         }
@@ -236,7 +236,7 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
-        public Stream GetCardResponse(string response, JweObject jweObject)
+        public Stream GetCardResponse(string response, JweObject jweObject, bool includePreviousCard)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -258,18 +258,23 @@ namespace Carta.Api.External
 
                 JToken previousPan = serviceResponse.serviceResponseData.SelectToken("previousPan");
                 JToken previousExpiryDate = serviceResponse.serviceResponseData.SelectToken("previousExpiryDate");
-                PreviousCard previousCard = new PreviousCard();
-                if (!string.IsNullOrWhiteSpace(previousPan.ToString()))
+
+                if (includePreviousCard)
                 {
-                    jweObject.TryAsymmetricJweEncrypt(previousPan.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
-                    previousCard.pan = encryptedPan;
+                    PreviousCard previousCard = new PreviousCard();
+                    if (!string.IsNullOrWhiteSpace(previousPan.ToString()))
+                    {
+                        jweObject.TryAsymmetricJweEncrypt(previousPan.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
+                        previousCard.pan = encryptedPan;
+                    }
+                    if (!string.IsNullOrWhiteSpace(previousExpiryDate.ToString()))
+                        previousCard.expiryDate = previousExpiryDate.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(previousCard.pan) || !string.IsNullOrWhiteSpace(previousCard.expiryDate))
+                        outpuResponse.Add("previousCard", JObject.FromObject(previousCard, new JsonSerializer { NullValueHandling = NullValueHandling.Ignore }));
+                    else
+                        throw new WebFaultException((HttpStatusCode)404);
                 }
-                if (!string.IsNullOrWhiteSpace(previousExpiryDate.ToString()))
-                    previousCard.expiryDate = previousExpiryDate.ToString();
-
-                if (!string.IsNullOrWhiteSpace(previousCard.pan) || !string.IsNullOrWhiteSpace(previousCard.expiryDate))
-                    outpuResponse.Add("previousCard", JObject.FromObject(previousCard, new JsonSerializer { NullValueHandling = NullValueHandling.Ignore }));
-
             }
             else
             {
