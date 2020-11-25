@@ -258,14 +258,17 @@ namespace Carta.Api.External
 
                 JToken previousPan = serviceResponse.serviceResponseData.SelectToken("previousPan");
                 JToken previousExpiryDate = serviceResponse.serviceResponseData.SelectToken("previousExpiryDate");
-
+                PreviousCard previousCard = new PreviousCard();
                 if (!string.IsNullOrWhiteSpace(previousPan.ToString()))
                 {
                     jweObject.TryAsymmetricJweEncrypt(previousPan.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
-                    outpuResponse.Add("previousPan", encryptedPan);
+                    previousCard.pan = encryptedPan;
                 }
                 if (!string.IsNullOrWhiteSpace(previousExpiryDate.ToString()))
-                    outpuResponse.Add("previousExpiryDate", previousExpiryDate);
+                    previousCard.expiryDate = previousExpiryDate.ToString();
+
+                if (!string.IsNullOrWhiteSpace(previousCard.pan) || !string.IsNullOrWhiteSpace(previousCard.expiryDate))
+                    outpuResponse.Add("previousCard", JObject.FromObject(previousCard, new JsonSerializer { NullValueHandling = NullValueHandling.Ignore }));
 
             }
             else
@@ -281,6 +284,12 @@ namespace Carta.Api.External
             return new MemoryStream(resultByte);
         }
 
+    }
+    public class PreviousCard
+    {
+        public PreviousCard() { }
+        public string pan { get; set; }
+        public string expiryDate { get; set; }
     }
     public class RawWebContentTypeMapper : WebContentTypeMapper
     {
