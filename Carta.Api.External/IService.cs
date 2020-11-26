@@ -50,10 +50,10 @@ namespace Carta.Api.External
             )]
         Stream AntelopCheckCard(Stream streamRequest);
 
+        [OperationContract]
         [WebInvoke(UriTemplate = "api/v1/cards/{issuerCardId}?includePreviousCard={includePreviousCard}",
                  Method = "GET"
             )]
-        [OperationContract]
         Stream AntelopGetCard(string issuerCardId, bool includePreviousCard);
     }
 }
