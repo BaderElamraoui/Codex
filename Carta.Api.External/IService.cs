@@ -42,7 +42,7 @@ namespace Carta.Api.External
         Stream ChallengeRequest(Stream streamRequest);
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "ChallengeRequestCancel",
+        [WebInvoke(UriTemplate = "cancel",
            ResponseFormat = WebMessageFormat.Json,
            RequestFormat = WebMessageFormat.Json,
            BodyStyle = WebMessageBodyStyle.Bare,

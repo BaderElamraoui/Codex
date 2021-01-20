@@ -145,13 +145,10 @@ namespace Carta.Api.External
                 StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
-                string JwsDecrypted = JwsTools.Jws.GetDecryptedPayload(sbRequest.ToString());
-                log.InfoFormat("EXTERNAL API JWS DECRYPTED REQUEST: {0}", sbRequest.ToString());
-
-                if (string.IsNullOrWhiteSpace(JwsDecrypted))
+                if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(JwsDecrypted);
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
                 if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(GUID, out response))
