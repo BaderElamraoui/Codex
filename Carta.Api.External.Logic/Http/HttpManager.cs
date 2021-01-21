@@ -76,6 +76,58 @@ namespace Carta.Api.External.Logic.Http
 
         }
 
+        public string PostWithoutBody(List<Header> headers, string endpoint)
+        {
+
+            string response = string.Empty;
+            log.Info("Start HTTP Call to: " + endpoint);
+
+            try
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
+                httpWebRequest.Method = WebRequestMethods.Http.Post;
+                log.Info("Adding headers to HTTP Request");
+                if (headers != null && headers.Any())
+                {
+                    headers.ForEach(x =>
+                    {
+
+                        log.InfoFormat("Header ID to add: {0}", x.id);
+                        if (x.id == "Content-Type")
+                            httpWebRequest.ContentType = x.value;
+                        else
+                            httpWebRequest.Headers[x.id] = x.value;
+
+                    });
+                }
+
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                {
+                    log.InfoFormat("Server response: {0}", httpResponse.StatusCode);
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            response = streamReader.ReadToEnd();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error During HTTP Call: {0}", ex.Message);
+            }
+
+
+            log.DebugFormat("RESPONSE: {0}", response);
+            log.Info("End HTTP Call");
+
+            return response;
+
+        }
+
     }
 
 

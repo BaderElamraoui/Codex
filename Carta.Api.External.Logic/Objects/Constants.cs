@@ -25,6 +25,7 @@
         public const string WEB_REQUESTOR_CREDENTIALS = "WEB_REQUESTOR_CREDENTIALS";
         public const string JWS_PUBLIC_KEY = "JWS_PUBLIC_KEY";
         public const string JWS_PRIVATE_KEY = "JWS_PRIVATE_KEY";
-
+        public const string TOUCHTECH_API_KEY = "TOUCHTECH_API_KEY";
+        public const string FWD_CHALLENGE_ENDPOINT = "FWD_CHALLENGE_ENDPOINT";    
     }
 }

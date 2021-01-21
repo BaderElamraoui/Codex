@@ -59,5 +59,14 @@ namespace Carta.Api.External
            )]
         Stream Challenge(Stream streamRequest);
 
+        [OperationContract]
+        [WebInvoke(UriTemplate = "challengeResult",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream ChallengeResult(Stream streamRequest);
+
     }
 }
