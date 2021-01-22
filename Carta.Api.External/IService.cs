@@ -55,5 +55,17 @@ namespace Carta.Api.External
                  Method = "GET"
             )]
         Stream AntelopGetCard(string issuerCardId, bool includePreviousCard);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "api/v1/cards/{issuerCardId}/cvx2",
+                Method = "GET"
+           )]
+        Stream GetCardCryptogram(string issuerCardId);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "api/v1/cards/{issuerCardId}/pinCode",
+                Method = "GET"
+           )]
+        Stream GetPinCode(string issuerCardId);
     }
 }

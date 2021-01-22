@@ -211,6 +211,77 @@ namespace Carta.Api.External
             }
 
         }
+        public Stream GetCardCryptogram(string issuerCardId)
+        {
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (string.IsNullOrWhiteSpace(issuerCardId))
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+
+                }
+                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                string response;
+                if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
+                    throw new WebFaultException((HttpStatusCode)422);
+
+                var enc = new JweObject("");
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return new MemoryStream();
+            }
+
+        }
+
+        public Stream GetPinCode(string issuerCardId)
+        {
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (string.IsNullOrWhiteSpace(issuerCardId))
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+
+                }
+                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                string response;
+                if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
+                    throw new WebFaultException((HttpStatusCode)422);
+
+                var enc = new JweObject("");
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return new MemoryStream();
+            }
+
+        }
 
         public Stream GetCheckCardResponse(string response)
         {
