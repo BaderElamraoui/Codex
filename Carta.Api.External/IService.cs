@@ -33,6 +33,29 @@ namespace Carta.Api.External
         Stream PostExternalData(Stream streamRequest);
 
         [OperationContract]
+        [WebInvoke(UriTemplate = "GetClientId",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+            )]
+        Stream GetClientId(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "api/v1/cards/checkCard",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+            )]
+        Stream AntelopCheckCard(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "api/v1/cards/{issuerCardId}?includePreviousCard={includePreviousCard}",
+                 Method = "GET"
+            )]
+        Stream AntelopGetCard(string issuerCardId, bool includePreviousCard);
+        [OperationContract]
         [WebInvoke(UriTemplate = "ChallengeRequest",
            ResponseFormat = WebMessageFormat.Json,
            RequestFormat = WebMessageFormat.Json,

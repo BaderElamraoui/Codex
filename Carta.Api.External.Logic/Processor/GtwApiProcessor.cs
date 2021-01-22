@@ -8,6 +8,12 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
+using System.Net.WebSockets;
+using System.ServiceModel.Web;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace Carta.Api.External.Logic.Processor
 {
     public class GtwApiProcessor
@@ -23,13 +29,22 @@ namespace Carta.Api.External.Logic.Processor
         private const string SUCCESS = "000";
         private const string SUCCESS_LABEL = "Successful Operation";
         private const string CONCERNED_ENTITY = "CEA";
+        private readonly string _Request;
+
         private string _privateKey;
 
-        public GtwApiProcessor(string request)
+        public GtwApiProcessor(string request, bool convert = true)
         {
-            _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
-            _serviceResponse = new ServiceResponse(_serviceRequest);
+            if (convert)
+            {
+                _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
+                _serviceResponse = new ServiceResponse(_serviceRequest);
             MapRequestParams();
+            }
+            else
+            {
+                _Request = request;
+            }
             _requestProcessor = new RequestProcessor();
             _httpManager = new HttpManager();
             _privateKey = ConfigurationManager.AppSettings[Constants.JWS_PRIVATE_KEY];
@@ -40,10 +55,10 @@ namespace Carta.Api.External.Logic.Processor
             _serviceParams = (IDictionary<string, object>)_serviceRequest.serviceData;
         }
 
-        public bool TryProcessPostRequest(out string response)
+        public bool TryProcessPostRequest(out string response, out HttpStatusCode statusCode)
         {
             response = string.Empty;
-
+            statusCode = HttpStatusCode.BadRequest;
             string serviceName = _serviceRequest.serviceName;
 
             string uid = GetParamValue("uid") != null ? GetParamValue("uid").ToString() : string.Empty;
@@ -97,6 +112,9 @@ namespace Carta.Api.External.Logic.Processor
 
             string request = _requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
+            string externalResponse;
+            HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+            _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
             if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
             {
                 string algorithm = externalBranchApiLogin.JWS_ALGORITHM;
@@ -121,16 +139,36 @@ namespace Carta.Api.External.Logic.Processor
 
             Dictionary<string, object> outputParams;
 
-            if (_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
+            if (externalStatusCode == HttpStatusCode.OK)
             {
-                _serviceResponse.serviceResponseCode = SUCCESS;
-                _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
-                foreach (KeyValuePair<string, object> entry in outputParams)
+                if (_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
                 {
-                    ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
+                    _serviceResponse.serviceResponseCode = SUCCESS;
+                    _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
+                    foreach (KeyValuePair<string, object> entry in outputParams)
+                    {
+                        ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
+                    }
+                    response = JsonConvert.SerializeObject(_serviceResponse);
+                    statusCode = externalStatusCode;
                 }
-                response = JsonConvert.SerializeObject(_serviceResponse);
             }
+            else
+            {
+                response = externalResponse;
+                statusCode = externalStatusCode;
+            }
+            return true;
+        }
+
+        public bool TryProcessGetClientRequest(out string response, out HttpStatusCode statusCode)
+        {
+            response = string.Empty;
+            statusCode = HttpStatusCode.BadRequest;
+
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            if (!_httpManager.TryCallGetClientId(_Request,Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
+                return false;
 
             return true;
         }
