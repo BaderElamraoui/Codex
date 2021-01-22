@@ -39,7 +39,7 @@ namespace Carta.Api.External.Logic.Processor
             {
                 _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
                 _serviceResponse = new ServiceResponse(_serviceRequest);
-            MapRequestParams();
+                MapRequestParams();
             }
             else
             {
@@ -114,7 +114,7 @@ namespace Carta.Api.External.Logic.Processor
 
             string externalResponse;
             HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
-            _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
+
             if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
             {
                 string algorithm = externalBranchApiLogin.JWS_ALGORITHM;
@@ -135,7 +135,7 @@ namespace Carta.Api.External.Logic.Processor
                     request = payload;
 
             }
-            string externalResponse = _httpManager.Post(request, requestHeaders, externalEndpoint.ENDPOINT);
+            _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
 
             Dictionary<string, object> outputParams;
 
@@ -167,7 +167,7 @@ namespace Carta.Api.External.Logic.Processor
             statusCode = HttpStatusCode.BadRequest;
 
             var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            if (!_httpManager.TryCallGetClientId(_Request,Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
+            if (!_httpManager.TryCallGetClientId(_Request, Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
                 return false;
 
             return true;

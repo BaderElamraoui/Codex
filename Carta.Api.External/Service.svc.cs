@@ -1,4 +1,5 @@
-﻿using Carta.Api.External.Logic.Processor;
+﻿using Carta.Api.External.Logic.Objects;
+using Carta.Api.External.Logic.Processor;
 using Carta.Security.Cryptography.Software.Jwe;
 using log4net;
 using Newtonsoft.Json;
@@ -418,6 +419,12 @@ namespace Carta.Api.External
             }
         }
 
+    }
+    public class PreviousCard
+    {
+        public PreviousCard() { }
+        public string pan { get; set; }
+        public string expiryDate { get; set; }
     }
     public class RawWebContentTypeMapper : WebContentTypeMapper
     {

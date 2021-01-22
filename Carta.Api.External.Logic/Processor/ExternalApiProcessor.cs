@@ -300,7 +300,9 @@ namespace Carta.Api.External.Logic.Processor
                 log.DebugFormat("Request={0}", gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
-                response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
+                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return false;
 
                 ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
@@ -380,7 +382,9 @@ namespace Carta.Api.External.Logic.Processor
                 log.DebugFormat("Request={0}", gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
-                response = httpManager.Post(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT]);
+                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return false;
 
                 ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
