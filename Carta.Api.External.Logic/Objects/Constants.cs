@@ -39,6 +39,8 @@
         public const string JWE_ANTELOP_PUBLIC_KEY = "JWE_ANTELOP_PUBLIC_KEY";
         public const string ANTELOP_KEY = "ANTELOP_KEY";
         public const string CARTA_KEY = "CARTA_KEY";
+        public const string ANTELOP_GET_CRYPTOGRAM = "ANTELOP_GET_CRYPTOGRAM";
+        public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
     }
     public class statusDecline
     {
