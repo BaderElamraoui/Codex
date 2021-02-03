@@ -117,7 +117,7 @@ namespace Carta.Api.External.Logic.Http
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
 
-                 httpWebRequest.Method = WebRequestMethods.Http.Post;
+                httpWebRequest.Method = WebRequestMethods.Http.Post;
 
                 log.Info("Adding headers to HTTP Request");
                 if (headers != null)
@@ -168,10 +168,10 @@ namespace Carta.Api.External.Logic.Http
 
         }
 
-        public string PostWithoutBody(List<Header> headers, string endpoint)
+        public bool PostWithoutBody(List<Header> headers, string endpoint, out string response)
         {
 
-            string response = string.Empty;
+            response = string.Empty;
             log.Info("Start HTTP Call to: " + endpoint);
 
             try
@@ -204,20 +204,23 @@ namespace Carta.Api.External.Logic.Http
                         {
                             response = streamReader.ReadToEnd();
                         }
+                        return true;
                     }
                 }
+
 
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error During HTTP Call: {0}", ex.Message);
+                return false;
             }
 
 
             log.DebugFormat("RESPONSE: {0}", response);
             log.Info("End HTTP Call");
 
-            return response;
+            return false;
 
         }
 

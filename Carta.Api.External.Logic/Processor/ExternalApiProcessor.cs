@@ -340,11 +340,14 @@ namespace Carta.Api.External.Logic.Processor
                 };
 
                 HttpManager httpManager = new HttpManager();
-                response = httpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_CHALLENGE_ENDPOINT]);
+                if (httpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_CHALLENGE_ENDPOINT], out response))
+                {
+                    log.Info("Resposne of chalenge result : " + response);
+                    return true;
+                }
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
-                if (!serviceResponse.IsSuccess)
-                    return false;
+                log.Info("Resposne of chalenge result : " + response);
+                return false;
 
             }
             catch (Exception ex)
@@ -354,7 +357,6 @@ namespace Carta.Api.External.Logic.Processor
                 return false;
             }
 
-            return true;
         }
 
 
