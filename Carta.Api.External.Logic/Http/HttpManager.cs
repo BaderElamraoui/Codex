@@ -179,6 +179,7 @@ namespace Carta.Api.External.Logic.Http
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
                 httpWebRequest.Method = WebRequestMethods.Http.Post;
+                httpWebRequest.ContentLength = 0;
                 log.Info("Adding headers to HTTP Request");
                 if (headers != null && headers.Any())
                 {
