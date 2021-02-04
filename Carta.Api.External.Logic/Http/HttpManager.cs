@@ -1,5 +1,6 @@
 ﻿using Carta.Api.External.Dal.Db;
 using log4net;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -204,6 +205,12 @@ namespace Carta.Api.External.Logic.Http
                         {
                             response = streamReader.ReadToEnd();
                         }
+
+                        dynamic dynamicReponse = JsonConvert.DeserializeObject(response);
+                        dynamicReponse.serviceResponseCode = "000";
+
+                        response = JsonConvert.SerializeObject(dynamicReponse);
+
                         return true;
                     }
                 }
