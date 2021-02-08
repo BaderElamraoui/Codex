@@ -25,5 +25,7 @@ namespace Carta.Api.External.Dal.Db
         public Nullable<bool> JWE_ENABLED { get; set; }
         public string JWE_ALGORITHM { get; set; }
         public string KEY_INDEX { get; set; }
+        public Nullable<bool> JWS_ENABLED { get; set; }
+        public string JWS_ALGORITHM { get; set; }
     }
 }

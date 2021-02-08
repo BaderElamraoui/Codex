@@ -55,5 +55,41 @@ namespace Carta.Api.External
                  Method = "GET"
             )]
         Stream AntelopGetCard(string issuerCardId, bool includePreviousCard);
+        [OperationContract]
+        [WebInvoke(UriTemplate = "ChallengeRequest",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream ChallengeRequest(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "cancel",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream ChallengeRequestCancel(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "challenge",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream Challenge(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "challengeResult",
+           ResponseFormat = WebMessageFormat.Json,
+           RequestFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare,
+           Method = "POST"
+           )]
+        Stream ChallengeResult(Stream streamRequest);
+
     }
 }

@@ -2,10 +2,9 @@
 using Carta.Api.External.Dal.Db;
 using Carta.Api.External.Logic.Http;
 using Carta.Api.External.Logic.Objects;
+using Carta.Security.Cryptography.Software.Jws;
 using log4net;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -32,6 +31,7 @@ namespace Carta.Api.External.Logic.Processor
         private const string CONCERNED_ENTITY = "CEA";
         private readonly string _Request;
 
+        private string _privateKey;
 
         public GtwApiProcessor(string request, bool convert = true)
         {
@@ -39,7 +39,7 @@ namespace Carta.Api.External.Logic.Processor
             {
                 _serviceRequest = JsonConvert.DeserializeObject<ServiceRequest>(request);
                 _serviceResponse = new ServiceResponse(_serviceRequest);
-            MapRequestParams();
+                MapRequestParams();
             }
             else
             {
@@ -47,6 +47,7 @@ namespace Carta.Api.External.Logic.Processor
             }
             _requestProcessor = new RequestProcessor();
             _httpManager = new HttpManager();
+            _privateKey = ConfigurationManager.AppSettings[Constants.JWS_PRIVATE_KEY];
         }
 
         private void MapRequestParams()
@@ -113,6 +114,27 @@ namespace Carta.Api.External.Logic.Processor
 
             string externalResponse;
             HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+
+            if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
+            {
+                string algorithm = externalBranchApiLogin.JWS_ALGORITHM;
+                string payload = request;
+                string header = JsonConvert.SerializeObject(requestHeaders);
+
+                JwsObject jwsObj = new JwsObject(JwsType.Flattened);
+
+
+                string[] configuredAlgorithm = externalBranchApiLogin.JWS_ALGORITHM.Split('|');
+                _privateKey = configuredAlgorithm[2].ToLower();
+                string jwsEncryptionData;
+                if (jwsObj.TryJwsSign(header, payload, _privateKey, out jwsEncryptionData))
+                {
+                    request = jwsEncryptionData;
+                }
+                else
+                    request = payload;
+
+            }
             _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
 
             Dictionary<string, object> outputParams;
@@ -145,7 +167,7 @@ namespace Carta.Api.External.Logic.Processor
             statusCode = HttpStatusCode.BadRequest;
 
             var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            if (!_httpManager.TryCallGetClientId(_Request,Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
+            if (!_httpManager.TryCallGetClientId(_Request, Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
                 return false;
 
             return true;

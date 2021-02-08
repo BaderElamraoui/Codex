@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carta.Api.External.Dal.Cache
 {
@@ -59,34 +57,46 @@ namespace Carta.Api.External.Dal.Cache
                     container.ApiExternalServiceParams = db.V3_API_EXTERNAL_SERVICE_PARAMS.ToList();
                     container.ApiExternalServices = db.V3_API_EXTERNAL_SERVICE.ToList();
                     container.ApiExternalEndpoint = db.V3_API_LOGIN_ENDPOINTS.ToList();
-                }
 
-                container.ApiExternalServices.ForEach(a =>
-                {
 
-                    if (!string.IsNullOrEmpty(a.REQUEST_MAP))
-                        a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
-
-                    if (!string.IsNullOrEmpty(a.HEADERS))
+                    container.ApiExternalServices.ForEach(a =>
                     {
-                        log.Info("Custom Header are configured");
-                        log.DebugFormat("Header Values:{0}", a.HEADERS);
-                        a.PARSED_HEADERS = new List<Header>();
-                        string[] headers = a.HEADERS.Split('|');
-                        for (int i = 0; i < headers.Length; i++)
-                        {
 
-                            Header header = new Header();
-                            header.id = headers[i].Split(':')[0];
-                            header.value = headers[i].Split(':')[1];
-                            log.InfoFormat("Header Id={0}, Header Value={1}", header.id, header.value);
-                            a.PARSED_HEADERS.Add(header);
+                        if (!string.IsNullOrEmpty(a.REQUEST_MAP))
+                            a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
+
+                        if (!string.IsNullOrEmpty(a.HEADERS))
+                        {
+                            log.DebugFormat("service Name : {0}, Uid :{1}", a.SERVICE_GTW_NAME, a.UID);
+                            log.Info("Custom Header are configured");
+                            log.DebugFormat("Header Values:{0}", a.HEADERS);
+                            a.PARSED_HEADERS = new List<Header>();
+                            if (a.HEADERS.Contains('|'))
+                            {
+                                string[] headers = a.HEADERS.Split('|');
+                                for (int i = 0; i < headers.Length; i++)
+                                {
+
+                                    Header header = new Header();
+                                    header.id = headers[i].Split(':')[0];
+                                    header.value = headers[i].Split(':')[1];
+                                    log.InfoFormat("Header Id={0}, Header Value={1}", header.id, header.value);
+                                    a.PARSED_HEADERS.Add(header);
+                                }
+                            }
+                            else
+                            {
+                                Header header = new Header();
+                                header.id = a.HEADERS.Split(':')[0];
+                                header.value = a.HEADERS.Split(':')[1];
+                                a.PARSED_HEADERS.Add(header);
+                            }
+
                         }
 
                     }
-
+                    );
                 }
-                );
             }
             catch (Exception ex)
             {
