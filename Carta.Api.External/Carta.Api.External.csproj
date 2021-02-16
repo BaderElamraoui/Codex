@@ -99,13 +99,23 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="JwsTools\Jws.cs" />
     <Compile Include="Service.svc.cs">
       <DependentUpon>Service.svc</DependentUpon>
     </Compile>
     <Compile Include="IService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Carta.Api.External.Dal\Carta.Api.External.Dal.csproj">
+      <Project>{c7f6ea89-4eee-4f32-a376-3ce206601b5f}</Project>
+      <Name>Carta.Api.External.Dal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Carta.Api.External.Logic\Carta.Api.External.Logic.csproj">
+      <Project>{c216f5b6-9ee7-426b-89bc-01f2a8185ea0}</Project>
+      <Name>Carta.Api.External.Logic</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\TO_DISK.pubxml" />
@@ -115,16 +125,6 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Carta.Api.External.Dal\Carta.Api.External.Dal.csproj">
-      <Project>{C7F6EA89-4EEE-4F32-A376-3CE206601B5F}</Project>
-      <Name>Carta.Api.External.Dal</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Carta.Api.External.Logic\Carta.Api.External.Logic.csproj">
-      <Project>{c216f5b6-9ee7-426b-89bc-01f2a8185ea0}</Project>
-      <Name>Carta.Api.External.Logic</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

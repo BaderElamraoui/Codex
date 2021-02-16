@@ -39,6 +39,8 @@
         public const string JWE_ANTELOP_PUBLIC_KEY = "JWE_ANTELOP_PUBLIC_KEY";
         public const string ANTELOP_KEY = "ANTELOP_KEY";
         public const string CARTA_KEY = "CARTA_KEY";
+        public const string TOUCHTECH_API_KEY = "TOUCHTECH_API_KEY";
+        public const string FWD_CHALLENGE_ENDPOINT = "FWD_CHALLENGE_ENDPOINT";
         public const string ANTELOP_GET_CRYPTOGRAM = "ANTELOP_GET_CRYPTOGRAM";
         public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
     }
@@ -49,7 +51,6 @@
         public const string CARD_EXPIRED = "H0008";
         public const string PAN_INELIGIBLE = "DPI01";
         public const string INVALID_PAN = "DIP01";
-
     }
 
     public class DeclineReason
