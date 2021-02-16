@@ -41,6 +41,8 @@
         public const string CARTA_KEY = "CARTA_KEY";
         public const string TOUCHTECH_API_KEY = "TOUCHTECH_API_KEY";
         public const string FWD_CHALLENGE_ENDPOINT = "FWD_CHALLENGE_ENDPOINT";
+        public const string ANTELOP_GET_CRYPTOGRAM = "ANTELOP_GET_CRYPTOGRAM";
+        public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
     }
     public class statusDecline
     {

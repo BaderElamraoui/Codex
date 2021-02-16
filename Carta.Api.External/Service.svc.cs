@@ -210,7 +210,6 @@ namespace Carta.Api.External
             }
 
         }
-
         public Stream GetCheckCardResponse(string response)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
@@ -274,6 +273,140 @@ namespace Carta.Api.External
                     else
                         throw new WebFaultException((HttpStatusCode)404);
                 }
+            }
+            else
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                                                 serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                                                 serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 DeclineReason.OTHER);
+            }
+            log.Info("Final Response :" + outpuResponse.ToString());
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            return new MemoryStream(resultByte);
+        }
+        public Stream GetCardCryptogram(string issuerCardId)
+        {
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (string.IsNullOrWhiteSpace(issuerCardId))
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+
+                }
+                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                string response;
+                if (!externalApiProcessor.TryProcessGetCryptogram(GUID, issuerCardId, Headers, out response))
+                    throw new WebFaultException((HttpStatusCode)422);
+
+                var enc = new JweObject("");
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetCryptogramResponse(response, enc);
+            }
+
+        }
+
+        public Stream GetPinCode(string issuerCardId)
+        {
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (string.IsNullOrWhiteSpace(issuerCardId))
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
+            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            {
+
+                foreach (var header in Headers.AllKeys)
+                {
+                    string headerContent = Headers[header];
+                    log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
+
+                }
+                log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
+                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+
+                string response;
+                if (!externalApiProcessor.TryProcessGetPinCode(GUID, issuerCardId, Headers, out response))
+                    throw new WebFaultException((HttpStatusCode)422);
+
+                var enc = new JweObject("");
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetPinCodeResponse(response, enc);
+            }
+
+        }
+
+        public Stream GetCryptogramResponse(string response, JweObject jweObject)
+        {
+            var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
+            string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
+            string encryptedcvx2 = "";
+            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+            JObject outpuResponse = new JObject();
+
+            if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            {
+                JToken cvx2 = serviceResponse.serviceResponseData.SelectToken("cvx2");
+                if (cvx2 == null)
+                    throw new WebFaultException((HttpStatusCode)404);
+
+                jweObject.keyPath = pathKey;
+                jweObject.TryAsymmetricJweEncrypt(cvx2.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedcvx2);
+
+                outpuResponse.Add("cvx2", encryptedcvx2);
+            }
+            else
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                                                 serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                                                 serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 DeclineReason.OTHER);
+            }
+            log.Info("Final Response :" + outpuResponse.ToString());
+            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            return new MemoryStream(resultByte);
+        }
+        public Stream GetPinCodeResponse(string response, JweObject jweObject)
+        {
+            var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
+            string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
+            string encryptedpinCode = "";
+            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+            JObject outpuResponse = new JObject();
+
+            if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            {
+                JToken pinCode = serviceResponse.serviceResponseData.SelectToken("pinCode");
+                if (pinCode == null)
+                    throw new WebFaultException((HttpStatusCode)404);
+
+                jweObject.keyPath = pathKey;
+                jweObject.TryAsymmetricJweEncrypt(pinCode.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedpinCode);
+
+                outpuResponse.Add("pinCode", encryptedpinCode);
             }
             else
             {

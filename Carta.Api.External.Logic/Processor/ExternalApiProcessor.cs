@@ -404,5 +404,110 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
+        public bool TryProcessGetCryptogram(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
+        {
+            log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+                string serviceName = string.Empty;
+
+                serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_CRYPTOGRAM];
+                log.InfoFormat("Service name to execute = {0}", serviceName);
+                if (string.IsNullOrEmpty(serviceName))
+                    return false;
+
+                log.Info("Preparing Gtw Request");
+                ExpandoObject serviceData = new ExpandoObject();
+                ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
+                ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
+                ServiceRequest serviceRequest = new ServiceRequest()
+                {
+                    serviceRequestId = guid,
+                    serviceName = serviceName,
+                    channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
+                    channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
+                    requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
+                    requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
+                    actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
+                    serviceData = serviceData
+                };
+
+                string gtwRequest = JsonConvert.SerializeObject(serviceRequest);
+
+                log.DebugFormat("Request={0}", gtwRequest);
+
+                HttpManager httpManager = new HttpManager();
+                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return false;
+
+                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                log.Warn(ex.Message);
+                log.Debug(ex);
+                return false;
+            }
+
+            return true;
+        }
+        public bool TryProcessGetPinCode(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
+        {
+            log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+                string serviceName = string.Empty;
+
+                serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_PINCODE];
+                log.InfoFormat("Service name to execute = {0}", serviceName);
+                if (string.IsNullOrEmpty(serviceName))
+                    return false;
+
+                log.Info("Preparing Gtw Request");
+                ExpandoObject serviceData = new ExpandoObject();
+                ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
+                ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
+                ServiceRequest serviceRequest = new ServiceRequest()
+                {
+                    serviceRequestId = guid,
+                    serviceName = serviceName,
+                    channelId = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_ID],
+                    channelType = ConfigurationManager.AppSettings[Constants.ANTELOP_CHANNEL_TYPE],
+                    requestorId = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_ID],
+                    requestorCredential = ConfigurationManager.AppSettings[Constants.ANTELOP_REQUESTOR_CREDENTIALS],
+                    actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
+                    serviceData = serviceData
+                };
+
+                string gtwRequest = JsonConvert.SerializeObject(serviceRequest);
+
+                log.DebugFormat("Request={0}", gtwRequest);
+
+                HttpManager httpManager = new HttpManager();
+                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return false;
+
+                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                log.Warn(ex.Message);
+                log.Debug(ex);
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
