@@ -429,6 +429,7 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
             using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
@@ -466,6 +467,7 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
             using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
@@ -497,6 +499,7 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
             using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
@@ -529,6 +532,7 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             string GUID = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
             using (ThreadContext.Stacks["NDC"].Push(GUID))
             {
