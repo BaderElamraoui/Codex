@@ -159,12 +159,13 @@ namespace Carta.Api.External
                     ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(Request);
 
                     string response;
-                    externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response);
+                    HttpStatusCode externalStatusCode;
+                    externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response, out externalStatusCode);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
                     var enc = new JweRsaEncryption();
-                    return GetCheckCardResponse(response);
+                    return GetCheckCardResponse(response, externalStatusCode);
 
                 }
             }
@@ -210,24 +211,34 @@ namespace Carta.Api.External
             }
 
         }
-        public Stream GetCheckCardResponse(string response)
+        public Stream GetCheckCardResponse(string response, HttpStatusCode externalStatusCode)
         {
             ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
             JObject outpuResponse = new JObject();
-            if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            if (serviceResponse != null && serviceResponse.serviceResponseCode == Constants.SUCCESS)
             {
                 JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
                 outpuResponse.Add("issuerCardId", issuerCardId.ToString());
                 outpuResponse.Add("decision", decision.SUCCESS);
             }
-            else
+            else if (serviceResponse != null)
             {
                 outpuResponse.Add("decision", decision.DECLINE);
                 outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
+            }
+            else if (externalStatusCode == HttpStatusCode.Unauthorized)
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", DeclineReason.INVALID_PAN);
+            }
+            else
+            {
+                outpuResponse.Add("decision", decision.DECLINE);
+                outpuResponse.Add("declineReason", DeclineReason.OTHER);
             }
 
             byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());

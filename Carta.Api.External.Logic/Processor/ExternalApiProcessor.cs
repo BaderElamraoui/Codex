@@ -138,10 +138,11 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response)
+        public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response, out HttpStatusCode externalStatusCode)
         {
             log.Info("Trying To process GTW Request");
             response = string.Empty;
+            externalStatusCode = HttpStatusCode.BadRequest;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
@@ -158,13 +159,35 @@ namespace Carta.Api.External.Logic.Processor
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
+               
+                #region check if encrypted pan is correct
+                foreach (var item in externalServiceRequest)
+                {
+                    if (item.Key == "pan")
+                    {
+                        var jweObject = new JweObject("");
+                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                        string keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                        jweObject.keyPath = privateKey;
+                        var clearValue = "";
+                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+
+                        if (string.IsNullOrWhiteSpace(clearValue))
+                        {
+                            externalStatusCode = HttpStatusCode.Unauthorized;
+                            log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                            return false;
+                        }
+                    }
+                }
+                #endregion
                 log.Info("Preparing Gtw Request");
                 string gtwRequest = PrepareAntelopRequest(guid, serviceName, externalServiceRequest, Headers);
 
                 log.DebugFormat("Request={0}", gtwRequest);
 
                 HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
             }
