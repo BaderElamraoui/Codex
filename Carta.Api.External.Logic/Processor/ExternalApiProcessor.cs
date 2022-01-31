@@ -18,7 +18,7 @@ namespace Carta.Api.External.Logic.Processor
 
     public class ExternalApiProcessor
     {
-        private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly static ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly string _request;
 
 
@@ -29,18 +29,18 @@ namespace Carta.Api.External.Logic.Processor
 
         public bool TryProcessPostRequest(string guid, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
 
-                JObject externalServiceRequest = JObject.Parse(_request);
+                var externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = string.Empty;
+                var serviceName = string.Empty;
                 if ((string)externalServiceRequest["state"] == Constants.EXECUTED)
                 {
                     if ((string)externalServiceRequest["transferType"] == Constants.DEBIT)
@@ -53,29 +53,29 @@ namespace Carta.Api.External.Logic.Processor
                     if ((string)externalServiceRequest["transferType"] == Constants.CREDIT)
                         serviceName = ConfigurationManager.AppSettings[Constants.ROLLBACK_TRANSFER_SERVICE];
                 }
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                string gtwRequest = PrepareGtwRequest(guid, serviceName, externalServiceRequest);
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = PrepareGtwRequest(guid, serviceName, externalServiceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
@@ -87,7 +87,7 @@ namespace Carta.Api.External.Logic.Processor
         {
 
 
-            ServiceRequest serviceRequest = new ServiceRequest()
+            var serviceRequest = new ServiceRequest()
             {
                 serviceRequestId = guid,
                 serviceName = serviceName,
@@ -99,7 +99,7 @@ namespace Carta.Api.External.Logic.Processor
                 serviceData = GetServiceData(externalServiceRequest)
             };
 
-            string request = JsonConvert.SerializeObject(serviceRequest);
+            var request = JsonConvert.SerializeObject(serviceRequest);
 
             return request;
         }
@@ -108,7 +108,7 @@ namespace Carta.Api.External.Logic.Processor
         {
 
 
-            ServiceRequest serviceRequest = new ServiceRequest()
+            var serviceRequest = new ServiceRequest()
             {
                 serviceRequestId = guid,
                 serviceName = serviceName,
@@ -120,14 +120,14 @@ namespace Carta.Api.External.Logic.Processor
                 serviceData = GetServiceData(externalServiceRequest)
             };
 
-            string request = JsonConvert.SerializeObject(serviceRequest);
+            var request = JsonConvert.SerializeObject(serviceRequest);
 
             return request;
         }
 
-        private dynamic GetServiceData(JObject externalServiceRequest)
+        private static dynamic GetServiceData(JObject externalServiceRequest)
         {
-            ExpandoObject serviceData = new ExpandoObject();
+            var serviceData = new ExpandoObject();
 
             foreach (var item in externalServiceRequest)
             {
@@ -140,85 +140,98 @@ namespace Carta.Api.External.Logic.Processor
 
         public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response, out HttpStatusCode externalStatusCode)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             externalStatusCode = HttpStatusCode.BadRequest;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
 
-                JObject externalServiceRequest = JObject.Parse(_request);
+                var externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = string.Empty;
+                var serviceName = string.Empty;
 
                 serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_CHECK_CARD];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-               
+
                 #region check if encrypted pan is correct
                 foreach (var item in externalServiceRequest)
                 {
-                    if (item.Key == "pan")
+                    switch (item.Key)
                     {
-                        var jweObject = new JweObject("");
-                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                        string keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                        jweObject.keyPath = privateKey;
-                        var clearValue = "";
-                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
-
-                        if (string.IsNullOrWhiteSpace(clearValue))
+                        case "pan":
                         {
+                            var jweObject = new JweObject("");
+                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                            jweObject.keyPath = privateKey;
+                            string clearValue;
+                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+
+                            if (!string.IsNullOrWhiteSpace(clearValue)) continue;
                             externalStatusCode = HttpStatusCode.Unauthorized;
-                            log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                            Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                            return false;
+                        }
+                        case "cvx2":
+                        {
+                            var jweObject = new JweObject("");
+                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                            jweObject.keyPath = privateKey;
+                            string clearValue;
+                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+
+                            if (!string.IsNullOrWhiteSpace(clearValue)) continue;
+                            externalStatusCode = HttpStatusCode.Unauthorized;
+                            Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
                             return false;
                         }
                     }
                 }
                 #endregion
-                log.Info("Preparing Gtw Request");
-                string gtwRequest = PrepareAntelopRequest(guid, serviceName, externalServiceRequest, Headers);
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = PrepareAntelopRequest(guid, serviceName, externalServiceRequest, Headers);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
+                var httpManager = new HttpManager();
 
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
             return true;
         }
 
-        public bool TryProcessGetCard(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
+        public static bool TryProcessGetCard(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
-                string serviceName = string.Empty;
-
-                serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_CARD];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                var serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_CARD];
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                ExpandoObject serviceData = new ExpandoObject();
+                Log.Info("Preparing Gtw Request");
+                var serviceData = new ExpandoObject();
                 ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
                 ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
-                ServiceRequest serviceRequest = new ServiceRequest()
+                var serviceRequest = new ServiceRequest()
                 {
                     serviceRequestId = guid,
                     serviceName = serviceName,
@@ -230,24 +243,24 @@ namespace Carta.Api.External.Logic.Processor
                     serviceData = serviceData
                 };
 
-                string gtwRequest = JsonConvert.SerializeObject(serviceRequest);
+                var gtwRequest = JsonConvert.SerializeObject(serviceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
@@ -258,7 +271,7 @@ namespace Carta.Api.External.Logic.Processor
         {
 
 
-            ServiceRequest serviceRequest = new ServiceRequest()
+            var serviceRequest = new ServiceRequest()
             {
                 serviceRequestId = guid,
                 serviceName = serviceName,
@@ -270,72 +283,85 @@ namespace Carta.Api.External.Logic.Processor
                 serviceData = GetAntelopServiceData(externalServiceRequest)
             };
 
-            string request = JsonConvert.SerializeObject(serviceRequest);
+            var request = JsonConvert.SerializeObject(serviceRequest);
 
             return request;
         }
 
         private dynamic GetAntelopServiceData(JObject externalServiceRequest)
         {
-            ExpandoObject serviceData = new ExpandoObject();
-
+            var serviceData = new ExpandoObject();
+            ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
             foreach (var item in externalServiceRequest)
             {
-                if (item.Key == "pan")
+                switch (item.Key)
                 {
-                    var jweObject = new JweObject("");
-                    var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                    string keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                    jweObject.keyPath = privateKey;
-                    var clearValue = "";
-                    jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
-                    ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
-                }
-                else
-                {
-                    ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
+                    case "pan":
+                    {
+                        var jweObject = new JweObject("");
+                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                        var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                        jweObject.keyPath = privateKey;
+                        string clearValue;
+                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                        ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
+                        break;
+                    }
+                    case "cvx2":
+                    {
+                        var jweObject = new JweObject("");
+                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                        var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                        jweObject.keyPath = privateKey;
+                        string clearValue;
+                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                        ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
+                        break;
+                    }
+                    default:
+                        ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
+                        break;
                 }
             }
-           ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
             return serviceData;
         }
         public bool TryProcess3dsChallengeRequest(string guid, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
 
-                JObject externalServiceRequest = JObject.Parse(_request);
+                var externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHANLLENCE];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                var serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHANLLENCE];
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                string gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
@@ -344,39 +370,39 @@ namespace Carta.Api.External.Logic.Processor
 
         public bool TryProcess3dsChallengeResult(string guid, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
 
-                JObject externalServiceRequest = JObject.Parse(_request);
+                var externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
-                dynamic service = GetServiceData(externalServiceRequest);
+                var service = GetServiceData(externalServiceRequest);
 
-                List<Header> headers = new List<Header>(){
+                var headers = new List<Header>(){
                     new Header {id = "3ds-challenge-result", value = service.serviceData.authenticationStatus},
                      new Header {id = "3ds-transaction-token", value = service.serviceData.transactionToken},
                      new Header {id = "X-Api-Key", value = ConfigurationManager.AppSettings[Constants.TOUCHTECH_API_KEY]}
                 };
 
-                HttpManager httpManager = new HttpManager();
-                if (httpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_CHALLENGE_ENDPOINT], out response))
+                var httpManager = new HttpManager();
+                if (HttpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_CHALLENGE_ENDPOINT], out response))
                 {
-                    log.Info("Resposne of chalenge result : " + response);
+                    Log.Info("Resposne of chalenge result : " + response);
                     return true;
                 }
 
-                log.Info("Resposne of chalenge result : " + response);
+                Log.Info("Resposne of chalenge result : " + response);
                 return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
@@ -385,41 +411,41 @@ namespace Carta.Api.External.Logic.Processor
 
         public bool TryProcess3dsChallengeRequestCancel(string guid, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
 
-                JObject externalServiceRequest = JObject.Parse(_request);
+                var externalServiceRequest = JObject.Parse(_request);
 
                 if (externalServiceRequest == null)
                     return false;
 
-                string serviceName = serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHALLENGE_CANCEL];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                var serviceName =  ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHALLENGE_CANCEL];
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                string gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
@@ -427,24 +453,22 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        public bool TryProcessGetCryptogram(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
+        public static bool TryProcessGetCryptogram(string guid, string issuerCardId, WebHeaderCollection headers, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
-                string serviceName = string.Empty;
-
-                serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_CRYPTOGRAM];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                var serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_CRYPTOGRAM];
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                ExpandoObject serviceData = new ExpandoObject();
+                Log.Info("Preparing Gtw Request");
+                var serviceData = new ExpandoObject();
                 ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
                 ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
-                ServiceRequest serviceRequest = new ServiceRequest()
+                var serviceRequest = new ServiceRequest()
                 {
                     serviceRequestId = guid,
                     serviceName = serviceName,
@@ -456,47 +480,45 @@ namespace Carta.Api.External.Logic.Processor
                     serviceData = serviceData
                 };
 
-                string gtwRequest = JsonConvert.SerializeObject(serviceRequest);
+                var gtwRequest = JsonConvert.SerializeObject(serviceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 
             return true;
         }
-        public bool TryProcessGetPinCode(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
+        public static bool TryProcessGetPinCode(string guid, string issuerCardId, WebHeaderCollection Headers, out string response)
         {
-            log.Info("Trying To process GTW Request");
+            Log.Info("Trying To process GTW Request");
             response = string.Empty;
             try
             {
-                string serviceName = string.Empty;
-
-                serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_PINCODE];
-                log.InfoFormat("Service name to execute = {0}", serviceName);
+                var serviceName = ConfigurationManager.AppSettings[Constants.ANTELOP_GET_PINCODE];
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                log.Info("Preparing Gtw Request");
-                ExpandoObject serviceData = new ExpandoObject();
+                Log.Info("Preparing Gtw Request");
+                var serviceData = new ExpandoObject();
                 ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
                 ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
-                ServiceRequest serviceRequest = new ServiceRequest()
+                var serviceRequest = new ServiceRequest()
                 {
                     serviceRequestId = guid,
                     serviceName = serviceName,
@@ -508,24 +530,24 @@ namespace Carta.Api.External.Logic.Processor
                     serviceData = serviceData
                 };
 
-                string gtwRequest = JsonConvert.SerializeObject(serviceRequest);
+                var gtwRequest = JsonConvert.SerializeObject(serviceRequest);
 
-                log.DebugFormat("Request={0}", gtwRequest);
+                Log.DebugFormat("Request={0}", gtwRequest);
 
-                HttpManager httpManager = new HttpManager();
-                HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                     return false;
 
-                ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
 
             }
             catch (Exception ex)
             {
-                log.Warn(ex.Message);
-                log.Debug(ex);
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
                 return false;
             }
 

@@ -8,11 +8,10 @@ namespace Carta.Api.External.JwsTools
     {
         public static string GetDecryptedPayload(string cryptedRequest)
         {
-            string decryptedRequest = "";
-            bool isJwsSigned = false;
-            JwsObject jwsObj = new JwsObject(JwsType.Flattened);
-            string publicKey = ConfigurationManager.AppSettings[Constants.JWS_PUBLIC_KEY];
-            isJwsSigned = jwsObj.TryJwsVerify(cryptedRequest, publicKey, true, out decryptedRequest);
+            string decryptedRequest;
+            var jwsObj = new JwsObject(JwsType.Flattened);
+            var publicKey = ConfigurationManager.AppSettings[Constants.JWS_PUBLIC_KEY];
+            jwsObj.TryJwsVerify(cryptedRequest, publicKey, true, out decryptedRequest);
             return decryptedRequest;
         }
     }
