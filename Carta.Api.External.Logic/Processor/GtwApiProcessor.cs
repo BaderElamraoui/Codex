@@ -19,7 +19,7 @@ namespace Carta.Api.External.Logic.Processor
     public class GtwApiProcessor
     {
 
-        private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly static ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly ServiceRequest _serviceRequest;
         private readonly ServiceResponse _serviceResponse;
@@ -29,7 +29,7 @@ namespace Carta.Api.External.Logic.Processor
         private const string SUCCESS = "000";
         private const string SUCCESS_LABEL = "Successful Operation";
         private const string CONCERNED_ENTITY = "CEA";
-        private readonly string _Request;
+        private readonly string _request;
 
         private string _privateKey;
 
@@ -43,7 +43,7 @@ namespace Carta.Api.External.Logic.Processor
             }
             else
             {
-                _Request = request;
+                _request = request;
             }
             _requestProcessor = new RequestProcessor();
             _httpManager = new HttpManager();
@@ -59,99 +59,93 @@ namespace Carta.Api.External.Logic.Processor
         {
             response = string.Empty;
             statusCode = HttpStatusCode.BadRequest;
-            string serviceName = _serviceRequest.serviceName;
+            var serviceName = _serviceRequest.serviceName;
 
-            string uid = GetParamValue("uid") != null ? GetParamValue("uid").ToString() : string.Empty;
-            string serviceId = GetParamValue("serviceId") != null ? GetParamValue("serviceId").ToString() : string.Empty;
+            var uid = GetParamValue("uid") != null ? GetParamValue("uid").ToString() : string.Empty;
+            var serviceId = GetParamValue("serviceId") != null ? GetParamValue("serviceId").ToString() : string.Empty;
 
             if (string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(serviceId))
             {
-                log.Error("UID is mandatory in the request for unicity selection");
+                Log.Error("UID is mandatory in the request for unicity selection");
                 return false;
             }
 
-            V3_EXTERNAL_BRANCH_API_LOGINS externalBranchApiLogin = CacheContainer.Instance.Container.ApiExternalBranchApiLogins.FirstOrDefault(x => x.LOGIN == _serviceRequest.requestorId && x.PASS == _serviceRequest.requestorCredential && x.UID == int.Parse(uid) && x.SERVICE_ID == serviceId);
+            var externalBranchApiLogin = CacheContainer.Instance.Container.ApiExternalBranchApiLogins.FirstOrDefault(x => x.LOGIN == _serviceRequest.requestorId && x.PASS == _serviceRequest.requestorCredential && x.UID == int.Parse(uid) && x.SERVICE_ID == serviceId);
 
-            log.Info(string.Format("Getting V3_EXTERNAL_BRANCH_API_LOGINS by  LOGIN={0}, UID={1}, SERVICE_ID={2}: Result={3}", _serviceRequest.requestorId, uid, serviceId, externalBranchApiLogin != null));
+            Log.Info(
+                $"Getting V3_EXTERNAL_BRANCH_API_LOGINS by  LOGIN={_serviceRequest.requestorId}, UID={uid}, SERVICE_ID={serviceId}: Result={externalBranchApiLogin != null}");
 
             if (externalBranchApiLogin == null)
             {
-                log.Warn("V3_EXTERNAL_BRANCH_API_LOGINS is null");
+                Log.Warn("V3_EXTERNAL_BRANCH_API_LOGINS is null");
             }
 
-            log.Info("Getting Service Name to FWD the operation to");
+            Log.Info("Getting Service Name to FWD the operation to");
 
-            V3_API_EXTERNAL_SERVICE externalService = CacheContainer.Instance.Container.ApiExternalServices.SingleOrDefault(x => x.SERVICE_GTW_NAME == serviceName && x.UID == int.Parse(uid));
+            var externalService = CacheContainer.Instance.Container.ApiExternalServices.SingleOrDefault(x => x.SERVICE_GTW_NAME == serviceName && x.UID == int.Parse(uid));
 
-            log.Info(string.Format("Getting V3_API_EXTERNAL_SERVICE by SERVICE_GTW_NAME={0}, UID={1}: Result={2}", serviceName, uid, externalService != null));
+            Log.Info(
+                $"Getting V3_API_EXTERNAL_SERVICE by SERVICE_GTW_NAME={serviceName}, UID={uid}: Result={externalService != null}");
 
             if (externalService == null)
             {
-                log.Error("No Configuration has been found for called service");
+                Log.Error("No Configuration has been found for called service");
                 return false;
             }
 
-            log.Info("Getting service endpoint");
+            Log.Info("Getting service endpoint");
 
-            V3_API_LOGIN_ENDPOINTS externalEndpoint = CacheContainer.Instance.Container.ApiExternalEndpoint.SingleOrDefault(x => x.CONCERNED_ENTITY == CONCERNED_ENTITY && x.SERVICE_ID == serviceId && x.BRANCH_API_LOGIN_UID == int.Parse(uid));
+            var externalEndpoint = CacheContainer.Instance.Container.ApiExternalEndpoint.SingleOrDefault(x => x.CONCERNED_ENTITY == CONCERNED_ENTITY && x.SERVICE_ID == serviceId && x.BRANCH_API_LOGIN_UID == int.Parse(uid));
 
-            log.InfoFormat("Getting V3_API_LOGIN_ENDPOINTS by LOGIN={0}, PASS=***,CHANNEL_ID={1}, CHANNEL_TYPE={2} : Result={3}", _serviceRequest.requestorId, _serviceRequest.channelId, _serviceRequest.channelType, externalEndpoint != null);
+            Log.InfoFormat("Getting V3_API_LOGIN_ENDPOINTS by LOGIN={0}, PASS=***,CHANNEL_ID={1}, CHANNEL_TYPE={2} : Result={3}", _serviceRequest.requestorId, _serviceRequest.channelId, _serviceRequest.channelType, externalEndpoint != null);
 
             if (externalEndpoint == null)
             {
-                log.Error("No endpoint has been found");
+                Log.Error("No endpoint has been found");
                 return false;
             }
 
-            log.Info("Getting service param to prepare the external Request");
+            Log.Info("Getting service param to prepare the external Request");
 
-            List<V3_API_EXTERNAL_SERVICE_PARAMS> externalParams = CacheContainer.Instance.Container.ApiExternalServiceParams.Where(x => x.EXTERNAL_SERVICE_NAME == externalService.EXTERNAL_SERVICE_NAME && x.UID == int.Parse(uid)).ToList();
+            var externalParams = CacheContainer.Instance.Container.ApiExternalServiceParams.Where(x => x.EXTERNAL_SERVICE_NAME == externalService.EXTERNAL_SERVICE_NAME && x.UID == int.Parse(uid)).ToList();
 
-            List<Header> requestHeaders = _requestProcessor.PrepareExternalRequestHeaders(_serviceParams, externalService.PARSED_HEADERS);
+            var requestHeaders = RequestProcessor.PrepareExternalRequestHeaders(_serviceParams, externalService.PARSED_HEADERS);
 
 
-            string request = _requestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
+            var request = RequestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
             string externalResponse;
-            HttpStatusCode externalStatusCode = HttpStatusCode.BadRequest;
+            var externalStatusCode = HttpStatusCode.BadRequest;
 
             if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
             {
-                string algorithm = externalBranchApiLogin.JWS_ALGORITHM;
-                string payload = request;
-                string header = JsonConvert.SerializeObject(requestHeaders);
+                var payload = request;
+                var header = JsonConvert.SerializeObject(requestHeaders);
 
-                JwsObject jwsObj = new JwsObject(JwsType.Flattened);
+                var jwsObj = new JwsObject(JwsType.Flattened);
 
 
-                string[] configuredAlgorithm = externalBranchApiLogin.JWS_ALGORITHM.Split('|');
+                var configuredAlgorithm = externalBranchApiLogin.JWS_ALGORITHM.Split('|');
                 _privateKey = configuredAlgorithm[2].ToLower();
                 string jwsEncryptionData;
-                if (jwsObj.TryJwsSign(header, payload, _privateKey, out jwsEncryptionData))
-                {
-                    request = jwsEncryptionData;
-                }
-                else
-                    request = payload;
+                request = jwsObj.TryJwsSign(header, payload, _privateKey, out jwsEncryptionData) ? jwsEncryptionData : payload;
 
             }
             _httpManager.TryCall(request, requestHeaders, externalEndpoint.ENDPOINT, externalService.METHOD, out externalResponse, out externalStatusCode);
 
-            Dictionary<string, object> outputParams;
-
             if (externalStatusCode == HttpStatusCode.OK)
             {
-                if (_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA, externalParams, out outputParams))
+                Dictionary<string, object> outputParams;
+                if (!_requestProcessor.TryParseAndPrepareExternalResponse(externalResponse, externalService.CRITERIA,
+                    externalParams, out outputParams)) return true;
+                _serviceResponse.serviceResponseCode = SUCCESS;
+                _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
+                foreach (var entry in outputParams)
                 {
-                    _serviceResponse.serviceResponseCode = SUCCESS;
-                    _serviceResponse.serviceResponseLabel = SUCCESS_LABEL;
-                    foreach (KeyValuePair<string, object> entry in outputParams)
-                    {
-                        ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
-                    }
-                    response = JsonConvert.SerializeObject(_serviceResponse);
-                    statusCode = externalStatusCode;
+                    ((IDictionary<string, object>)_serviceResponse.serviceResponseData)[entry.Key] = entry.Value;
                 }
+                response = JsonConvert.SerializeObject(_serviceResponse);
+                statusCode = externalStatusCode;
             }
             else
             {
@@ -161,25 +155,20 @@ namespace Carta.Api.External.Logic.Processor
             return true;
         }
 
-        public bool TryProcessGetClientRequest(out string response, out HttpStatusCode statusCode)
+        public void TryProcessGetClientRequest(out string response, out HttpStatusCode statusCode)
         {
             response = string.Empty;
             statusCode = HttpStatusCode.BadRequest;
 
-            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            if (!_httpManager.TryCallGetClientId(_Request, Headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode))
-                return false;
-
-            return true;
+            if (WebOperationContext.Current == null) return;
+            var headers = WebOperationContext.Current.IncomingRequest.Headers;
+            if (!_httpManager.TryCallGetClientId(_request, headers, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out statusCode)) return;
         }
 
-        public object GetParamValue(string key)
+        private object GetParamValue(string key)
         {
             object value;
-            if (_serviceParams.TryGetValue(key, out value))
-                return value;
-
-            return null;
+            return _serviceParams.TryGetValue(key, out value) ? value : null;
         }
 
 

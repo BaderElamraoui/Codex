@@ -14,8 +14,8 @@ namespace Carta.Api.External.Logic.Http
     public class HttpManager
     {
 
-        private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        HttpWebResponse httpResponse = null;
+        private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
+        private HttpWebResponse _httpResponse = null;
 
         public bool TryCall(string request, List<Header> headers, string endpoint, string httpMethod, out string response, out HttpStatusCode statusCode)
         {
@@ -23,7 +23,7 @@ namespace Carta.Api.External.Logic.Http
             response = string.Empty;
             statusCode = HttpStatusCode.BadRequest;
             log.Info("Start HTTP Call to: " + endpoint);
-            log.Debug(string.Format("REQUEST: {0}", request));
+            log.Debug($"REQUEST: {request}");
             if (string.IsNullOrEmpty(request) || string.IsNullOrEmpty(endpoint))
                 return false;
 
@@ -33,16 +33,18 @@ namespace Carta.Api.External.Logic.Http
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(endpoint);
 
-                if (httpMethod == "POST")
+                switch (httpMethod)
                 {
-                    httpWebRequest.Method = WebRequestMethods.Http.Post;
+                    case "POST":
+                        httpWebRequest.Method = WebRequestMethods.Http.Post;
+                        break;
+                    case "PUT":
+                        httpWebRequest.Method = WebRequestMethods.Http.Put;
+                        break;
+                    default:
+                        httpWebRequest.Method = WebRequestMethods.Http.Get;
+                        break;
                 }
-                else if (httpMethod == "PUT")
-                {
-                    httpWebRequest.Method = WebRequestMethods.Http.Put;
-                }
-                else
-                    httpWebRequest.Method = WebRequestMethods.Http.Get;
 
                 log.Info("Adding headers to HTTP Request");
                 if (headers != null && headers.Any())
@@ -64,12 +66,12 @@ namespace Carta.Api.External.Logic.Http
                     streamWriter.Write(request);
                 }
 
-                using (httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                using (_httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    log.InfoFormat("Server response: {0}", httpResponse.StatusCode);
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    log.InfoFormat("Server response: {0}", _httpResponse.StatusCode);
+                    if (_httpResponse.StatusCode == HttpStatusCode.OK)
                     {
-                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        using (var streamReader = new StreamReader(_httpResponse.GetResponseStream()))
                         {
                             response = streamReader.ReadToEnd();
                             statusCode = HttpStatusCode.OK;
@@ -80,11 +82,11 @@ namespace Carta.Api.External.Logic.Http
             }
             catch (WebException ex)
             {
-                httpResponse = (HttpWebResponse)ex.Response;
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                _httpResponse = (HttpWebResponse)ex.Response;
+                using (var streamReader = new StreamReader(_httpResponse.GetResponseStream()))
                 {
                     response = streamReader.ReadToEnd();
-                    statusCode = httpResponse.StatusCode;
+                    statusCode = _httpResponse.StatusCode;
                 }
                 log.ErrorFormat("Error During HTTP status Code Call: {0}", ex.Message);
                 return false;
@@ -108,7 +110,7 @@ namespace Carta.Api.External.Logic.Http
             response = string.Empty;
             statusCode = HttpStatusCode.BadRequest;
             log.Info("Start HTTP Call to: " + endpoint);
-            log.Debug(string.Format("REQUEST: {0}", request));
+            log.Debug($"REQUEST: {request}");
             if (string.IsNullOrEmpty(request) || string.IsNullOrEmpty(endpoint))
                 return false;
 
@@ -132,12 +134,12 @@ namespace Carta.Api.External.Logic.Http
                     streamWriter.Write(request);
                 }
 
-                using (httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                using (_httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    log.InfoFormat("Server response: {0}", httpResponse.StatusCode);
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    log.InfoFormat("Server response: {0}", _httpResponse.StatusCode);
+                    if (_httpResponse.StatusCode == HttpStatusCode.OK)
                     {
-                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        using (var streamReader = new StreamReader(_httpResponse.GetResponseStream()))
                         {
                             response = streamReader.ReadToEnd();
                             statusCode = HttpStatusCode.OK;
@@ -147,11 +149,11 @@ namespace Carta.Api.External.Logic.Http
             }
             catch (WebException ex)
             {
-                httpResponse = (HttpWebResponse)ex.Response;
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                _httpResponse = (HttpWebResponse)ex.Response;
+                using (var streamReader = new StreamReader(_httpResponse.GetResponseStream()))
                 {
                     response = streamReader.ReadToEnd();
-                    statusCode = httpResponse.StatusCode;
+                    statusCode = _httpResponse.StatusCode;
                 }
                 log.ErrorFormat("Error During HTTP status Code Call: {0}", ex.Message);
                 return false;
@@ -169,7 +171,7 @@ namespace Carta.Api.External.Logic.Http
 
         }
 
-        public bool PostWithoutBody(List<Header> headers, string endpoint, out string response)
+        public static bool PostWithoutBody(List<Header> headers, string endpoint, out string response)
         {
 
             response = string.Empty;
@@ -206,10 +208,10 @@ namespace Carta.Api.External.Logic.Http
                             response = streamReader.ReadToEnd();
                         }
 
-                        dynamic dynamicReponse = JsonConvert.DeserializeObject(response);
-                        dynamicReponse.serviceResponseCode = "000";
+                        dynamic dynamicResponse = JsonConvert.DeserializeObject(response);
+                        dynamicResponse.serviceResponseCode = "000";
 
-                        response = JsonConvert.SerializeObject(dynamicReponse);
+                        response = JsonConvert.SerializeObject(dynamicResponse);
 
                         return true;
                     }

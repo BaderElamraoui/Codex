@@ -23,25 +23,25 @@ namespace Carta.Api.External
 
         public Stream PostExternalData(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sReader = new StreamReader(streamRequest);
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
 
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcessPostRequest(GUID, out response))
+                if (!externalApiProcessor.TryProcessPostRequest(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -54,27 +54,27 @@ namespace Carta.Api.External
 
         public Stream PostData(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sReader = new StreamReader(streamRequest);
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
 
                 log.Info(string.Format("GTW API REQUEST: {0}", sbRequest.ToString()));
 
-                GtwApiProcessor gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString());
+                var gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString());
 
                 string response;
-                int count = RETRY_MANAGEMENT_COUNT;
-                HttpStatusCode httpResponse = HttpStatusCode.BadRequest;
-                bool processingResult = gtwApiProcessor.TryProcessPostRequest(out response, out httpResponse);
+                var count = RETRY_MANAGEMENT_COUNT;
+                var httpResponse = HttpStatusCode.BadRequest;
+                var processingResult = gtwApiProcessor.TryProcessPostRequest(out response, out httpResponse);
                 while (count > 0 && !processingResult)
                 {
                     processingResult = gtwApiProcessor.TryProcessPostRequest(out response, out httpResponse);
@@ -83,47 +83,47 @@ namespace Carta.Api.External
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                WebOperationContext ctx = WebOperationContext.Current;
-                ctx.OutgoingResponse.StatusCode = httpResponse;
+                var ctx = WebOperationContext.Current;
+                if (ctx != null) ctx.OutgoingResponse.StatusCode = httpResponse;
                 return GetResponse(response);
 
             }
 
         }
 
-        public Stream GetResponse(string response)
+        private static Stream GetResponse(string response)
         {
-            byte[] resultByte = Encoding.UTF8.GetBytes(response);
+            var resultByte = Encoding.UTF8.GetBytes(response);
             return new MemoryStream(resultByte);
         }
 
         public Stream GetClientId(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sReader = new StreamReader(streamRequest);
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
 
-                log.Info(string.Format("GTW API REQUEST: {0}", sbRequest.ToString()));
+                log.Info($"GTW API REQUEST: {sbRequest}");
 
-                GtwApiProcessor gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString(), false);
+                var gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString(), false);
 
                 string response;
-                HttpStatusCode httpResponse = HttpStatusCode.BadRequest;
-                bool processingResult = gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
+                var httpResponse = HttpStatusCode.BadRequest;
+                gtwApiProcessor.TryProcessGetClientRequest(out response, out httpResponse);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
-                WebOperationContext ctx = WebOperationContext.Current;
-                ctx.OutgoingResponse.StatusCode = httpResponse;
+                var ctx = WebOperationContext.Current;
+                if (ctx != null) ctx.OutgoingResponse.StatusCode = httpResponse;
                 return GetResponse(response);
 
             }
@@ -133,34 +133,34 @@ namespace Carta.Api.External
         {
             try
             {
-                Stopwatch stopwatch = new Stopwatch();
+                var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
                 if (streamRequest == null)
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                string GUID = Guid.NewGuid().ToString("N");
-                using (ThreadContext.Stacks["NDC"].Push(GUID))
+                var guid = Guid.NewGuid().ToString("N");
+                using (ThreadContext.Stacks["NDC"].Push(guid))
                 {
                     WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
-                    var Headers = WebOperationContext.Current.IncomingRequest.Headers;
+                    var headers = WebOperationContext.Current.IncomingRequest.Headers;
 
-                    foreach (var header in Headers.AllKeys)
+                    foreach (var header in headers.AllKeys)
                     {
-                        string headerContent = Headers[header];
+                        var headerContent = headers[header];
                         log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
                     }
-                    StreamReader sReader = new StreamReader(streamRequest);
-                    StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
-                    string Request = sbRequest.ToString();
+                    var sReader = new StreamReader(streamRequest);
+                    var sbRequest = new StringBuilder(sReader.ReadToEnd());
+                    var request = sbRequest.ToString();
 
-                    log.InfoFormat("EXTERNAL CRYPTED API REQUEST: {0}", Request);
+                    log.InfoFormat("EXTERNAL CRYPTED API REQUEST: {0}", request);
 
-                    ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(Request);
+                    var externalApiProcessor = new ExternalApiProcessor(request);
 
                     string response;
                     HttpStatusCode externalStatusCode;
-                    externalApiProcessor.TryProcessCheckCard(GUID, Headers, out response, out externalStatusCode);
+                    externalApiProcessor.TryProcessCheckCard(guid, headers, out response, out externalStatusCode);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
@@ -179,29 +179,29 @@ namespace Carta.Api.External
         public Stream AntelopGetCard(string issuerCardId, bool includePreviousCard)
         {
 
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (string.IsNullOrWhiteSpace(issuerCardId))
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
-            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            var headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
 
-                foreach (var header in Headers.AllKeys)
+                foreach (var header in headers.AllKeys)
                 {
-                    string headerContent = Headers[header];
+                    var headerContent = headers[header];
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
                 }
                 log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+                var externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                 string response;
-                if (!externalApiProcessor.TryProcessGetCard(GUID, issuerCardId, Headers, out response))
+                if (!ExternalApiProcessor.TryProcessGetCard(guid, issuerCardId, headers, out response))
                     throw new WebFaultException((HttpStatusCode)422);
 
                 var enc = new JweObject("");
@@ -211,66 +211,67 @@ namespace Carta.Api.External
             }
 
         }
-        public Stream GetCheckCardResponse(string response, HttpStatusCode externalStatusCode)
-        {
-            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
-            JObject outpuResponse = new JObject();
+        private static Stream GetCheckCardResponse(string response, HttpStatusCode externalStatusCode)
+        {
+            var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+
+            var outputResponse = new JObject();
             if (serviceResponse != null && serviceResponse.serviceResponseCode == Constants.SUCCESS)
             {
                 JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
-                outpuResponse.Add("issuerCardId", issuerCardId.ToString());
-                outpuResponse.Add("decision", decision.SUCCESS);
+                outputResponse.Add("issuerCardId", issuerCardId.ToString());
+                outputResponse.Add("decision", decision.SUCCESS);
             }
             else if (serviceResponse != null)
             {
-                outpuResponse.Add("decision", decision.DECLINE);
-                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
             else if (externalStatusCode == HttpStatusCode.Unauthorized)
             {
-                outpuResponse.Add("decision", decision.DECLINE);
-                outpuResponse.Add("declineReason", DeclineReason.INVALID_PAN);
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", DeclineReason.INVALID_PAN);
             }
             else
             {
-                outpuResponse.Add("decision", decision.DECLINE);
-                outpuResponse.Add("declineReason", DeclineReason.OTHER);
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", DeclineReason.OTHER);
             }
 
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            var resultByte = Encoding.UTF8.GetBytes(outputResponse.ToString());
             return new MemoryStream(resultByte);
         }
 
-        public Stream GetCardResponse(string response, JweObject jweObject, bool includePreviousCard)
+        private static Stream GetCardResponse(string response, JweObject jweObject, bool includePreviousCard)
         {
-            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+            var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
-            JObject outpuResponse = new JObject();
+            var outputResponse = new JObject();
             if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
             {
                 JToken pan = serviceResponse.serviceResponseData.SelectToken("pan");
                 JToken expiryDate = serviceResponse.serviceResponseData.SelectToken("expiryDate");
 
                 var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
-                string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
-                string cardNumber = pan.ToString();
-                string encryptedPan = "";
+                var keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
+                var cardNumber = pan.ToString();
+                string encryptedPan;
                 jweObject.keyPath = pathKey;
                 jweObject.TryAsymmetricJweEncrypt(cardNumber, "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
 
-                outpuResponse.Add("pan", encryptedPan);
-                outpuResponse.Add("expiryDate", expiryDate);
+                outputResponse.Add("pan", encryptedPan);
+                outputResponse.Add("expiryDate", expiryDate);
 
                 JToken previousPan = serviceResponse.serviceResponseData.SelectToken("previousPan");
                 JToken previousExpiryDate = serviceResponse.serviceResponseData.SelectToken("previousExpiryDate");
 
                 if (includePreviousCard)
                 {
-                    PreviousCard previousCard = new PreviousCard();
+                    var previousCard = new PreviousCard();
                     if (!string.IsNullOrWhiteSpace(previousPan.ToString()))
                     {
                         jweObject.TryAsymmetricJweEncrypt(previousPan.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedPan);
@@ -280,49 +281,49 @@ namespace Carta.Api.External
                         previousCard.expiryDate = previousExpiryDate.ToString();
 
                     if (!string.IsNullOrWhiteSpace(previousCard.pan) || !string.IsNullOrWhiteSpace(previousCard.expiryDate))
-                        outpuResponse.Add("previousCard", JObject.FromObject(previousCard, new JsonSerializer { NullValueHandling = NullValueHandling.Ignore }));
+                        outputResponse.Add("previousCard", JObject.FromObject(previousCard, new JsonSerializer { NullValueHandling = NullValueHandling.Ignore }));
                     else
                         throw new WebFaultException((HttpStatusCode)404);
                 }
             }
             else
             {
-                outpuResponse.Add("decision", decision.DECLINE);
-                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            log.Info("Final Response :" + outpuResponse.ToString());
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            log.Info("Final Response :" + outputResponse.ToString());
+            var resultByte = Encoding.UTF8.GetBytes(outputResponse.ToString());
             return new MemoryStream(resultByte);
         }
         public Stream GetCardCryptogram(string issuerCardId)
         {
 
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (string.IsNullOrWhiteSpace(issuerCardId))
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
-            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            var headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
 
-                foreach (var header in Headers.AllKeys)
+                foreach (var header in headers.AllKeys)
                 {
-                    string headerContent = Headers[header];
+                    var headerContent = headers[header];
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
                 }
                 log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+                var externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                 string response;
-                if (!externalApiProcessor.TryProcessGetCryptogram(GUID, issuerCardId, Headers, out response))
+                if (!ExternalApiProcessor.TryProcessGetCryptogram(guid, issuerCardId, headers, out response))
                     throw new WebFaultException((HttpStatusCode)422);
 
                 var enc = new JweObject("");
@@ -336,29 +337,29 @@ namespace Carta.Api.External
         public Stream GetPinCode(string issuerCardId)
         {
 
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (string.IsNullOrWhiteSpace(issuerCardId))
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json;charset=UTF-8";
-            var Headers = WebOperationContext.Current.IncomingRequest.Headers;
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            var headers = WebOperationContext.Current.IncomingRequest.Headers;
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
 
-                foreach (var header in Headers.AllKeys)
+                foreach (var header in headers.AllKeys)
                 {
-                    string headerContent = Headers[header];
+                    var headerContent = headers[header];
                     log.InfoFormat("Header Name : {0}, Header Content : {1} ", header, headerContent);
 
                 }
                 log.InfoFormat("EXTERNAL API REQUEST issuerCardId: {0}", issuerCardId);
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(issuerCardId);
+                var externalApiProcessor = new ExternalApiProcessor(issuerCardId);
 
                 string response;
-                if (!externalApiProcessor.TryProcessGetPinCode(GUID, issuerCardId, Headers, out response))
+                if (!ExternalApiProcessor.TryProcessGetPinCode(guid, issuerCardId, headers, out response))
                     throw new WebFaultException((HttpStatusCode)422);
 
                 var enc = new JweObject("");
@@ -369,13 +370,13 @@ namespace Carta.Api.External
 
         }
 
-        public Stream GetCryptogramResponse(string response, JweObject jweObject)
+        private static Stream GetCryptogramResponse(string response, JweObject jweObject)
         {
             var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
-            string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
-            string encryptedcvx2 = "";
-            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
-            JObject outpuResponse = new JObject();
+            var keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
+            var encryptedcvx2 = "";
+            var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+            var outputResponse = new JObject();
 
             if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
             {
@@ -386,27 +387,28 @@ namespace Carta.Api.External
                 jweObject.keyPath = pathKey;
                 jweObject.TryAsymmetricJweEncrypt(cvx2.ToString(), "RSA-OAEP-256", "A128CBC-HS256", pathKey, keyId, out encryptedcvx2);
 
-                outpuResponse.Add("cvx2", encryptedcvx2);
+                outputResponse.Add("cvx2", encryptedcvx2);
             }
             else
             {
-                outpuResponse.Add("decision", decision.DECLINE);
-                outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  DeclineReason.OTHER);
             }
-            log.Info("Final Response :" + outpuResponse.ToString());
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            log.Info("Final Response :" + outputResponse.ToString());
+            var resultByte = Encoding.UTF8.GetBytes(outputResponse.ToString());
             return new MemoryStream(resultByte);
         }
-        public Stream GetPinCodeResponse(string response, JweObject jweObject)
+
+        private static Stream GetPinCodeResponse(string response, JweObject jweObject)
         {
             var pathKey = @ConfigurationManager.AppSettings[Constants.JWE_ANTELOP_PUBLIC_KEY];
-            string keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
-            string encryptedpinCode = "";
-            ServiceResponse serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
-            JObject outpuResponse = new JObject();
+            var keyId = ConfigurationManager.AppSettings[Constants.ANTELOP_KEY];
+            var encryptedpinCode = "";
+            var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+            var outpuResponse = new JObject();
 
             if (serviceResponse.serviceResponseCode == Constants.SUCCESS)
             {
@@ -428,39 +430,39 @@ namespace Carta.Api.External
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outpuResponse.ToString());
-            byte[] resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
+            var resultByte = Encoding.UTF8.GetBytes(outpuResponse.ToString());
             return new MemoryStream(resultByte);
         }
         public Stream ChallengeRequest(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            string guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
+                var sReader = new StreamReader(streamRequest);
 
 
 
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
-                string JwsDecrypted = JwsTools.Jws.GetDecryptedPayload(sbRequest.ToString());
+                var jwsDecrypted = JwsTools.Jws.GetDecryptedPayload(sbRequest.ToString());
                 log.InfoFormat("EXTERNAL API JWS DECRYPTED REQUEST: {0}", sbRequest.ToString());
 
-                if (string.IsNullOrWhiteSpace(JwsDecrypted))
+                if (string.IsNullOrWhiteSpace(jwsDecrypted))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(JwsDecrypted);
+                var externalApiProcessor = new ExternalApiProcessor(jwsDecrypted);
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(GUID, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -471,28 +473,28 @@ namespace Carta.Api.External
 
         public Stream ChallengeRequestCancel(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sReader = new StreamReader(streamRequest);
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
                 if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(GUID, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -503,29 +505,29 @@ namespace Carta.Api.External
 
         public Stream Challenge(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
+                var sReader = new StreamReader(streamRequest);
 
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
                 if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(GUID, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -536,29 +538,29 @@ namespace Carta.Api.External
 
         public Stream ChallengeResult(Stream streamRequest)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
-            string GUID = Guid.NewGuid().ToString("N");
+            var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
-            using (ThreadContext.Stacks["NDC"].Push(GUID))
+            using (ThreadContext.Stacks["NDC"].Push(guid))
             {
-                StreamReader sReader = new StreamReader(streamRequest);
+                var sReader = new StreamReader(streamRequest);
 
-                StringBuilder sbRequest = new StringBuilder(sReader.ReadToEnd());
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
                 if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
-                ExternalApiProcessor externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeResult(GUID, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeResult(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();

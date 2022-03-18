@@ -12,33 +12,27 @@ namespace Carta.Api.External.Logic.Processor
 {
     public class RequestProcessor
     {
-        private readonly static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly static ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
+        public static string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
         {
-            List<V3_API_EXTERNAL_SERVICE_PARAMS> inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
+            var inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
 
-            foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in inputExternalServiceParams)
+            foreach (var item in inputExternalServiceParams)
             {
                 object value;
                 if (inputParams.TryGetValue(item.PARAMS_NAME, out value) && value != null)
                 {
 
                     var token = jsonRequest.SelectToken(item.PARAMS_NAME);
-                    if (token != null)
-                    {
-                        token.Replace(value.ToString());
-                    }
+                    token?.Replace(value.ToString());
 
                 }
                 else
                 {
                     //Make sure that we don't send # to external parties
                     var token = jsonRequest.SelectToken(item.PARAMS_NAME);
-                    if (token != null)
-                    {
-                        token.Replace(null);
-                    }
+                    token?.Replace(null);
                 }
 
             }
@@ -46,19 +40,19 @@ namespace Carta.Api.External.Logic.Processor
             return jsonRequest.ToString(Formatting.None);
         }
 
-        public List<Header> PrepareExternalRequestHeaders(IDictionary<string, object> inputParams, List<Header> headers)
+        public static List<Header> PrepareExternalRequestHeaders(IDictionary<string, object> inputParams, List<Header> headers)
         {
-            foreach (Header header in headers)
+            foreach (var header in headers)
             {
                 if (string.IsNullOrEmpty(header.value))
                 {
-                    log.Info("Header value is null");
+                    Log.Info("Header value is null");
                     header.value = inputParams[header.id].ToString();
                 }
 
                 else if (header.value.Contains("#"))
                 {
-                    log.Info("Header value contain #");
+                    Log.Info("Header value contain #");
                     header.value = header.value.Replace("#", inputParams[header.id].ToString());
                 }
             }
@@ -75,32 +69,29 @@ namespace Carta.Api.External.Logic.Processor
                     return false;
                 }
 
-                JToken jsonExternalResponse = JToken.Parse(externalResponse);
+                var jsonExternalResponse = JToken.Parse(externalResponse);
                 outputParams = new Dictionary<string, object>();
 
-                if (IsResponseValid(jsonExternalResponse, criteria))
+                if (!IsResponseValid(jsonExternalResponse, criteria)) return true;
+                Log.Info("Response is valid");
+
+                var outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && !x.IS_INPUT.Value).ToList();
+
+
+                foreach (var item in outputExternalServiceParams)
                 {
-                    log.Info("Response is valid");
-
-                    List<V3_API_EXTERNAL_SERVICE_PARAMS> outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && !x.IS_INPUT.Value).ToList();
-
-
-                    foreach (V3_API_EXTERNAL_SERVICE_PARAMS item in outputExternalServiceParams)
+                    foreach (var prop in jsonExternalResponse.Children<JProperty>())
                     {
-                        foreach (JProperty prop in jsonExternalResponse.Children<JProperty>())
-                        {
-                            if (prop.Name == item.PARAMS_NAME)
-                                outputParams[item.PARAMS_NAME] = prop.Value;
-                        }
+                        if (prop.Name == item.PARAMS_NAME)
+                            outputParams[item.PARAMS_NAME] = prop.Value;
                     }
-
                 }
                 return true;
 
             }
             catch (Exception ex)
             {
-                log.Error("Error during parsing external response:", ex);
+                Log.Error("Error during parsing external response:", ex);
                 outputParams = null;
                 return false;
             }
@@ -108,22 +99,18 @@ namespace Carta.Api.External.Logic.Processor
 
         }
 
-        public bool IsResponseValid(JToken jsonResponse, string criteria)
+        private static bool IsResponseValid(JToken jsonResponse, string criteria)
         {
             if (string.IsNullOrEmpty(criteria))
                 return true;
 
-            string paramsName = criteria.Split('|')[0];
-            string operation = criteria.Split('|')[1];
-            string paramsValue = criteria.Split('|')[2] == "null" ? null : criteria.Split('|')[2];
+            var paramsName = criteria.Split('|')[0];
+            var operation = criteria.Split('|')[1];
+            var paramsValue = criteria.Split('|')[2] == "null" ? null : criteria.Split('|')[2];
 
-            string output = jsonResponse.Value<string>(paramsName) ?? null;
-            log.Debug(string.Format("Checking if {0}{1}{2}", paramsName, operation, paramsValue));
-            if ((operation == "=" && paramsValue == output) || (operation == "!=" && paramsValue != output))
-            {
-                return true;
-            }
-            return false;
+            var output = jsonResponse.Value<string>(paramsName) ?? null;
+            Log.Debug($"Checking if {paramsName}{operation}{paramsValue}");
+            return (operation == "=" && paramsValue == output) || (operation == "!=" && paramsValue != output);
         }
 
 
