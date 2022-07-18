@@ -54,6 +54,8 @@ namespace Carta.Api.External.Logic.Processor
                 {
                     Log.Info("Header value contain #");
                     header.value = header.value.Replace("#", inputParams[header.id].ToString());
+                    if (string.IsNullOrWhiteSpace(header.value))
+                        header.value = header.value.Replace("#", Guid.NewGuid().ToString("N"));
                 }
             }
             return headers;

@@ -60,7 +60,7 @@ namespace Carta.Api.External.Logic.Http
 
                     });
                 }
-
+                httpWebRequest.UserAgent = "Carta.Api.Gateway";
                 using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                 {
                     streamWriter.Write(request);
