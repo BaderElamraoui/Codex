@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ATLASModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="APATHA_CARD_TOKENS">
+          <Key>
+            <PropertyRef Name="CLIENT_ID" />
+          </Key>
+          <Property Name="CLIENT_ID" Type="varchar" MaxLength="24" Nullable="false" />
+          <Property Name="CARD_TOKEN" Type="varchar" MaxLength="200" />
+          <Property Name="STATUS_CODE" Type="bit" Nullable="false" />
+          <Property Name="STATUS_DATE" Type="datetime" />
+        </EntityType>
+        <EntityType Name="CLIENT">
+          <Key>
+            <PropertyRef Name="INSTITUTION_ID" />
+            <PropertyRef Name="BRANCH_ID" />
+            <PropertyRef Name="CLIENT_ID" />
+          </Key>
+          <Property Name="INSTITUTION_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="BRANCH_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="CLIENT_ID" Type="varchar" MaxLength="24" Nullable="false" />
+          <Property Name="CARD_PROGRAM_ID" Type="int" Nullable="false" />
+          <Property Name="CLIENT_PROFILE_ID" Type="int" Nullable="false" />
+          <Property Name="CLIENT_STATUS" Type="int" />
+          <Property Name="PRIMARY_CLIENT_ID" Type="varchar" MaxLength="30" />
+          <Property Name="RELATIONSHIP" Type="varchar" MaxLength="200" />
+          <Property Name="ALIAS" Type="varchar" MaxLength="50" />
+          <Property Name="STATUS_CARD" Type="char" MaxLength="1" />
+          <Property Name="CARD_LAST_4_DIGITS" Type="char" MaxLength="4" />
+          <Property Name="PIN_RETRIEVE_ATTEMPTS" Type="int" Nullable="false" />
+          <Property Name="BALANCE_LOW" Type="decimal" Precision="15" Scale="3" />
+          <Property Name="BALANCE" Type="decimal" Precision="15" Scale="3" Nullable="false" />
+          <Property Name="BALANCE_DATE" Type="datetime" />
+          <Property Name="CARD_PROGRAM_LIMIT_TYPE" Type="char" MaxLength="1" />
+          <Property Name="ACTIVATION_ATTEMPTS" Type="int" Nullable="false" />
+          <Property Name="BALANCE_CHANGED" Type="bit" Nullable="false" />
+          <Property Name="STATUS_CARD_MODIFIER_ID" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="MODIFIED_BY" Type="varchar" MaxLength="100" />
+          <Property Name="MODIFICATION_DATE" Type="datetime" />
+          <Property Name="MODIFIED_BY_CLIENT" Type="varchar" MaxLength="100" />
+          <Property Name="DATE_LAST_CARD_STATUS_UPDATE" Type="datetime" />
+          <Property Name="RENEW_STATUS" Type="int" Nullable="false" />
+          <Property Name="ACTIVATION_DATE" Type="datetime" />
+          <Property Name="EXPIRY_DATE" Type="date" />
+          <Property Name="IS_AUTO_SUSPENDED" Type="int" />
+          <Property Name="ISDELIVRED" Type="bit" />
+          <Property Name="SHADOW_ACCOUNT_NBR" Type="varchar" MaxLength="24" />
+          <Property Name="CUSTOMER_STATUS_CODE" Type="varchar" MaxLength="2" />
+          <Property Name="CUSTOMER_STATUS_REASON" Type="varchar" MaxLength="50" />
+          <Property Name="CEASE_ALL" Type="char" MaxLength="1" />
+          <Property Name="THIRD_PARTY_ENROLLEMENT" Type="varchar" MaxLength="1" />
+        </EntityType>
+        <EntityType Name="THIRD_PARTY_OPERATIONS">
+          <Key>
+            <PropertyRef Name="INTERNAL_PAYMENT_ID" />
+          </Key>
+          <Property Name="INTERNAL_PAYMENT_ID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="EXTERNAL_PAYMENT_ID" Type="varchar" MaxLength="500" />
+          <Property Name="INSTITUTION_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="BRANCH_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="CLIENT_ID" Type="varchar" MaxLength="24" Nullable="false" />
+          <Property Name="TRACKING_ACCOUNT" Type="varchar" MaxLength="20" />
+          <Property Name="SOURCE_ACCOUNT" Type="varchar" MaxLength="30" />
+          <Property Name="DESTINATION_ACCOUNT" Type="varchar" MaxLength="30" />
+          <Property Name="AMOUNT" Type="decimal" Precision="18" Scale="3" />
+          <Property Name="CURRENCY" Type="varchar" MaxLength="3" />
+          <Property Name="INITIAL_REFERENCE" Type="varchar" MaxLength="37" />
+          <Property Name="PROCESSING_REFERENCE" Type="varchar" MaxLength="30" />
+          <Property Name="DESCRIPTION" Type="varchar" MaxLength="100" />
+          <Property Name="CONFIRMATION_REFERENCE" Type="varchar" MaxLength="30" />
+          <Property Name="TRACKING_MICROFILM_NUMBER" Type="varchar" MaxLength="100" />
+          <Property Name="CLIENT_MICROFILM_NUMBER" Type="varchar" MaxLength="100" />
+          <Property Name="CONFIRMATION_MICROFILM_NUMBER" Type="varchar" MaxLength="100" />
+          <Property Name="OPERATION_TYPE" Type="varchar" MaxLength="10" />
+          <Property Name="FINAL_EXECUTION_STATUS" Type="varchar" MaxLength="10" />
+          <Property Name="OPERATION_START_DATE" Type="datetime" Nullable="false" />
+          <Property Name="OPERATION_END_DATE" Type="datetime" />
+          <Property Name="OPERATION_STATUS" Type="varchar" MaxLength="3" />
+          <Property Name="OPERATION_STATUS_LABEL" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <Association Name="FK_THIRD_PARTY_OPERATION_CLIENT">
+          <End Role="CLIENT" Type="Self.CLIENT" Multiplicity="1" />
+          <End Role="THIRD_PARTY_OPERATIONS" Type="Self.THIRD_PARTY_OPERATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CLIENT">
+              <PropertyRef Name="INSTITUTION_ID" />
+              <PropertyRef Name="BRANCH_ID" />
+              <PropertyRef Name="CLIENT_ID" />
+            </Principal>
+            <Dependent Role="THIRD_PARTY_OPERATIONS">
+              <PropertyRef Name="INSTITUTION_ID" />
+              <PropertyRef Name="BRANCH_ID" />
+              <PropertyRef Name="CLIENT_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ATLASModelStoreContainer">
+          <EntitySet Name="APATHA_CARD_TOKENS" EntityType="Self.APATHA_CARD_TOKENS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CLIENT" EntityType="Self.CLIENT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="THIRD_PARTY_OPERATIONS" EntityType="Self.THIRD_PARTY_OPERATIONS" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_THIRD_PARTY_OPERATION_CLIENT" Association="Self.FK_THIRD_PARTY_OPERATION_CLIENT">
+            <End Role="CLIENT" EntitySet="CLIENT" />
+            <End Role="THIRD_PARTY_OPERATIONS" EntitySet="THIRD_PARTY_OPERATIONS" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ATLASModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="APATHA_CARD_TOKENS">
+          <Key>
+            <PropertyRef Name="CLIENT_ID" />
+          </Key>
+          <Property Name="CLIENT_ID" Type="String" MaxLength="24" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="CARD_TOKEN" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS_CODE" Type="Boolean" Nullable="false" />
+          <Property Name="STATUS_DATE" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityContainer Name="ATLASEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="APATHA_CARD_TOKENS" EntityType="Self.APATHA_CARD_TOKENS" />
+          <EntitySet Name="CLIENTs" EntityType="ATLASModel.CLIENT" />
+          <EntitySet Name="THIRD_PARTY_OPERATIONS" EntityType="ATLASModel.THIRD_PARTY_OPERATIONS" />
+          <AssociationSet Name="FK_THIRD_PARTY_OPERATION_CLIENT" Association="ATLASModel.FK_THIRD_PARTY_OPERATION_CLIENT">
+            <End Role="CLIENT" EntitySet="CLIENTs" />
+            <End Role="THIRD_PARTY_OPERATIONS" EntitySet="THIRD_PARTY_OPERATIONS" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="CLIENT">
+          <Key>
+            <PropertyRef Name="INSTITUTION_ID" />
+            <PropertyRef Name="BRANCH_ID" />
+            <PropertyRef Name="CLIENT_ID" />
+          </Key>
+          <Property Name="INSTITUTION_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="BRANCH_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="CLIENT_ID" Type="String" Nullable="false" MaxLength="24" FixedLength="false" Unicode="false" />
+          <Property Name="CARD_PROGRAM_ID" Type="Int32" Nullable="false" />
+          <Property Name="CLIENT_PROFILE_ID" Type="Int32" Nullable="false" />
+          <Property Name="CLIENT_STATUS" Type="Int32" />
+          <Property Name="PRIMARY_CLIENT_ID" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="RELATIONSHIP" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ALIAS" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="STATUS_CARD" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="CARD_LAST_4_DIGITS" Type="String" MaxLength="4" FixedLength="true" Unicode="false" />
+          <Property Name="PIN_RETRIEVE_ATTEMPTS" Type="Int32" Nullable="false" />
+          <Property Name="BALANCE_LOW" Type="Decimal" Precision="15" Scale="3" />
+          <Property Name="BALANCE" Type="Decimal" Nullable="false" Precision="15" Scale="3" />
+          <Property Name="BALANCE_DATE" Type="DateTime" Precision="3" />
+          <Property Name="CARD_PROGRAM_LIMIT_TYPE" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="ACTIVATION_ATTEMPTS" Type="Int32" Nullable="false" />
+          <Property Name="BALANCE_CHANGED" Type="Boolean" Nullable="false" />
+          <Property Name="STATUS_CARD_MODIFIER_ID" Type="String" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="MODIFIED_BY" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="MODIFICATION_DATE" Type="DateTime" Precision="3" />
+          <Property Name="MODIFIED_BY_CLIENT" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DATE_LAST_CARD_STATUS_UPDATE" Type="DateTime" Precision="3" />
+          <Property Name="RENEW_STATUS" Type="Int32" Nullable="false" />
+          <Property Name="ACTIVATION_DATE" Type="DateTime" Precision="3" />
+          <Property Name="EXPIRY_DATE" Type="DateTime" Precision="0" />
+          <Property Name="IS_AUTO_SUSPENDED" Type="Int32" />
+          <Property Name="ISDELIVRED" Type="Boolean" />
+          <Property Name="SHADOW_ACCOUNT_NBR" Type="String" MaxLength="24" FixedLength="false" Unicode="false" />
+          <Property Name="CUSTOMER_STATUS_CODE" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="CUSTOMER_STATUS_REASON" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CEASE_ALL" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="THIRD_PARTY_ENROLLEMENT" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="THIRD_PARTY_OPERATIONS" Relationship="ATLASModel.FK_THIRD_PARTY_OPERATION_CLIENT" FromRole="CLIENT" ToRole="THIRD_PARTY_OPERATIONS" />
+        </EntityType>
+        <EntityType Name="THIRD_PARTY_OPERATIONS">
+          <Key>
+            <PropertyRef Name="INTERNAL_PAYMENT_ID" />
+          </Key>
+          <Property Name="INTERNAL_PAYMENT_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EXTERNAL_PAYMENT_ID" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="INSTITUTION_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="BRANCH_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="CLIENT_ID" Type="String" Nullable="false" MaxLength="24" FixedLength="false" Unicode="false" />
+          <Property Name="TRACKING_ACCOUNT" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="SOURCE_ACCOUNT" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="DESTINATION_ACCOUNT" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="AMOUNT" Type="Decimal" Precision="18" Scale="3" />
+          <Property Name="CURRENCY" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="INITIAL_REFERENCE" Type="String" MaxLength="37" FixedLength="false" Unicode="false" />
+          <Property Name="PROCESSING_REFERENCE" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="DESCRIPTION" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONFIRMATION_REFERENCE" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="TRACKING_MICROFILM_NUMBER" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CLIENT_MICROFILM_NUMBER" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CONFIRMATION_MICROFILM_NUMBER" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="OPERATION_TYPE" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="FINAL_EXECUTION_STATUS" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="OPERATION_START_DATE" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="OPERATION_END_DATE" Type="DateTime" Precision="3" />
+          <Property Name="OPERATION_STATUS" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="OPERATION_STATUS_LABEL" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="CLIENT" Relationship="ATLASModel.FK_THIRD_PARTY_OPERATION_CLIENT" FromRole="THIRD_PARTY_OPERATIONS" ToRole="CLIENT" />
+        </EntityType>
+        <Association Name="FK_THIRD_PARTY_OPERATION_CLIENT">
+          <End Type="ATLASModel.CLIENT" Role="CLIENT" Multiplicity="1" />
+          <End Type="ATLASModel.THIRD_PARTY_OPERATIONS" Role="THIRD_PARTY_OPERATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CLIENT">
+              <PropertyRef Name="INSTITUTION_ID" />
+              <PropertyRef Name="BRANCH_ID" />
+              <PropertyRef Name="CLIENT_ID" />
+            </Principal>
+            <Dependent Role="THIRD_PARTY_OPERATIONS">
+              <PropertyRef Name="INSTITUTION_ID" />
+              <PropertyRef Name="BRANCH_ID" />
+              <PropertyRef Name="CLIENT_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ATLASModelStoreContainer" CdmEntityContainer="ATLASEntities">
+          <EntitySetMapping Name="APATHA_CARD_TOKENS">
+            <EntityTypeMapping TypeName="ATLASModel.APATHA_CARD_TOKENS">
+              <MappingFragment StoreEntitySet="APATHA_CARD_TOKENS">
+                <ScalarProperty Name="CLIENT_ID" ColumnName="CLIENT_ID" />
+                <ScalarProperty Name="CARD_TOKEN" ColumnName="CARD_TOKEN" />
+                <ScalarProperty Name="STATUS_CODE" ColumnName="STATUS_CODE" />
+                <ScalarProperty Name="STATUS_DATE" ColumnName="STATUS_DATE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CLIENTs">
+            <EntityTypeMapping TypeName="ATLASModel.CLIENT">
+              <MappingFragment StoreEntitySet="CLIENT">
+                <ScalarProperty Name="THIRD_PARTY_ENROLLEMENT" ColumnName="THIRD_PARTY_ENROLLEMENT" />
+                <ScalarProperty Name="CEASE_ALL" ColumnName="CEASE_ALL" />
+                <ScalarProperty Name="CUSTOMER_STATUS_REASON" ColumnName="CUSTOMER_STATUS_REASON" />
+                <ScalarProperty Name="CUSTOMER_STATUS_CODE" ColumnName="CUSTOMER_STATUS_CODE" />
+                <ScalarProperty Name="SHADOW_ACCOUNT_NBR" ColumnName="SHADOW_ACCOUNT_NBR" />
+                <ScalarProperty Name="ISDELIVRED" ColumnName="ISDELIVRED" />
+                <ScalarProperty Name="IS_AUTO_SUSPENDED" ColumnName="IS_AUTO_SUSPENDED" />
+                <ScalarProperty Name="EXPIRY_DATE" ColumnName="EXPIRY_DATE" />
+                <ScalarProperty Name="ACTIVATION_DATE" ColumnName="ACTIVATION_DATE" />
+                <ScalarProperty Name="RENEW_STATUS" ColumnName="RENEW_STATUS" />
+                <ScalarProperty Name="DATE_LAST_CARD_STATUS_UPDATE" ColumnName="DATE_LAST_CARD_STATUS_UPDATE" />
+                <ScalarProperty Name="MODIFIED_BY_CLIENT" ColumnName="MODIFIED_BY_CLIENT" />
+                <ScalarProperty Name="MODIFICATION_DATE" ColumnName="MODIFICATION_DATE" />
+                <ScalarProperty Name="MODIFIED_BY" ColumnName="MODIFIED_BY" />
+                <ScalarProperty Name="STATUS_CARD_MODIFIER_ID" ColumnName="STATUS_CARD_MODIFIER_ID" />
+                <ScalarProperty Name="BALANCE_CHANGED" ColumnName="BALANCE_CHANGED" />
+                <ScalarProperty Name="ACTIVATION_ATTEMPTS" ColumnName="ACTIVATION_ATTEMPTS" />
+                <ScalarProperty Name="CARD_PROGRAM_LIMIT_TYPE" ColumnName="CARD_PROGRAM_LIMIT_TYPE" />
+                <ScalarProperty Name="BALANCE_DATE" ColumnName="BALANCE_DATE" />
+                <ScalarProperty Name="BALANCE" ColumnName="BALANCE" />
+                <ScalarProperty Name="BALANCE_LOW" ColumnName="BALANCE_LOW" />
+                <ScalarProperty Name="PIN_RETRIEVE_ATTEMPTS" ColumnName="PIN_RETRIEVE_ATTEMPTS" />
+                <ScalarProperty Name="CARD_LAST_4_DIGITS" ColumnName="CARD_LAST_4_DIGITS" />
+                <ScalarProperty Name="STATUS_CARD" ColumnName="STATUS_CARD" />
+                <ScalarProperty Name="ALIAS" ColumnName="ALIAS" />
+                <ScalarProperty Name="RELATIONSHIP" ColumnName="RELATIONSHIP" />
+                <ScalarProperty Name="PRIMARY_CLIENT_ID" ColumnName="PRIMARY_CLIENT_ID" />
+                <ScalarProperty Name="CLIENT_STATUS" ColumnName="CLIENT_STATUS" />
+                <ScalarProperty Name="CLIENT_PROFILE_ID" ColumnName="CLIENT_PROFILE_ID" />
+                <ScalarProperty Name="CARD_PROGRAM_ID" ColumnName="CARD_PROGRAM_ID" />
+                <ScalarProperty Name="CLIENT_ID" ColumnName="CLIENT_ID" />
+                <ScalarProperty Name="BRANCH_ID" ColumnName="BRANCH_ID" />
+                <ScalarProperty Name="INSTITUTION_ID" ColumnName="INSTITUTION_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="THIRD_PARTY_OPERATIONS">
+            <EntityTypeMapping TypeName="ATLASModel.THIRD_PARTY_OPERATIONS">
+              <MappingFragment StoreEntitySet="THIRD_PARTY_OPERATIONS">
+                <ScalarProperty Name="OPERATION_STATUS_LABEL" ColumnName="OPERATION_STATUS_LABEL" />
+                <ScalarProperty Name="OPERATION_STATUS" ColumnName="OPERATION_STATUS" />
+                <ScalarProperty Name="OPERATION_END_DATE" ColumnName="OPERATION_END_DATE" />
+                <ScalarProperty Name="OPERATION_START_DATE" ColumnName="OPERATION_START_DATE" />
+                <ScalarProperty Name="FINAL_EXECUTION_STATUS" ColumnName="FINAL_EXECUTION_STATUS" />
+                <ScalarProperty Name="OPERATION_TYPE" ColumnName="OPERATION_TYPE" />
+                <ScalarProperty Name="CONFIRMATION_MICROFILM_NUMBER" ColumnName="CONFIRMATION_MICROFILM_NUMBER" />
+                <ScalarProperty Name="CLIENT_MICROFILM_NUMBER" ColumnName="CLIENT_MICROFILM_NUMBER" />
+                <ScalarProperty Name="TRACKING_MICROFILM_NUMBER" ColumnName="TRACKING_MICROFILM_NUMBER" />
+                <ScalarProperty Name="CONFIRMATION_REFERENCE" ColumnName="CONFIRMATION_REFERENCE" />
+                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
+                <ScalarProperty Name="PROCESSING_REFERENCE" ColumnName="PROCESSING_REFERENCE" />
+                <ScalarProperty Name="INITIAL_REFERENCE" ColumnName="INITIAL_REFERENCE" />
+                <ScalarProperty Name="CURRENCY" ColumnName="CURRENCY" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="DESTINATION_ACCOUNT" ColumnName="DESTINATION_ACCOUNT" />
+                <ScalarProperty Name="SOURCE_ACCOUNT" ColumnName="SOURCE_ACCOUNT" />
+                <ScalarProperty Name="TRACKING_ACCOUNT" ColumnName="TRACKING_ACCOUNT" />
+                <ScalarProperty Name="CLIENT_ID" ColumnName="CLIENT_ID" />
+                <ScalarProperty Name="BRANCH_ID" ColumnName="BRANCH_ID" />
+                <ScalarProperty Name="INSTITUTION_ID" ColumnName="INSTITUTION_ID" />
+                <ScalarProperty Name="EXTERNAL_PAYMENT_ID" ColumnName="EXTERNAL_PAYMENT_ID" />
+                <ScalarProperty Name="INTERNAL_PAYMENT_ID" ColumnName="INTERNAL_PAYMENT_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -11,6 +11,7 @@ using System.Net;
 using Carta.Security.Cryptography.Software.Encryption;
 using Carta.Security.Cryptography.Software.Jwe;
 using System.IO;
+using System.Linq;
 using Carta.Api.External.Dal.Db;
 
 namespace Carta.Api.External.Logic.Processor
@@ -166,33 +167,33 @@ namespace Carta.Api.External.Logic.Processor
                     switch (item.Key)
                     {
                         case "pan":
-                        {
-                            var jweObject = new JweObject("");
-                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                            jweObject.keyPath = privateKey;
-                            string clearValue;
-                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                            {
+                                var jweObject = new JweObject("");
+                                var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                                var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                                jweObject.keyPath = privateKey;
+                                string clearValue;
+                                jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
 
-                            if (!string.IsNullOrWhiteSpace(clearValue)) continue;
-                            externalStatusCode = HttpStatusCode.Unauthorized;
-                            Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
-                            return false;
-                        }
+                                if (!string.IsNullOrWhiteSpace(clearValue)) continue;
+                                externalStatusCode = HttpStatusCode.Unauthorized;
+                                Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                                return false;
+                            }
                         case "cvx2":
-                        {
-                            var jweObject = new JweObject("");
-                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                            jweObject.keyPath = privateKey;
-                            string clearValue;
-                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                            {
+                                var jweObject = new JweObject("");
+                                var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                                var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                                jweObject.keyPath = privateKey;
+                                string clearValue;
+                                jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
 
-                            if (!string.IsNullOrWhiteSpace(clearValue)) continue;
-                            externalStatusCode = HttpStatusCode.Unauthorized;
-                            Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
-                            return false;
-                        }
+                                if (!string.IsNullOrWhiteSpace(clearValue)) continue;
+                                externalStatusCode = HttpStatusCode.Unauthorized;
+                                Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                                return false;
+                            }
                     }
                 }
                 #endregion
@@ -297,27 +298,27 @@ namespace Carta.Api.External.Logic.Processor
                 switch (item.Key)
                 {
                     case "pan":
-                    {
-                        var jweObject = new JweObject("");
-                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                        var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                        jweObject.keyPath = privateKey;
-                        string clearValue;
-                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
-                        ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
-                        break;
-                    }
+                        {
+                            var jweObject = new JweObject("");
+                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                            jweObject.keyPath = privateKey;
+                            string clearValue;
+                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                            ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
+                            break;
+                        }
                     case "cvx2":
-                    {
-                        var jweObject = new JweObject("");
-                        var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
-                        var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
-                        jweObject.keyPath = privateKey;
-                        string clearValue;
-                        jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
-                        ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
-                        break;
-                    }
+                        {
+                            var jweObject = new JweObject("");
+                            var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
+                            var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
+                            jweObject.keyPath = privateKey;
+                            string clearValue;
+                            jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
+                            ((IDictionary<string, object>)serviceData)[item.Key] = clearValue;
+                            break;
+                        }
                     default:
                         ((IDictionary<string, object>)serviceData)[item.Key] = item.Value;
                         break;
@@ -422,7 +423,7 @@ namespace Carta.Api.External.Logic.Processor
                 if (externalServiceRequest == null)
                     return false;
 
-                var serviceName =  ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHALLENGE_CANCEL];
+                var serviceName = ConfigurationManager.AppSettings[Constants.AUTHORISATION_CHALLENGE_CANCEL];
                 Log.InfoFormat("Service name to execute = {0}", serviceName);
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
@@ -553,6 +554,58 @@ namespace Carta.Api.External.Logic.Processor
 
             return true;
         }
+        public bool TryProcessApataChallengeResult(string guid, out string response)
+        {
+            Log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
 
+                var externalServiceRequest = JObject.Parse(_request);
+
+                if (externalServiceRequest == null)
+                    return false;
+
+                var service = GetServiceData(externalServiceRequest);
+                string transactionToken = service.serviceData.transactionToken?.ToString();
+                var clientId = new ATLASEntities().THIRD_PARTY_OPERATIONS
+                    .FirstOrDefault(w => w.EXTERNAL_PAYMENT_ID == transactionToken)?.CLIENT_ID;
+
+                var client = new ATLASEntities().CLIENTs
+                    .FirstOrDefault(w => w.CLIENT_ID == clientId);
+
+                var cardProgramApataEnrollment =
+                    new CARTA_UK_V3Entities().V3_CARD_PROGRAM_APATHA_ENROLLMENT.FirstOrDefault(
+                        w => w.INSTITUTION_ID == client.INSTITUTION_ID
+                             && w.BRANCH_ID == client.BRANCH_ID
+                             && w.CARD_PROGRAM_ID == client.CARD_PROGRAM_ID
+                    );
+                var headers = new List<Header>(){
+                    new Header {id = "3ds-challenge-result", value = service.serviceData.authenticationStatus},
+                    new Header {id = "3ds-transaction-token", value = transactionToken},
+                    new Header {id = "X-Api-Key", value =  cardProgramApataEnrollment?.API_KEY},
+                    new Header {id = "X-Org-ID", value = cardProgramApataEnrollment?.ORGANISATION_ID},
+                    new Header {id = "X-FI-ID", value = cardProgramApataEnrollment?.FINANCIAL_INSTITUTION_ID}
+                };
+
+                var httpManager = new HttpManager();
+                if (HttpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_APATA_CHALLENGE_ENDPOINT], out response))
+                {
+                    Log.Info("Resposne of chalenge result : " + response);
+                    return true;
+                }
+
+                Log.Info("Resposne of chalenge result : " + response);
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
+                return false;
+            }
+
+        }
     }
 }

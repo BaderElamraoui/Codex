@@ -569,6 +569,39 @@ namespace Carta.Api.External
             }
         }
 
+        public Stream ApataChallengeResult(Stream streamRequest)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            var guid = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+
+            using (ThreadContext.Stacks["NDC"].Push(guid))
+            {
+                var sReader = new StreamReader(streamRequest);
+
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
+                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+
+                string response;
+                if (!externalApiProcessor.TryProcessApataChallengeResult(guid, out response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetResponse(response);
+            }
+        }
+
     }
     public class PreviousCard
     {
