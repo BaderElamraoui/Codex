@@ -63,6 +63,9 @@
   <ItemGroup>
     <Compile Include="Cache\CacheContainer.cs" />
     <Compile Include="Cache\Container.cs" />
+    <Compile Include="Db\APATHA_CARD_TOKENS.cs">
+      <DependentUpon>DataEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Db\ApiExternalService.cs" />
     <Compile Include="Db\CartaEntities.Context.cs">
       <AutoGen>True</AutoGen>
@@ -79,6 +82,27 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>CartaEntities.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Db\CLIENT.cs">
+      <DependentUpon>DataEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Db\DataEntities.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataEntities.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Db\DataEntities.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Db\DataEntities.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataEntities.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Db\THIRD_PARTY_OPERATIONS.cs">
+      <DependentUpon>DataEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Db\V3_API_EXTERNAL_SERVICE.cs">
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
@@ -86,6 +110,9 @@
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Db\V3_API_LOGIN_ENDPOINTS.cs">
+      <DependentUpon>CartaEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Db\V3_CARD_PROGRAM_APATHA_ENROLLMENT.cs">
       <DependentUpon>CartaEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Db\V3_EXTERNAL_BRANCH_API_LOGINS.cs">
@@ -105,6 +132,13 @@
     <None Include="Db\CartaEntities.edmx.diagram">
       <DependentUpon>CartaEntities.edmx</DependentUpon>
     </None>
+    <EntityDeploy Include="Db\DataEntities.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>DataEntities.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Db\DataEntities.edmx.diagram">
+      <DependentUpon>DataEntities.edmx</DependentUpon>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +151,16 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>CartaEntities.edmx</DependentUpon>
       <LastGenOutput>CartaEntities.cs</LastGenOutput>
+    </Content>
+    <Content Include="Db\DataEntities.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>DataEntities.edmx</DependentUpon>
+      <LastGenOutput>DataEntities.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Db\DataEntities.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>DataEntities.edmx</DependentUpon>
+      <LastGenOutput>DataEntities.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>

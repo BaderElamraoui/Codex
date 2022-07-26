@@ -13,10 +13,10 @@ namespace Carta.Api.External.Dal.Db
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class CARTA_UK_V3Entities : DbContext
+    public partial class ATLASEntities : DbContext
     {
-        public CARTA_UK_V3Entities()
-            : base("name=CARTA_UK_V3Entities")
+        public ATLASEntities()
+            : base("name=ATLASEntities")
         {
         }
     
@@ -25,10 +25,8 @@ namespace Carta.Api.External.Dal.Db
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<V3_EXTERNAL_BRANCH_API_LOGINS> V3_EXTERNAL_BRANCH_API_LOGINS { get; set; }
-        public virtual DbSet<V3_API_EXTERNAL_SERVICE> V3_API_EXTERNAL_SERVICE { get; set; }
-        public virtual DbSet<V3_API_LOGIN_ENDPOINTS> V3_API_LOGIN_ENDPOINTS { get; set; }
-        public virtual DbSet<V3_CARD_PROGRAM_APATHA_ENROLLMENT> V3_CARD_PROGRAM_APATHA_ENROLLMENT { get; set; }
-        public virtual DbSet<V3_API_EXTERNAL_SERVICE_PARAMS> V3_API_EXTERNAL_SERVICE_PARAMS { get; set; }
+        public virtual DbSet<APATHA_CARD_TOKENS> APATHA_CARD_TOKENS { get; set; }
+        public virtual DbSet<CLIENT> CLIENTs { get; set; }
+        public virtual DbSet<THIRD_PARTY_OPERATIONS> THIRD_PARTY_OPERATIONS { get; set; }
     }
 }

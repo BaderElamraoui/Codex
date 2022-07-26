@@ -16,7 +16,7 @@ namespace Carta.Api.External.Logic.Processor
 
         public static string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
         {
-            var inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && x.IS_INPUT.Value).ToList();
+            var inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT && x.IS_INPUT).ToList();
 
             foreach (var item in inputExternalServiceParams)
             {
@@ -75,7 +75,7 @@ namespace Carta.Api.External.Logic.Processor
                 if (!IsResponseValid(jsonExternalResponse, criteria)) return true;
                 Log.Info("Response is valid");
 
-                var outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT.HasValue && !x.IS_INPUT.Value).ToList();
+                var outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT && !x.IS_INPUT).ToList();
 
 
                 foreach (var item in outputExternalServiceParams)

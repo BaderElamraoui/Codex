@@ -103,5 +103,14 @@ namespace Carta.Api.External
                 Method = "GET"
            )]
         Stream GetPinCode(string issuerCardId);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "apataChallengeResult",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+        )]
+        Stream ApataChallengeResult(Stream streamRequest);
     }
 }

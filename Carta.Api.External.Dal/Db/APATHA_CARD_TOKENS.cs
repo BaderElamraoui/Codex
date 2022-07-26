@@ -12,13 +12,11 @@ namespace Carta.Api.External.Dal.Db
     using System;
     using System.Collections.Generic;
     
-    public partial class V3_API_LOGIN_ENDPOINTS
+    public partial class APATHA_CARD_TOKENS
     {
-        public int BRANCH_API_LOGIN_UID { get; set; }
-        public string SERVICE_ID { get; set; }
-        public string ENDPOINT { get; set; }
-        public string WRRAPED_VALUE { get; set; }
-        public string CONCERNED_ENTITY { get; set; }
-        public string HEADERS { get; set; }
+        public string CLIENT_ID { get; set; }
+        public string CARD_TOKEN { get; set; }
+        public bool STATUS_CODE { get; set; }
+        public Nullable<System.DateTime> STATUS_DATE { get; set; }
     }
 }
