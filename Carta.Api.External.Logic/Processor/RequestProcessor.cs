@@ -52,9 +52,18 @@ namespace Carta.Api.External.Logic.Processor
 
                 else if (header.value.Contains("#"))
                 {
-                    Log.Info("Header value contain #");
-                    header.value = header.value.Replace("#", inputParams[header.id].ToString());
+                    try
+                    {
+                        Log.Info("Header value contain #");
+                        header.value = header.value.Replace("#", inputParams[header.id].ToString());
+                    }
+                    catch
+                    {
+                        header.value = header.value.Replace("#", Guid.NewGuid().ToString("N"));
+                    }
                 }
+                else if (header.id == "callbackUrl")
+                    header.value = "https://my.callback.url";
             }
             return headers;
         }
