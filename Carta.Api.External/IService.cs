@@ -103,5 +103,14 @@ namespace Carta.Api.External
                 Method = "GET"
            )]
         Stream GetPinCode(string issuerCardId);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "GenesysApi",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+        )]
+        Stream GenesysApiRequest(Stream streamRequest);
     }
 }
