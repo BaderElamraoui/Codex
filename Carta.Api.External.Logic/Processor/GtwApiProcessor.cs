@@ -215,7 +215,7 @@ namespace Carta.Api.External.Logic.Processor
         private string PrepareGenesysGtwRequest(NameValueCollection header, string guid, ServiceRequest externalServiceRequest)
         {
             externalServiceRequest.serviceData = GetServiceData(header, externalServiceRequest.serviceData);
-            
+            externalServiceRequest.serviceRequestId = header["inin-request-id"];
             var request = JsonConvert.SerializeObject(externalServiceRequest);
 
             return request;
@@ -226,7 +226,7 @@ namespace Carta.Api.External.Logic.Processor
             ExpandoObject serviceData = receivedServiceData;
 
             ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
-            ((IDictionary<string, object>) serviceData)["requestId"] = header["inin-request-id"];
+            //((IDictionary<string, object>) serviceData)["requestId"] = header["inin-request-id"];
             ((IDictionary<string, object>)serviceData)["orgId"] = header["inin-organization-id"];
             ((IDictionary<string, object>)serviceData)["tokenId"] = header["token-Id"];
 
