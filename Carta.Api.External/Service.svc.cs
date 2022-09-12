@@ -462,8 +462,10 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(jwsDecrypted);
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response);
+
+                log.Info("PROCESS 3DS RESPONSE  : " + response.ToString());
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
