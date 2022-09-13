@@ -465,7 +465,8 @@ namespace Carta.Api.External
 
                 externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response);
 
-                log.Info("PROCESS 3DS RESPONSE  : " + response.ToString());
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
@@ -529,6 +530,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
+
                 if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
@@ -595,8 +597,8 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcessApataChallengeResult(guid, out response))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                externalApiProcessor.TryProcessApataChallengeResult(guid, out response);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
