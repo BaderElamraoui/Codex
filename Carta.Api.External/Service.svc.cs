@@ -61,7 +61,8 @@ namespace Carta.Api.External
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
             var guid = Guid.NewGuid().ToString("N");
-
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+            var headers = WebOperationContext.Current.IncomingRequest.Headers;
             using (ThreadContext.Stacks["NDC"].Push(guid))
             {
                 var sReader = new StreamReader(streamRequest);

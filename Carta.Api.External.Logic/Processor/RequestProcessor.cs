@@ -84,7 +84,7 @@ namespace Carta.Api.External.Logic.Processor
                 if (!IsResponseValid(jsonExternalResponse, criteria)) return true;
                 Log.Info("Response is valid");
 
-                var outputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT && !x.IS_INPUT).ToList();
+                var outputExternalServiceParams = externalServiceParams.Where(x => !x.IS_INPUT).ToList();
 
 
                 foreach (var item in outputExternalServiceParams)
