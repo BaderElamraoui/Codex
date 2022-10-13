@@ -9,10 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
-using System.Net.WebSockets;
 using System.ServiceModel.Web;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carta.Api.External.Logic.Processor
 {
@@ -81,13 +78,18 @@ namespace Carta.Api.External.Logic.Processor
             }
 
             Log.Info("Getting Service Name to FWD the operation to");
+            var iUid = int.Parse(uid);
+            var dbExternalService = new CARTA_UK_V3Entities().V3_API_EXTERNAL_SERVICE.SingleOrDefault(x => x.SERVICE_GTW_NAME == serviceName && x.UID == iUid);
 
-            var externalService = CacheContainer.Instance.Container.ApiExternalServices.SingleOrDefault(x => x.SERVICE_GTW_NAME == serviceName && x.UID == int.Parse(uid));
+            var parsedHeader = new List<Header>();
+            GetParsedHeaderList(dbExternalService, parsedHeader);
+
+            var externalService = CacheContainer.Instance.Container.ApiExternalServices.SingleOrDefault(x => x.SERVICE_GTW_NAME == serviceName && x.UID == iUid);
 
             Log.Info(
-                $"Getting V3_API_EXTERNAL_SERVICE by SERVICE_GTW_NAME={serviceName}, UID={uid}: Result={externalService != null}");
+                $"Getting V3_API_EXTERNAL_SERVICE by SERVICE_GTW_NAME={serviceName}, UID={uid}: Result={dbExternalService != null}");
 
-            if (externalService == null)
+            if (dbExternalService == null)
             {
                 Log.Error("No Configuration has been found for called service");
                 return false;
@@ -109,15 +111,15 @@ namespace Carta.Api.External.Logic.Processor
 
             var externalParams = CacheContainer.Instance.Container.ApiExternalServiceParams.Where(x => x.EXTERNAL_SERVICE_NAME == externalService.EXTERNAL_SERVICE_NAME && x.UID == int.Parse(uid)).ToList();
 
-            var requestHeaders = RequestProcessor.PrepareExternalRequestHeaders(_serviceParams, externalService.PARSED_HEADERS);
+            var requestHeaders = new RequestProcessor().PrepareExternalRequestHeaders(_serviceParams, parsedHeader);
 
 
-            var request = RequestProcessor.PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
+            var request = new RequestProcessor().PrepareExternalRequest(externalService.PARSED_REQUEST_MAP, externalParams, _serviceParams);
 
             string externalResponse;
             var externalStatusCode = HttpStatusCode.BadRequest;
 
-            if (externalBranchApiLogin.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
+            if (externalBranchApiLogin?.JWS_ENABLED != null && externalBranchApiLogin.JWS_ENABLED == true)
             {
                 var payload = request;
                 var header = JsonConvert.SerializeObject(requestHeaders);
@@ -153,6 +155,40 @@ namespace Carta.Api.External.Logic.Processor
                 statusCode = externalStatusCode;
             }
             return true;
+        }
+
+        private static void GetParsedHeaderList(V3_API_EXTERNAL_SERVICE externalService, List<Header> parsedHeader)
+        {
+            if (!string.IsNullOrEmpty(externalService?.HEADERS))
+            {
+                Log.DebugFormat("service Name : {0}, Uid :{1}", externalService.SERVICE_GTW_NAME, externalService.UID);
+                Log.Info("Custom Header are configured");
+                Log.DebugFormat("Header Values:{0}", externalService.HEADERS);
+
+                if (externalService.HEADERS.Contains('|'))
+                {
+                    var headers = externalService.HEADERS.Split('|');
+                    foreach (var cHeader in headers)
+                    {
+                        var header = new Header
+                        {
+                            id = cHeader.Split(':')[0],
+                            value = cHeader.Split(':')[1]
+                        };
+                        Log.InfoFormat("Header Id={0}, Header Value={1}", header.id, header.value);
+                        parsedHeader.Add(header);
+                    }
+                }
+                else
+                {
+                    var header = new Header
+                    {
+                        id = externalService.HEADERS.Split(':')[0],
+                        value = externalService.HEADERS.Split(':')[1]
+                    };
+                    parsedHeader.Add(header);
+                }
+            }
         }
 
         public void TryProcessGetClientRequest(out string response, out HttpStatusCode statusCode)
