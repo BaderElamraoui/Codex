@@ -52,7 +52,7 @@ namespace Carta.Api.External.Logic.Http
                     headers.ForEach(x =>
                     {
 
-                        log.InfoFormat("Header ID to add: {0}", x.id);
+                        log.Debug($"Header ID to add: {x.id} , Header Value: {x.value}");
                         if (x.id == "Content-Type")
                             httpWebRequest.ContentType = x.value;
                         else
