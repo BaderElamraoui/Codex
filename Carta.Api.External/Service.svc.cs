@@ -592,13 +592,13 @@ namespace Carta.Api.External
 
                 string response;
                 var httpResponse = HttpStatusCode.BadRequest;
-                gtwApiProcessor.TryProcessPostRequest(request.Headers, guid, out response);
+                var httpStatusCode = gtwApiProcessor.TryProcessPostRequest(request.Headers, guid, out response);
 
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
                 var ctx = WebOperationContext.Current;
-                if (ctx != null) ctx.OutgoingResponse.StatusCode = HttpStatusCode.OK;
+                if (ctx != null) ctx.OutgoingResponse.StatusCode = httpStatusCode;
                 return GetResponse(response);
             }
         }

@@ -173,7 +173,7 @@ namespace Carta.Api.External.Logic.Processor
             object value;
             return _serviceParams.TryGetValue(key, out value) ? value : null;
         }
-        public bool TryProcessPostRequest(WebHeaderCollection header,string guid, out string response)
+        public HttpStatusCode TryProcessPostRequest(WebHeaderCollection header, string guid, out string response)
         {
             Log.Info("Trying To process GTW Request");
             response = string.Empty;
@@ -181,11 +181,11 @@ namespace Carta.Api.External.Logic.Processor
             {
 
                 if (_serviceRequest == null)
-                    return false;
+                    return HttpStatusCode.BadRequest;
 
                 Log.InfoFormat("Service name to execute = {0}", _serviceRequest.serviceName);
                 if (string.IsNullOrEmpty(_serviceRequest.serviceName))
-                    return false;
+                    return HttpStatusCode.BadRequest;
 
                 Log.Info("Preparing Gtw Request");
                 var gtwRequest = PrepareGenesysGtwRequest(header, guid, _serviceRequest);
@@ -195,21 +195,24 @@ namespace Carta.Api.External.Logic.Processor
                 var httpManager = new HttpManager();
                 var externalStatusCode = HttpStatusCode.BadRequest;
                 if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GENESYS_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
-                    return false;
+                    return HttpStatusCode.BadRequest;
 
                 var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
-                    return false;
+                {
+                    if (serviceResponse.serviceResponseCode == "V0160")
+                        return HttpStatusCode.Unauthorized;
+                }
 
             }
             catch (Exception ex)
             {
                 Log.Warn(ex.Message);
                 Log.Debug(ex);
-                return false;
+                return HttpStatusCode.BadRequest;
             }
 
-            return true;
+            return HttpStatusCode.OK;
         }
 
         private string PrepareGenesysGtwRequest(NameValueCollection header, string guid, ServiceRequest externalServiceRequest)
