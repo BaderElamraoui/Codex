@@ -5,16 +5,14 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carta.Api.External.Logic.Processor
 {
     public class RequestProcessor
     {
-        private readonly static ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
+        public string PrepareExternalRequest(JToken jsonRequest, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, IDictionary<string, object> inputParams)
         {
             var inputExternalServiceParams = externalServiceParams.Where(x => x.IS_INPUT && x.IS_INPUT).ToList();
 
@@ -40,9 +38,10 @@ namespace Carta.Api.External.Logic.Processor
             return jsonRequest.ToString(Formatting.None);
         }
 
-        public static List<Header> PrepareExternalRequestHeaders(IDictionary<string, object> inputParams, List<Header> headers)
+        public List<Header> PrepareExternalRequestHeaders(IDictionary<string, object> inputParams, List<Header> headers)
         {
-            foreach (var header in headers)
+            var headersOutput = headers;
+            foreach (var header in headersOutput)
             {
                 if (string.IsNullOrEmpty(header.value))
                 {
@@ -65,7 +64,7 @@ namespace Carta.Api.External.Logic.Processor
                 else if (header.id == "callbackUrl")
                     header.value = "https://my.callback.url";
             }
-            return headers;
+            return headersOutput;
         }
 
         public bool TryParseAndPrepareExternalResponse(string externalResponse, string criteria, List<V3_API_EXTERNAL_SERVICE_PARAMS> externalServiceParams, out Dictionary<string, object> outputParams)
@@ -108,7 +107,7 @@ namespace Carta.Api.External.Logic.Processor
 
         }
 
-        private static bool IsResponseValid(JToken jsonResponse, string criteria)
+        private bool IsResponseValid(JToken jsonResponse, string criteria)
         {
             if (string.IsNullOrEmpty(criteria))
                 return true;
