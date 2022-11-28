@@ -217,16 +217,21 @@ namespace Carta.Api.External.Logic.Processor
 
         private string PrepareGenesysGtwRequest(NameValueCollection header, string guid, ServiceRequest externalServiceRequest)
         {
-            externalServiceRequest.serviceData = GetServiceData(header, externalServiceRequest.serviceData);
+            externalServiceRequest.serviceData = GetServiceData(header, externalServiceRequest.serviceData, externalServiceRequest.serviceName);
             externalServiceRequest.serviceRequestId = header["inin-request-id"];
             var request = JsonConvert.SerializeObject(externalServiceRequest);
 
             return request;
         }
 
-        private static dynamic GetServiceData(NameValueCollection header, dynamic receivedServiceData)
+        private static dynamic GetServiceData(NameValueCollection header, dynamic receivedServiceData, string serviceName)
         {
             ExpandoObject serviceData = receivedServiceData;
+
+            if (serviceName == "ACTIVATE_CARD_4" || serviceName == "GET_BALANCE_4" || serviceName == "GET_PIN_4" || serviceName == "SET_PIN_4")
+            {
+                receivedServiceData.cardId = "ROU00000000" + receivedServiceData.cardId;
+            }
 
             ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
             //((IDictionary<string, object>) serviceData)["requestId"] = header["inin-request-id"];
