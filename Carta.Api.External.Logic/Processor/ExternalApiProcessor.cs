@@ -326,7 +326,7 @@ namespace Carta.Api.External.Logic.Processor
             }
             return serviceData;
         }
-        public bool TryProcess3dsChallengeRequest(string guid, out string response)
+        public bool TryProcess3dsChallengeRequest(WebHeaderCollection header, string guid, out string response)
         {
             Log.Info("Trying To process GTW Request");
             response = string.Empty;
@@ -344,20 +344,35 @@ namespace Carta.Api.External.Logic.Processor
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                Log.Info("Preparing Gtw Request");
-                var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+                var financialInstitutionId = header["X-FI-ID"];
+                var financialInstitutionCbList = ConfigurationManager.AppSettings[Constants.FINANCIAL_INSTITUTION_CB].Split('|');
+                var financialInstitutionAbList = ConfigurationManager.AppSettings[Constants.FINANCIAL_INSTITUTION_AB].Split('|');
+                if (financialInstitutionCbList.Any(x => x == financialInstitutionId))
+                {
+                    Log.Info("Preparing Gtw Request");
+                    var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
 
-                Log.DebugFormat("Request={0}", gtwRequest);
+                    Log.DebugFormat("Request={0}", gtwRequest);
 
-                var httpManager = new HttpManager();
-                var externalStatusCode = HttpStatusCode.BadRequest;
-                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
-                    return false;
+                    var httpManager = new HttpManager();
+                    var externalStatusCode = HttpStatusCode.BadRequest;
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                        return false;
 
+
+                }
+                else if (financialInstitutionAbList.Any(x => x == financialInstitutionId))
+                {
+                    var gtwRequest = PrepareGenesysRequest(guid, serviceName, externalServiceRequest);
+                    Log.DebugFormat("Request={0}", gtwRequest);
+                    var httpManager = new HttpManager();
+                    var externalStatusCode = HttpStatusCode.BadRequest;
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                        return false;
+                }
                 var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
-
             }
             catch (Exception ex)
             {
@@ -410,7 +425,7 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        public bool TryProcess3dsChallengeRequestCancel(string guid, out string response)
+        public bool TryProcess3dsChallengeRequestCancel(WebHeaderCollection header, string guid, out string response)
         {
             Log.Info("Trying To process GTW Request");
             response = string.Empty;
@@ -428,20 +443,35 @@ namespace Carta.Api.External.Logic.Processor
                 if (string.IsNullOrEmpty(serviceName))
                     return false;
 
-                Log.Info("Preparing Gtw Request");
-                var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
+                var financialInstitutionId = header["X-FI-ID"];
+                var financialInstitutionCbList = ConfigurationManager.AppSettings[Constants.FINANCIAL_INSTITUTION_CB].Split('|');
+                var financialInstitutionAbList = ConfigurationManager.AppSettings[Constants.FINANCIAL_INSTITUTION_AB].Split('|');
+                if (financialInstitutionCbList.Any(x => x == financialInstitutionId))
+                {
 
-                Log.DebugFormat("Request={0}", gtwRequest);
+                    Log.Info("Preparing Gtw Request");
+                    var gtwRequest = Prepare3dsGtwRequest(guid, serviceName, externalServiceRequest);
 
-                var httpManager = new HttpManager();
-                var externalStatusCode = HttpStatusCode.BadRequest;
-                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
-                    return false;
+                    Log.DebugFormat("Request={0}", gtwRequest);
 
+                    var httpManager = new HttpManager();
+                    var externalStatusCode = HttpStatusCode.BadRequest;
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT],
+                            "POST", out response, out externalStatusCode))
+                        return false;
+                }
+                else if (financialInstitutionAbList.Any(x => x == financialInstitutionId))
+                {
+                    var gtwRequest = PrepareGenesysRequest(guid, serviceName, externalServiceRequest);
+                    Log.DebugFormat("Request={0}", gtwRequest);
+                    var httpManager = new HttpManager();
+                    var externalStatusCode = HttpStatusCode.BadRequest;
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                        return false;
+                }
                 var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
                 if (!serviceResponse.IsSuccess)
                     return false;
-
             }
             catch (Exception ex)
             {
@@ -452,7 +482,21 @@ namespace Carta.Api.External.Logic.Processor
 
             return true;
         }
-
+        private string PrepareGenesysRequest(string guid, string serviceName, JObject externalServiceRequest)
+        {
+            var serviceRequest = new ServiceRequest()
+            {
+                serviceRequestId = guid,
+                serviceName = serviceName,
+                channelId = ConfigurationManager.AppSettings[Constants.CHANNEL_ID],
+                channelType = ConfigurationManager.AppSettings[Constants.CHANNEL_TYPE],
+                requestorId = ConfigurationManager.AppSettings[Constants.REQUESTOR_ID],
+                requestorCredential = ConfigurationManager.AppSettings[Constants.REQUESTOR_CREDENTIALS],
+                serviceData = GetServiceData(externalServiceRequest)
+            };
+            var request = JsonConvert.SerializeObject(serviceRequest);
+            return request;
+        }
 
         public static bool TryProcessGetCryptogram(string guid, string issuerCardId, WebHeaderCollection headers, out string response)
         {

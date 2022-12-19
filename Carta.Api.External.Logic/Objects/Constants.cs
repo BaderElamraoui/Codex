@@ -44,6 +44,10 @@
         public const string ANTELOP_GET_CRYPTOGRAM = "ANTELOP_GET_CRYPTOGRAM";
         public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
         public const string FWD_APATA_CHALLENGE_ENDPOINT = "FWD_APATA_CHALLENGE_ENDPOINT";
+
+        public const string FINANCIAL_INSTITUTION_CB = "FINANCIAL_INSTITUTION_CB";
+        public const string FINANCIAL_INSTITUTION_AB = "FINANCIAL_INSTITUTION_AB";
+        public const string AB_GTW_ENDPOINT = "AB_GTW_ENDPOINT";
     }
     public class statusDecline
     {

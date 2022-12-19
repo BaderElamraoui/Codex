@@ -12,6 +12,8 @@ using System.Net;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
+using Org.BouncyCastle.Asn1.Ocsp;
+
 namespace Carta.Api.External
 {
 
@@ -442,6 +444,8 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            var request = WebOperationContext.Current.IncomingRequest;
+
             string guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -463,7 +467,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(jwsDecrypted);
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -480,6 +484,7 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
             var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -495,7 +500,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -512,6 +517,8 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
+
             var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -528,7 +535,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
