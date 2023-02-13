@@ -230,7 +230,7 @@ namespace Carta.Api.External.Logic.Processor
 
             if (serviceName == "ACTIVATE_CARD_4" || serviceName == "GET_BALANCE_4" || serviceName == "GET_PIN_4" || serviceName == "SET_PIN_4")
             {
-                receivedServiceData.cardId = "ROU00000000" + receivedServiceData.cardId;
+                receivedServiceData.cardId = "ROU" + receivedServiceData.cardId.PadLeft(20, '0');
             }
 
             ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
