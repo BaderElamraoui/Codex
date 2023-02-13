@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
 
 namespace Carta.Api.External
 {
@@ -103,6 +98,15 @@ namespace Carta.Api.External
                 Method = "GET"
            )]
         Stream GetPinCode(string issuerCardId);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "apataChallengeResult",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+        )]
+        Stream ApataChallengeResult(Stream streamRequest);
 
         [OperationContract]
         [WebInvoke(UriTemplate = "GenesysApi",

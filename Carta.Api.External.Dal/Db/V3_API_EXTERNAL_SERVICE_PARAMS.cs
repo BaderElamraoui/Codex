@@ -19,7 +19,7 @@ namespace Carta.Api.External.Dal.Db
         public string PARAMS_NAME { get; set; }
         public string PARAMS_TO_SEND { get; set; }
         public string DEFAULT_VALUE { get; set; }
-        public Nullable<bool> IS_INPUT { get; set; }
+        public bool IS_INPUT { get; set; }
         public Nullable<bool> IS_SENSITIVE { get; set; }
         public string KEY_ALGORITHM { get; set; }
         public string KEY_INDEX { get; set; }

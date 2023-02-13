@@ -19,12 +19,12 @@ namespace Carta.Api.External.Dal.Cache
 
         private CacheContainer()
         {
-            Container = getSetting();
+            Container = GetSetting();
         }
 
         public static CacheContainer Init()
         {
-            ObjectCache ObjectCache = MemoryCache.Default;
+            var ObjectCache = MemoryCache.Default;
             log.Info("Begin initializing...");
             var CacheObj = new CacheContainer();
             ObjectCache[CACHE_INDEX] = CacheObj;
@@ -35,19 +35,15 @@ namespace Carta.Api.External.Dal.Cache
         {
             get
             {
-                ObjectCache ObjectCache = MemoryCache.Default;
-                var instance = ObjectCache[CACHE_INDEX] as CacheContainer;
-                if (instance == null)
-                {
-                    instance = Init();
-                }
+                var ObjectCache = MemoryCache.Default;
+                var instance = ObjectCache[CACHE_INDEX] as CacheContainer ?? Init();
                 return instance;
             }
         }
 
-        private Container getSetting()
+        private Container GetSetting()
         {
-            Container container = new Container();
+            var container = new Container();
 
             try
             {
@@ -65,33 +61,33 @@ namespace Carta.Api.External.Dal.Cache
                         if (!string.IsNullOrEmpty(a.REQUEST_MAP))
                             a.PARSED_REQUEST_MAP = JToken.Parse(a.REQUEST_MAP);
 
-                        if (!string.IsNullOrEmpty(a.HEADERS))
+                        if (string.IsNullOrEmpty(a.HEADERS)) return;
+                        log.DebugFormat("service Name : {0}, Uid :{1}", a.SERVICE_GTW_NAME, a.UID);
+                        log.Info("Custom Header are configured");
+                        log.DebugFormat("Header Values:{0}", a.HEADERS);
+                        a.PARSED_HEADERS = new List<Header>();
+                        if (a.HEADERS.Contains('|'))
                         {
-                            log.DebugFormat("service Name : {0}, Uid :{1}", a.SERVICE_GTW_NAME, a.UID);
-                            log.Info("Custom Header are configured");
-                            log.DebugFormat("Header Values:{0}", a.HEADERS);
-                            a.PARSED_HEADERS = new List<Header>();
-                            if (a.HEADERS.Contains('|'))
+                            var headers = a.HEADERS.Split('|');
+                            foreach (var cHeader in headers)
                             {
-                                string[] headers = a.HEADERS.Split('|');
-                                for (int i = 0; i < headers.Length; i++)
+                                var header = new Header
                                 {
-
-                                    Header header = new Header();
-                                    header.id = headers[i].Split(':')[0];
-                                    header.value = headers[i].Split(':')[1];
-                                    log.InfoFormat("Header Id={0}, Header Value={1}", header.id, header.value);
-                                    a.PARSED_HEADERS.Add(header);
-                                }
-                            }
-                            else
-                            {
-                                Header header = new Header();
-                                header.id = a.HEADERS.Split(':')[0];
-                                header.value = a.HEADERS.Split(':')[1];
+                                    id = cHeader.Split(':')[0],
+                                    value = cHeader.Split(':')[1]
+                                };
+                                log.InfoFormat("Header Id={0}, Header Value={1}", header.id, header.value);
                                 a.PARSED_HEADERS.Add(header);
                             }
-
+                        }
+                        else
+                        {
+                            var header = new Header
+                            {
+                                id = a.HEADERS.Split(':')[0],
+                                value = a.HEADERS.Split(':')[1]
+                            };
+                            a.PARSED_HEADERS.Add(header);
                         }
 
                     }

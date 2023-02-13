@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="41006c9ed59842389eacb019307df47a" Name="Diagram1">
+        <EntityTypeShape EntityType="ATLASModel.APATHA_CARD_TOKENS" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ATLASModel.CLIENT" Width="1.5" PointX="3.375" PointY="0.75" />
+        <EntityTypeShape EntityType="ATLASModel.THIRD_PARTY_OPERATIONS" Width="1.5" PointX="5.625" PointY="1.75" />
+        <AssociationConnector Association="ATLASModel.FK_THIRD_PARTY_OPERATION_CLIENT" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

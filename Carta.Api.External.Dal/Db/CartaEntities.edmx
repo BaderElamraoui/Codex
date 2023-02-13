@@ -24,13 +24,14 @@
             <PropertyRef Name="UID" />
             <PropertyRef Name="EXTERNAL_SERVICE_NAME" />
             <PropertyRef Name="PARAMS_NAME" />
+            <PropertyRef Name="IS_INPUT" />
           </Key>
           <Property Name="UID" Type="int" Nullable="false" />
           <Property Name="EXTERNAL_SERVICE_NAME" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="PARAMS_NAME" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="PARAMS_TO_SEND" Type="varchar" MaxLength="50" />
           <Property Name="DEFAULT_VALUE" Type="varchar" MaxLength="250" />
-          <Property Name="IS_INPUT" Type="bit" />
+          <Property Name="IS_INPUT" Type="bit" Nullable="false" />
           <Property Name="IS_SENSITIVE" Type="bit" />
           <Property Name="KEY_ALGORITHM" Type="varchar" MaxLength="50" />
           <Property Name="KEY_INDEX" Type="varchar" MaxLength="10" />
@@ -51,6 +52,22 @@
           <Property Name="ENDPOINT" Type="varchar" MaxLength="250" />
           <Property Name="WRRAPED_VALUE" Type="varchar" MaxLength="50" />
           <Property Name="CONCERNED_ENTITY" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="HEADERS" Type="varchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="V3_CARD_PROGRAM_APATHA_ENROLLMENT">
+          <Key>
+            <PropertyRef Name="INSTITUTION_ID" />
+            <PropertyRef Name="BRANCH_ID" />
+            <PropertyRef Name="CARD_PROGRAM_ID" />
+          </Key>
+          <Property Name="INSTITUTION_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="BRANCH_ID" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="CARD_PROGRAM_ID" Type="int" Nullable="false" />
+          <Property Name="IS_ENABLED" Type="bit" />
+          <Property Name="FINANCIAL_INSTITUTION_ID" Type="varchar" MaxLength="100" />
+          <Property Name="ORGANISATION_ID" Type="varchar" MaxLength="100" />
+          <Property Name="API_KEY" Type="varchar" MaxLength="100" />
+          <Property Name="CHALLENGE_METHOD" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="V3_EXTERNAL_BRANCH_API_LOGINS">
           <Key>
@@ -75,33 +92,13 @@
           <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="Self.V3_API_EXTERNAL_SERVICE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="Self.V3_API_LOGIN_ENDPOINTS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="V3_CARD_PROGRAM_APATHA_ENROLLMENT" EntityType="Self.V3_CARD_PROGRAM_APATHA_ENROLLMENT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="CARTA_UK_V3Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="V3_API_EXTERNAL_SERVICE_PARAMS">
-          <Key>
-            <PropertyRef Name="UID" />
-            <PropertyRef Name="EXTERNAL_SERVICE_NAME" />
-            <PropertyRef Name="PARAMS_NAME" />
-          </Key>
-          <Property Name="UID" Type="Int32" Nullable="false" />
-          <Property Name="EXTERNAL_SERVICE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="PARAMS_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="PARAMS_TO_SEND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DEFAULT_VALUE" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="IS_INPUT" Type="Boolean" />
-          <Property Name="IS_SENSITIVE" Type="Boolean" />
-          <Property Name="KEY_ALGORITHM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="KEY_INDEX" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="SERVICE_ID" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
-          <Property Name="PROC_ID" Type="Int32" />
-          <Property Name="ORDINAL" Type="Int32" />
-          <Property Name="FIELD_FORMAT_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="FIELD_FORMAT" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="V3_EXTERNAL_BRANCH_API_LOGINS">
           <Key>
             <PropertyRef Name="UID" />
@@ -122,10 +119,11 @@
           <Property Name="JWS_ALGORITHM" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityContainer Name="CARTA_UK_V3Entities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="Self.V3_API_EXTERNAL_SERVICE_PARAMS" />
           <EntitySet Name="V3_EXTERNAL_BRANCH_API_LOGINS" EntityType="Self.V3_EXTERNAL_BRANCH_API_LOGINS" />
           <EntitySet Name="V3_API_EXTERNAL_SERVICE" EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE" />
           <EntitySet Name="V3_API_LOGIN_ENDPOINTS" EntityType="CARTA_UK_V3Model.V3_API_LOGIN_ENDPOINTS" />
+          <EntitySet Name="V3_CARD_PROGRAM_APATHA_ENROLLMENT" EntityType="CARTA_UK_V3Model.V3_CARD_PROGRAM_APATHA_ENROLLMENT" />
+          <EntitySet Name="V3_API_EXTERNAL_SERVICE_PARAMS" EntityType="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE_PARAMS" />
         </EntityContainer>
         <EntityType Name="V3_API_EXTERNAL_SERVICE">
           <Key>
@@ -152,6 +150,44 @@
           <Property Name="ENDPOINT" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="WRRAPED_VALUE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="CONCERNED_ENTITY" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="HEADERS" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="V3_CARD_PROGRAM_APATHA_ENROLLMENT">
+          <Key>
+            <PropertyRef Name="INSTITUTION_ID" />
+            <PropertyRef Name="BRANCH_ID" />
+            <PropertyRef Name="CARD_PROGRAM_ID" />
+          </Key>
+          <Property Name="INSTITUTION_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="BRANCH_ID" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="CARD_PROGRAM_ID" Type="Int32" Nullable="false" />
+          <Property Name="IS_ENABLED" Type="Boolean" />
+          <Property Name="FINANCIAL_INSTITUTION_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ORGANISATION_ID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="API_KEY" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CHALLENGE_METHOD" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="V3_API_EXTERNAL_SERVICE_PARAMS">
+          <Key>
+            <PropertyRef Name="UID" />
+            <PropertyRef Name="EXTERNAL_SERVICE_NAME" />
+            <PropertyRef Name="PARAMS_NAME" />
+            <PropertyRef Name="IS_INPUT" />
+          </Key>
+          <Property Name="UID" Type="Int32" Nullable="false" />
+          <Property Name="EXTERNAL_SERVICE_NAME" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PARAMS_NAME" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PARAMS_TO_SEND" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DEFAULT_VALUE" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IS_INPUT" Type="Boolean" Nullable="false" />
+          <Property Name="IS_SENSITIVE" Type="Boolean" />
+          <Property Name="KEY_ALGORITHM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="KEY_INDEX" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="SERVICE_ID" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="PROC_ID" Type="Int32" />
+          <Property Name="ORDINAL" Type="Int32" />
+          <Property Name="FIELD_FORMAT_TYPE" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FIELD_FORMAT" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -159,26 +195,6 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="CARTA_UK_V3ModelStoreContainer" CdmEntityContainer="CARTA_UK_V3Entities">
-          <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE_PARAMS">
-            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE_PARAMS">
-              <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE_PARAMS">
-                <ScalarProperty Name="UID" ColumnName="UID" />
-                <ScalarProperty Name="EXTERNAL_SERVICE_NAME" ColumnName="EXTERNAL_SERVICE_NAME" />
-                <ScalarProperty Name="PARAMS_NAME" ColumnName="PARAMS_NAME" />
-                <ScalarProperty Name="PARAMS_TO_SEND" ColumnName="PARAMS_TO_SEND" />
-                <ScalarProperty Name="DEFAULT_VALUE" ColumnName="DEFAULT_VALUE" />
-                <ScalarProperty Name="IS_INPUT" ColumnName="IS_INPUT" />
-                <ScalarProperty Name="IS_SENSITIVE" ColumnName="IS_SENSITIVE" />
-                <ScalarProperty Name="KEY_ALGORITHM" ColumnName="KEY_ALGORITHM" />
-                <ScalarProperty Name="KEY_INDEX" ColumnName="KEY_INDEX" />
-                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
-                <ScalarProperty Name="PROC_ID" ColumnName="PROC_ID" />
-                <ScalarProperty Name="ORDINAL" ColumnName="ORDINAL" />
-                <ScalarProperty Name="FIELD_FORMAT_TYPE" ColumnName="FIELD_FORMAT_TYPE" />
-                <ScalarProperty Name="FIELD_FORMAT" ColumnName="FIELD_FORMAT" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="V3_EXTERNAL_BRANCH_API_LOGINS">
             <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_EXTERNAL_BRANCH_API_LOGINS">
               <MappingFragment StoreEntitySet="V3_EXTERNAL_BRANCH_API_LOGINS">
@@ -215,11 +231,46 @@
           <EntitySetMapping Name="V3_API_LOGIN_ENDPOINTS">
             <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_LOGIN_ENDPOINTS">
               <MappingFragment StoreEntitySet="V3_API_LOGIN_ENDPOINTS">
+                <ScalarProperty Name="HEADERS" ColumnName="HEADERS" />
                 <ScalarProperty Name="CONCERNED_ENTITY" ColumnName="CONCERNED_ENTITY" />
                 <ScalarProperty Name="WRRAPED_VALUE" ColumnName="WRRAPED_VALUE" />
                 <ScalarProperty Name="ENDPOINT" ColumnName="ENDPOINT" />
                 <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
                 <ScalarProperty Name="BRANCH_API_LOGIN_UID" ColumnName="BRANCH_API_LOGIN_UID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_CARD_PROGRAM_APATHA_ENROLLMENT">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_CARD_PROGRAM_APATHA_ENROLLMENT">
+              <MappingFragment StoreEntitySet="V3_CARD_PROGRAM_APATHA_ENROLLMENT">
+                <ScalarProperty Name="CHALLENGE_METHOD" ColumnName="CHALLENGE_METHOD" />
+                <ScalarProperty Name="API_KEY" ColumnName="API_KEY" />
+                <ScalarProperty Name="ORGANISATION_ID" ColumnName="ORGANISATION_ID" />
+                <ScalarProperty Name="FINANCIAL_INSTITUTION_ID" ColumnName="FINANCIAL_INSTITUTION_ID" />
+                <ScalarProperty Name="IS_ENABLED" ColumnName="IS_ENABLED" />
+                <ScalarProperty Name="CARD_PROGRAM_ID" ColumnName="CARD_PROGRAM_ID" />
+                <ScalarProperty Name="BRANCH_ID" ColumnName="BRANCH_ID" />
+                <ScalarProperty Name="INSTITUTION_ID" ColumnName="INSTITUTION_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V3_API_EXTERNAL_SERVICE_PARAMS">
+            <EntityTypeMapping TypeName="CARTA_UK_V3Model.V3_API_EXTERNAL_SERVICE_PARAMS">
+              <MappingFragment StoreEntitySet="V3_API_EXTERNAL_SERVICE_PARAMS">
+                <ScalarProperty Name="FIELD_FORMAT" ColumnName="FIELD_FORMAT" />
+                <ScalarProperty Name="FIELD_FORMAT_TYPE" ColumnName="FIELD_FORMAT_TYPE" />
+                <ScalarProperty Name="ORDINAL" ColumnName="ORDINAL" />
+                <ScalarProperty Name="PROC_ID" ColumnName="PROC_ID" />
+                <ScalarProperty Name="SERVICE_ID" ColumnName="SERVICE_ID" />
+                <ScalarProperty Name="KEY_INDEX" ColumnName="KEY_INDEX" />
+                <ScalarProperty Name="KEY_ALGORITHM" ColumnName="KEY_ALGORITHM" />
+                <ScalarProperty Name="IS_SENSITIVE" ColumnName="IS_SENSITIVE" />
+                <ScalarProperty Name="IS_INPUT" ColumnName="IS_INPUT" />
+                <ScalarProperty Name="DEFAULT_VALUE" ColumnName="DEFAULT_VALUE" />
+                <ScalarProperty Name="PARAMS_TO_SEND" ColumnName="PARAMS_TO_SEND" />
+                <ScalarProperty Name="PARAMS_NAME" ColumnName="PARAMS_NAME" />
+                <ScalarProperty Name="EXTERNAL_SERVICE_NAME" ColumnName="EXTERNAL_SERVICE_NAME" />
+                <ScalarProperty Name="UID" ColumnName="UID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

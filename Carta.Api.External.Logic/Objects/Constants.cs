@@ -40,9 +40,10 @@
         public const string ANTELOP_KEY = "ANTELOP_KEY";
         public const string CARTA_KEY = "CARTA_KEY";
         public const string TOUCHTECH_API_KEY = "TOUCHTECH_API_KEY";
-        public const string FWD_CHALLENGE_ENDPOINT = "FWD_CHALLENGE_ENDPOINT";
+         public const string FWD_CHALLENGE_ENDPOINT = "FWD_CHALLENGE_ENDPOINT";
         public const string ANTELOP_GET_CRYPTOGRAM = "ANTELOP_GET_CRYPTOGRAM";
         public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
+        public const string FWD_APATA_CHALLENGE_ENDPOINT = "FWD_APATA_CHALLENGE_ENDPOINT";
 
         public const string GENESYS_GTW_ENDPOINT = "GENESYS_GTW_ENDPOINT";
         public const string GENESYS_CHANNEL_ID = "GENESYS_CHANNEL_ID";
