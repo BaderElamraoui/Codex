@@ -468,7 +468,7 @@ namespace Carta.Api.External.Logic.Processor
                 Log.Info("Preparing Gtw Request");
                 var serviceData = new ExpandoObject();
                 ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
-                ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
+                //((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
                 var serviceRequest = new ServiceRequest()
                 {
                     serviceRequestId = guid,
