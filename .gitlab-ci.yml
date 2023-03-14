@@ -12,4 +12,4 @@ build_job:
   script:
     - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - '& "$env:NUNIT_PATH" "**\$BuildConfiguration\*test*.dll;-:**\obj\**"'
+    - '& "$env:NUNIT_PATH"'
