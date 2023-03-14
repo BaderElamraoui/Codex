@@ -3,7 +3,7 @@ variables:
   MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\15.0\MSBuild\15.0\bin\msbuild.exe'
   BuildConfiguration : 'Release'
   GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
-  Dir1 : 'Carta.Api.External\bin\$BuildConfiguration\$Net\publish'
+  Dir1 : 'Carta.Api.External\bin\$BuildConfiguration\$Net\'
   Dir2 : 'Carta.Api.External.Dal\bin\$BuildConfiguration\$Net\publish'
   Dir3 : 'Carta.Api.External.Logic\bin\$BuildConfiguration\$Net\publish'
   Deploydir1 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir1'
