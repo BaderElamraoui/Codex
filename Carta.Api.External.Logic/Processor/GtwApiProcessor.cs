@@ -264,11 +264,6 @@ namespace Carta.Api.External.Logic.Processor
         {
             ExpandoObject serviceData = receivedServiceData;
 
-            if (serviceName == "ACTIVATE_CARD_4" || serviceName == "GET_BALANCE_4" || serviceName == "GET_PIN_4" || serviceName == "SET_PIN_4")
-            {
-                receivedServiceData.cardId = "ROU" + receivedServiceData.cardId.PadLeft(20, '0');
-            }
-
             ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
             //((IDictionary<string, object>) serviceData)["requestId"] = header["inin-request-id"];
             ((IDictionary<string, object>)serviceData)["orgId"] = header["inin-organization-id"];
