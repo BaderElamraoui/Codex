@@ -1,8 +1,9 @@
 variables:
   NUGET_PATH: 'C:\Tools\Nuget\nuget.exe'
   MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\15.0\MSBuild\15.0\bin\msbuild.exe'
-  NUNIT_PATH : 'C:\Tools\TFS-Agent\tasks\VSTest\1.0.32\VSTest.ps1'
   BuildConfiguration : 'Release'
+  GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
+  Deploydir : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/'
 
 stages:
   - build
@@ -12,4 +13,6 @@ build_job:
   script:
     - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - '& "$env:NUNIT_PATH"'
+    - Get-ChildItem C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\**\bin\$BuildConfiguration\ -recurse -filter '*.dll' | Copy-Item -destination $Deploydir
+    - Get-ChildItem C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\Carta.Batch.Azure\bin\$BuildConfiguration\net6.0\win-x64\publish -recurse -filter '*.exe' | Copy-Item -destination $Deploydir
+    - Get-ChildItem C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\Carta.Batch.Azure\bin\$BuildConfiguration\net6.0\win-x64\publish -recurse -filter '*.pdp' | Copy-Item -destination $Deploydir
