@@ -18,4 +18,4 @@ build_job:
   script:
     - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\*  -destination $Deploydir -recurse
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\*  -destination $Deploydir -recurse -force
