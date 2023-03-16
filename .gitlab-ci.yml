@@ -4,17 +4,11 @@ variables:
   BuildConfiguration : 'Release'
   GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
   Dir1 : 'Carta.Api.External\bin\'
-  Dir2 : 'Carta.Api.External.Dal\bin\$BuildConfiguration\'
-  Dir3 : 'Carta.Api.External.Logic\bin\$BuildConfiguration\'
   Deploydir1 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir1'
-  Deploydir2 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir2'
-  Deploydir3 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir3'
   Net : 'net6.0'
 
 before_script:
   - New-Item -ItemType Directory -Force -Path $Deploydir1
-  - New-Item -ItemType Directory -Force -Path $Deploydir2  
-  - New-Item -ItemType Directory -Force -Path $Deploydir3
 
 stages:
   - build
@@ -25,5 +19,3 @@ build_job:
     - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
     - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\*  -destination $Deploydir -recurse
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir2\*  -destination $Deploydir -recurse
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir3\*  -destination $Deploydir -recurse
