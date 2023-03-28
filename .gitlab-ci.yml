@@ -1,0 +1,32 @@
+variables:
+  NUGET_PATH: 'C:\Tools\Nuget\nuget.exe'
+  MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\15.0\MSBuild\15.0\bin\msbuild.exe'
+  BuildConfiguration : 'Release'
+  GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
+  Dir1 : 'Carta.Api.External\bin\'
+  Deploydir1 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir1'
+  Net : 'net6.0'
+  Url : 'Peppv-gw1-01'
+  Sourcedeploy : $Deploydir1
+  Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.External.API\bin'
+before_script:
+  - New-Item -ItemType Directory -Force -Path $Deploydir1
+stages:
+  - build
+  - deploy
+build_job:
+  stage: build
+  script:
+    - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
+    - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\*  -destination $Deploydir -recurse -force
+deploy_prod:
+  stage: deploy
+  when: manual
+  allow_failure :
+    exit_codes: 3
+  script:
+    - robocopy /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 /B $Sourcedeploy $Destinationdeploy
+  environment:
+    name: prod-GS
+    url: $Url  
