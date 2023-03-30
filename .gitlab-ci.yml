@@ -10,7 +10,6 @@ variables:
   Sourcedeploy : $Deploydir1
   Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.External.API\bin'
 before_script:
-  - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/" -Force -Recurse
   - New-Item -ItemType Directory -Force -Path $Deploydir1
 stages:
   - build
@@ -20,7 +19,7 @@ build_job:
   script:
     - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\*  -destination $Deploydir1 -recurse -force
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$Dir1\* -Exclude ("*.config","*.json")  -destination $Deploydir1 -recurse -force
 deploy_prod:
   stage: deploy
   when: manual
