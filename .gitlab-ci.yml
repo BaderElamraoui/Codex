@@ -4,7 +4,7 @@ variables:
   BuildConfiguration : 'Release'
   GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
   Dir1 : 'Carta.Api.External\bin\'
-  Deploydir1 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy/$Dir1'
+  Deploydir1 : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PROJECT_ID/$Dir1'
   Net : 'net6.0'
   Url : 'Peppv-gw1-01'
   Sourcedeploy : $Deploydir1
