@@ -8,7 +8,7 @@ variables:
   Net : 'net6.0'
   Url : 'Peppv-gw1-01'
   Sourcedeploy : $Deploydir1
-  Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.External.API\bin'
+  Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.Api.External.Sepa\bin'
 before_script:
   - New-Item -ItemType Directory -Force -Path $Deploydir1
 stages:
