@@ -13,9 +13,7 @@ stages:
   - deploy
 
 build_job:
-  except :
-    changes:
-      - ".gitlab-ci.yml"
+
   stage: build
   only :
     refs:
@@ -28,9 +26,7 @@ build_job:
 
 
 deploy_prod:
-  except :
-    changes:
-      - ".gitlab-ci.yml"  
+
   variables:
     Url : 'Peppv-gw1-01'
     Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.Api.External.Sepa\bin'
@@ -49,9 +45,7 @@ deploy_prod:
     name: prod
     url: $Url      
 clean_deploy_file:
-  except :
-    changes:
-      - ".gitlab-ci.yml"  
+
   needs:
     - deploy_prod
   only:
