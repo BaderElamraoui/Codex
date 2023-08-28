@@ -16,7 +16,7 @@ build_job_uat:
   stage: build
   only :
     refs:
-      - master-NewUat
+      - master-newUat
   script:
     - New-Item -ItemType Directory -Force -Path $Deploydir
     - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'   # restore Nuget dependencies
@@ -36,7 +36,7 @@ deploy_uat:
     servicetype : ''
   only:
     refs:
-      - master-NewUat
+      - master-newUat
   stage: deploy
   script:
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
@@ -51,7 +51,7 @@ clean_deploy_file:
     - deploy_uat
   only:
     refs:
-      - master-NewUat
+      - master-newUat
   stage: deploy
   script:
     - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse    
