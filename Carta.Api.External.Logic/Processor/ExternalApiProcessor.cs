@@ -693,25 +693,5 @@ namespace Carta.Api.External.Logic.Processor
 
             return true;
         }
-        private string PrepareGenesysRequest(string guid, string serviceName, JObject externalServiceRequest)
-        {
-
-
-            var serviceRequest = new ServiceRequest()
-            {
-                serviceRequestId = guid,
-                serviceName = serviceName,
-                channelId = ConfigurationManager.AppSettings[Constants.CHANNEL_ID],
-                channelType = ConfigurationManager.AppSettings[Constants.CHANNEL_TYPE],
-                requestorId = ConfigurationManager.AppSettings[Constants.REQUESTOR_ID],
-                requestorCredential = ConfigurationManager.AppSettings[Constants.REQUESTOR_CREDENTIALS],
-
-                serviceData = GetServiceData(externalServiceRequest)
-            };
-
-            var request = JsonConvert.SerializeObject(serviceRequest);
-
-            return request;
-        }
     }
 }
