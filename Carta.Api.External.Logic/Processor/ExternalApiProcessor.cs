@@ -363,11 +363,11 @@ namespace Carta.Api.External.Logic.Processor
                 }
                 else if (financialInstitutionAbList.Any(x => x == financialInstitutionId))
                 {
-                    var gtwRequest = PrepareGenesysRequest(guid, serviceName, externalServiceRequest);
+                    var gtwRequest = Prepare3dsGtwRequestAccountBased(guid, serviceName, externalServiceRequest);
                     Log.DebugFormat("Request={0}", gtwRequest);
                     var httpManager = new HttpManager();
                     var externalStatusCode = HttpStatusCode.BadRequest;
-                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.SSCA_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                         return false;
                 }
                 var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
@@ -382,6 +382,23 @@ namespace Carta.Api.External.Logic.Processor
             }
 
             return true;
+        }
+
+        private static string Prepare3dsGtwRequestAccountBased(string guid, string serviceName, JObject externalServiceRequest)
+        {
+            var serviceRequest = new ServiceRequest()
+            {
+                serviceRequestId = guid,
+                serviceName = serviceName,
+                channelId = ConfigurationManager.AppSettings[Constants.SSCA_CHANNEL_ID],
+                channelType = ConfigurationManager.AppSettings[Constants.SSCA_CHANNEL_TYPE],
+                requestorId = ConfigurationManager.AppSettings[Constants.SSCA_REQUESTOR_ID],
+                requestorCredential = ConfigurationManager.AppSettings[Constants.SSCA_REQUESTOR_CREDENTIALS],
+                actionDatetimestamp = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]),
+                serviceData = GetServiceData(externalServiceRequest)
+            };
+            var request = JsonConvert.SerializeObject(serviceRequest);
+            return request;
         }
 
         public bool TryProcess3dsChallengeResult(string guid, out string response)
@@ -462,11 +479,11 @@ namespace Carta.Api.External.Logic.Processor
                 }
                 else if (financialInstitutionAbList.Any(x => x == financialInstitutionId))
                 {
-                    var gtwRequest = PrepareGenesysRequest(guid, serviceName, externalServiceRequest);
+                    var gtwRequest = Prepare3dsGtwRequestAccountBased(guid, serviceName, externalServiceRequest);
                     Log.DebugFormat("Request={0}", gtwRequest);
                     var httpManager = new HttpManager();
                     var externalStatusCode = HttpStatusCode.BadRequest;
-                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.ANTELOP_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.SSCA_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
                         return false;
                 }
                 var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
