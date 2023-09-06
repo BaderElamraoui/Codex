@@ -512,7 +512,7 @@ namespace Carta.Api.External.Logic.Processor
                 Log.Info("Preparing Gtw Request");
                 var serviceData = new ExpandoObject();
                 ((IDictionary<string, object>)serviceData)["issuerCardId"] = issuerCardId;
-                ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
+                //((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["Iso8601Withfff"]);
                 var serviceRequest = new ServiceRequest()
                 {
                     serviceRequestId = guid,
@@ -650,6 +650,68 @@ namespace Carta.Api.External.Logic.Processor
                 return false;
             }
 
+        }
+        public bool TryProcessPostGenesysRequest(string guid, out string response)
+        {
+            Log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+                //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
+
+                var externalServiceRequest = JObject.Parse(_request);
+
+                if (externalServiceRequest == null)
+                    return false;
+
+                var serviceName = string.Empty;
+                Log.InfoFormat("Service name to execute = {0}", serviceName);
+                if (string.IsNullOrEmpty(serviceName))
+                    return false;
+
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = PrepareGenesysRequest(guid, serviceName, externalServiceRequest);
+
+                Log.DebugFormat("Request={0}", gtwRequest);
+
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return false;
+
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
+                return false;
+            }
+
+            return true;
+        }
+        private string PrepareGenesysRequest(string guid, string serviceName, JObject externalServiceRequest)
+        {
+
+
+            var serviceRequest = new ServiceRequest()
+            {
+                serviceRequestId = guid,
+                serviceName = serviceName,
+                channelId = ConfigurationManager.AppSettings[Constants.CHANNEL_ID],
+                channelType = ConfigurationManager.AppSettings[Constants.CHANNEL_TYPE],
+                requestorId = ConfigurationManager.AppSettings[Constants.REQUESTOR_ID],
+                requestorCredential = ConfigurationManager.AppSettings[Constants.REQUESTOR_CREDENTIALS],
+
+                serviceData = GetServiceData(externalServiceRequest)
+            };
+
+            var request = JsonConvert.SerializeObject(serviceRequest);
+
+            return request;
         }
     }
 }

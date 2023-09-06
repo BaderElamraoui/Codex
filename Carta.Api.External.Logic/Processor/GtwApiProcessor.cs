@@ -1,4 +1,5 @@
-﻿using Carta.Api.External.Dal.Cache;
+﻿using System;
+using Carta.Api.External.Dal.Cache;
 using Carta.Api.External.Dal.Db;
 using Carta.Api.External.Logic.Http;
 using Carta.Api.External.Logic.Objects;
@@ -6,7 +7,9 @@ using Carta.Security.Cryptography.Software.Jws;
 using log4net;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.ServiceModel.Web;
@@ -206,7 +209,67 @@ namespace Carta.Api.External.Logic.Processor
             object value;
             return _serviceParams.TryGetValue(key, out value) ? value : null;
         }
+        public HttpStatusCode TryProcessPostRequest(WebHeaderCollection header, string guid, out string response)
+        {
+            Log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
 
+                if (_serviceRequest == null)
+                    return HttpStatusCode.BadRequest;
 
+                Log.InfoFormat("Service name to execute = {0}", _serviceRequest.serviceName);
+                if (string.IsNullOrEmpty(_serviceRequest.serviceName))
+                    return HttpStatusCode.BadRequest;
+
+                Log.Info("Preparing Gtw Request");
+                var gtwRequest = PrepareGenesysGtwRequest(header, guid, _serviceRequest);
+
+                Log.DebugFormat("Request={0}", gtwRequest);
+
+                var httpManager = new HttpManager();
+                var externalStatusCode = HttpStatusCode.BadRequest;
+                if (!httpManager.TryCall(gtwRequest, null, ConfigurationManager.AppSettings[Constants.GENESYS_GTW_ENDPOINT], "POST", out response, out externalStatusCode))
+                    return HttpStatusCode.BadRequest;
+
+                var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
+                if (!serviceResponse.IsSuccess)
+                {
+                    if (serviceResponse.serviceResponseCode == "V0160")
+                        return HttpStatusCode.Unauthorized;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
+                return HttpStatusCode.BadRequest;
+            }
+
+            return HttpStatusCode.OK;
+        }
+
+        private string PrepareGenesysGtwRequest(NameValueCollection header, string guid, ServiceRequest externalServiceRequest)
+        {
+            externalServiceRequest.serviceData = GetServiceData(header, externalServiceRequest.serviceData, externalServiceRequest.serviceName);
+            externalServiceRequest.serviceRequestId = header["inin-request-id"];
+            var request = JsonConvert.SerializeObject(externalServiceRequest);
+
+            return request;
+        }
+
+        private static dynamic GetServiceData(NameValueCollection header, dynamic receivedServiceData, string serviceName)
+        {
+            ExpandoObject serviceData = receivedServiceData;
+
+            ((IDictionary<string, object>)serviceData)["actionDatetimestamp"] = DateTimeOffset.Now.ToString(ConfigurationManager.AppSettings["ACTION_DATE_TIMESTAMP_FORMAT"]);
+            //((IDictionary<string, object>) serviceData)["requestId"] = header["inin-request-id"];
+            ((IDictionary<string, object>)serviceData)["orgId"] = header["inin-organization-id"];
+            ((IDictionary<string, object>)serviceData)["tokenId"] = header["token-Id"];
+
+            return serviceData;
+        }
     }
 }

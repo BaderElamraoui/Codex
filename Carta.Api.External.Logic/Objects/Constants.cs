@@ -45,6 +45,12 @@
         public const string ANTELOP_GET_PINCODE = "ANTELOP_GET_PINCODE";
         public const string FWD_APATA_CHALLENGE_ENDPOINT = "FWD_APATA_CHALLENGE_ENDPOINT";
 
+        public const string GENESYS_GTW_ENDPOINT = "GENESYS_GTW_ENDPOINT";
+        public const string GENESYS_CHANNEL_ID = "GENESYS_CHANNEL_ID";
+        public const string GENESYS_CHANNEL_TYPE = "GENESYS_CHANNEL_TYPE";
+        public const string GENESYS_REQUESTOR_ID = "GENESYS_REQUESTOR_ID";
+        public const string GENESYS_REQUESTOR_CREDENTIALS = "GENESYS_REQUESTOR_CREDENTIALS";
+
         public const string FINANCIAL_INSTITUTION_CB = "FINANCIAL_INSTITUTION_CB";
         public const string FINANCIAL_INSTITUTION_AB = "FINANCIAL_INSTITUTION_AB";
         public const string AB_GTW_ENDPOINT = "AB_GTW_ENDPOINT";

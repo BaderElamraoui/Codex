@@ -601,11 +601,45 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcessApataChallengeResult(guid, out response))
-                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                externalApiProcessor.TryProcessApataChallengeResult(guid, out response);
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetResponse(response);
+            }
+        }
+
+        public Stream GenesysApiRequest(Stream streamRequest)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+            IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+
+            var guid = Guid.NewGuid().ToString("N");
+
+            using (ThreadContext.Stacks["NDC"].Push(guid))
+            {
+                var sReader = new StreamReader(streamRequest);
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
+
+                log.Info($"GTW API REQUEST: {sbRequest}");
+
+                var gtwApiProcessor = new GtwApiProcessor(sbRequest.ToString());
+
+                string response;
+                var httpResponse = HttpStatusCode.BadRequest;
+                var httpStatusCode = gtwApiProcessor.TryProcessPostRequest(request.Headers, guid, out response);
+
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                var ctx = WebOperationContext.Current;
+                if (ctx != null) ctx.OutgoingResponse.StatusCode = httpStatusCode;
                 return GetResponse(response);
             }
         }
