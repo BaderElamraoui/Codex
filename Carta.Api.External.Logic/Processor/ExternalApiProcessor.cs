@@ -710,5 +710,48 @@ namespace Carta.Api.External.Logic.Processor
 
             return true;
         }
+
+        public bool TryProcessAccountBasedApataChallengeResult(string guid, out string response)
+        {
+            Log.Info("Trying To process GTW Request");
+            response = string.Empty;
+            try
+            {
+
+                var externalServiceRequest = JObject.Parse(_request);
+
+                if (externalServiceRequest == null)
+                    return false;
+
+                var service = GetServiceData(externalServiceRequest);
+                string transactionToken = service.serviceData.transactionToken?.ToString();
+             
+                var headers = new List<Header>(){
+                    new Header {id = "3ds-challenge-result", value = service.serviceData.authenticationStatus},
+                    new Header {id = "3ds-transaction-token", value = transactionToken},
+                    new Header {id = "X-Api-Key", value =  service.serviceData.apiKey},
+                    new Header {id = "X-Org-ID", value = service.serviceData.organisationId},
+                    new Header {id = "X-FI-ID", value = service.serviceData.financialInstitutionId}
+                };
+
+                var httpManager = new HttpManager();
+                if (HttpManager.PostWithoutBody(headers, ConfigurationManager.AppSettings[Constants.FWD_APATA_CHALLENGE_ENDPOINT], out response))
+                {
+                    Log.Info("Resposne of chalenge result : " + response);
+                    return true;
+                }
+
+                Log.Info("Resposne of chalenge result : " + response);
+                return false;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Warn(ex.Message);
+                Log.Debug(ex);
+                return false;
+            }
+
+        }
     }
 }
