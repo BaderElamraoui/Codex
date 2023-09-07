@@ -116,5 +116,14 @@ namespace Carta.Api.External
             Method = "POST"
         )]
         Stream GenesysApiRequest(Stream streamRequest);
+
+        [OperationContract]
+        [WebInvoke(UriTemplate = "AccountBasedApataChallengeResult",
+            ResponseFormat = WebMessageFormat.Json,
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare,
+            Method = "POST"
+        )]
+        Stream AccountBasedApataChallengeResult(Stream streamRequest);
     }
 }
