@@ -388,7 +388,7 @@ namespace Carta.Api.External.Logic.Processor
         {
             var serviceRequest = new ServiceRequest()
             {
-                serviceRequestId = guid,
+                serviceRequestId = Guid.NewGuid().ToString(),
                 serviceName = serviceName,
                 channelId = ConfigurationManager.AppSettings[Constants.SSCA_CHANNEL_ID],
                 channelType = ConfigurationManager.AppSettings[Constants.SSCA_CHANNEL_TYPE],
@@ -725,7 +725,7 @@ namespace Carta.Api.External.Logic.Processor
 
                 var service = GetServiceData(externalServiceRequest);
                 string transactionToken = service.serviceData.transactionToken?.ToString();
-             
+
                 var headers = new List<Header>(){
                     new Header {id = "3ds-challenge-result", value = service.serviceData.authenticationStatus},
                     new Header {id = "3ds-transaction-token", value = transactionToken},
