@@ -1,3 +1,4 @@
+
 image: mcr.microsoft.com/dotnet/sdk:latest
 variables:
   NUGET_PATH: 'C:\Tools\Nuget\nuget.exe'
@@ -5,53 +6,48 @@ variables:
   BuildConfiguration : 'Debug'
   GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
   ArtifactDir : 'Carta.Api.External\bin\'
-  Deploydir : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID/$ArtifactDir'
+  Deploydir : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID/'
   Sourcedeploy : $Deploydir
 stages:
   - build
   - deploy
 
-
-build_job_uat:
+build_job:
   stage: build
   only :
     refs:
-      - master-newUat
+      - master
   script:
     - New-Item -ItemType Directory -Force -Path $Deploydir
-    - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'   # restore Nuget dependencies
-    - 'dotnet sonarscanner begin /k:"$CI_PROJECT_NAME$CI_PROJECT_ID" /n:"$CI_PROJECT_NAME" /d:sonar.host.url=http://localhost:9000 /d:sonar.login="admin" /d:sonar.password=admin'    
+    - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - 'dotnet sonarscanner end /d:sonar.login="admin" /d:sonar.password=admin'   
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","*.json")  -destination $Deploydir -recurse -force
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","*.json")  -destination $Deploydir -recurse -force  
 
 
-
-deploy_uat:
-
+deploy_prod: 
   variables:
-    Url : '192.168.70.59'
-    Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.External.API\bin'
+    Url : 'Peppv-gw1-01'
+    Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.Api.External.Sepa\bin'
     serviceName : ''
     servicetype : ''
   only:
     refs:
-      - master-newUat
+      - master
   stage: deploy
+  when: manual
   script:
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
     - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StartService.ps1 -serviceName $serviceName -processType $servicetype"}
   environment:
-    name: NewUat
+    name: prod
     url: $Url      
 clean_deploy_file:
-
   needs:
-    - deploy_uat
+    - deploy_prod
   only:
     refs:
-      - master-newUat
+      - master
   stage: deploy
   script:
     - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse    
