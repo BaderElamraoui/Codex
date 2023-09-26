@@ -50,6 +50,14 @@
         public const string GENESYS_CHANNEL_TYPE = "GENESYS_CHANNEL_TYPE";
         public const string GENESYS_REQUESTOR_ID = "GENESYS_REQUESTOR_ID";
         public const string GENESYS_REQUESTOR_CREDENTIALS = "GENESYS_REQUESTOR_CREDENTIALS";
+
+        public const string FINANCIAL_INSTITUTION_CB = "FINANCIAL_INSTITUTION_CB";
+        public const string FINANCIAL_INSTITUTION_AB = "FINANCIAL_INSTITUTION_AB";
+        public const string SSCA_GTW_ENDPOINT = "SSCA_GTW_ENDPOINT";
+        public const string SSCA_CHANNEL_ID = "SSCA_CHANNEL_ID";
+        public const string SSCA_CHANNEL_TYPE = "SSCA_CHANNEL_TYPE";
+        public const string SSCA_REQUESTOR_ID = "SSCA_REQUESTOR_ID";
+        public const string SSCA_REQUESTOR_CREDENTIALS = "SSCA_REQUESTOR_CREDENTIALS";
     }
     public class statusDecline
     {

@@ -12,6 +12,8 @@ using System.Net;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.Text;
+using Org.BouncyCastle.Asn1.Ocsp;
+
 namespace Carta.Api.External
 {
 
@@ -442,6 +444,8 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            var request = WebOperationContext.Current.IncomingRequest;
+
             string guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -463,10 +467,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(jwsDecrypted);
 
                 string response;
-
-                externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response);
-
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -483,6 +484,7 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
             var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -498,7 +500,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -515,6 +517,8 @@ namespace Carta.Api.External
             if (streamRequest == null)
                 throw new WebFaultException(HttpStatusCode.BadRequest);
 
+            IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
+
             var guid = Guid.NewGuid().ToString("N");
             WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
 
@@ -531,8 +535,7 @@ namespace Carta.Api.External
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
-
-                if (!externalApiProcessor.TryProcess3dsChallengeRequest(guid, out response))
+                if (!externalApiProcessor.TryProcess3dsChallengeRequest(request.Headers, guid, out response))
                     throw new WebFaultException(HttpStatusCode.BadRequest);
 
                 stopwatch.Stop();
@@ -641,6 +644,38 @@ namespace Carta.Api.External
             }
         }
 
+        public Stream AccountBasedApataChallengeResult(Stream streamRequest)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (streamRequest == null)
+                throw new WebFaultException(HttpStatusCode.BadRequest);
+
+            var guid = Guid.NewGuid().ToString("N");
+            WebOperationContext.Current.OutgoingResponse.ContentType = "Application/json";
+
+            using (ThreadContext.Stacks["NDC"].Push(guid))
+            {
+                var sReader = new StreamReader(streamRequest);
+
+                var sbRequest = new StringBuilder(sReader.ReadToEnd());
+                log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
+
+                if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
+                    throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
+
+                string response;
+
+                externalApiProcessor.TryProcessAccountBasedApataChallengeResult(guid, out response);
+
+                stopwatch.Stop();
+                log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
+                return GetResponse(response);
+            }
+        }
     }
     public class PreviousCard
     {
