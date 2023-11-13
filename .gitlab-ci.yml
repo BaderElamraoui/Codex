@@ -23,7 +23,7 @@ build_job_uat:
     - 'dotnet sonarscanner begin /k:"$CI_PROJECT_NAME$CI_PROJECT_ID" /n:"$CI_PROJECT_NAME" /d:sonar.host.url=http://localhost:9000 /d:sonar.login="admin" /d:sonar.password=admin'    
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
     - 'dotnet sonarscanner end /d:sonar.login="admin" /d:sonar.password=admin'   
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","*.json")  -destination $Deploydir -recurse -force
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","appsettings.json")  -destination $Deploydir -recurse -force
 
 
 
@@ -40,13 +40,15 @@ deploy_uat:
   stage: deploy
   script:
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
-    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
+    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StartService.ps1 -serviceName $serviceName -processType $servicetype"}
   environment:
     name: NewUat
     url: $Url      
 clean_deploy_file:
-
+  except :
+    changes:
+      - ".gitlab-ci.yml"
   needs:
     - deploy_uat
   only:
@@ -68,7 +70,7 @@ build_master:
     - New-Item -ItemType Directory -Force -Path $Deploydir
     - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","*.json")  -destination $Deploydir -recurse -force  
+    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","appsettings.json")  -destination $Deploydir -recurse -force  
 
 
 deploy_prod:
@@ -85,7 +87,7 @@ deploy_prod:
   when: manual
   script:
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
-    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:1000000 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
+    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
    # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StartService.ps1 -serviceName $serviceName -processType $servicetype"}
   environment:
     name: prod
