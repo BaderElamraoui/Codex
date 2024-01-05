@@ -1,107 +1,153 @@
-image: mcr.microsoft.com/dotnet/sdk:latest
-variables:
-  NUGET_PATH: 'C:\Tools\Nuget\nuget.exe'
-  MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\15.0\MSBuild\15.0\bin\msbuild.exe'
-  BuildConfiguration : 'Debug'
-  GIT_CLONE_PATH: '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/$CI_PROJECT_NAME'
-  ArtifactDir : 'Carta.Api.External\bin\'
-  Deploydir : '$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID/'
-  Sourcedeploy : $Deploydir
 stages:
   - build
+  - test
   - deploy
 
 
-build_job_uat:
+.build:
   stage: build
-  only :
-    refs:
-      - master-newUat
   script:
-    - New-Item -ItemType Directory -Force -Path $Deploydir
-    - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'   # restore Nuget dependencies
-    - 'dotnet sonarscanner begin /k:"$CI_PROJECT_NAME$CI_PROJECT_ID" /n:"$CI_PROJECT_NAME" /d:sonar.host.url=http://localhost:9000 /d:sonar.login="admin" /d:sonar.password=admin'    
-    - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - 'dotnet sonarscanner end /d:sonar.login="admin" /d:sonar.password=admin'   
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","appsettings.json")  -destination $Deploydir -recurse -force
-
-
-
-deploy_uat:
-
-  variables:
-    Url : '192.168.70.59'
-    Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.External.API\bin'
-    serviceName : ''
-    servicetype : ''
-  only:
-    refs:
-      - master-newUat
-  stage: deploy
-  script:
-   # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
-    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
-   # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StartService.ps1 -serviceName $serviceName -processType $servicetype"}
-  environment:
-    name: NewUat
-    url: $Url      
-clean_deploy_file:
-  except :
-    changes:
-      - ".gitlab-ci.yml"
-  needs:
-    - deploy_uat
-  only:
-    refs:
-      - master-newUat
-  stage: deploy
-  script:
-    - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse    
-
-
-
-build_master:
-
-  stage: build
-  only :
-    refs:
-      - master
-  script:
-    - New-Item -ItemType Directory -Force -Path $Deploydir
     - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'  # restore Nuget dependencies
     - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
-    - Copy-Item -path C:\gitlab-runner\builds\$CI_COMMIT_BRANCH$CI_PROJECT_ID\$CI_PROJECT_NAME\$ArtifactDir\* -Exclude ("*.config","appsettings.json")  -destination $Deploydir -recurse -force  
+    - New-Item -ItemType Directory -Force -Path $Deploydir
+    - Copy-Item -path $ArtifactDir\* -Exclude ("*.config","appsettings.json","appsettings.Development.json")  -destination $Deploydir -recurse -force   
+    
+.deploy:
+  stage: deploy
+  script:
+    - Invoke-Command -ComputerName $Url -ScriptBlock {C:\CARTA\StopStartService\StopService.ps1 -serviceName $args[0] -processType $args[1]} -ArgumentList  $serviceName,$servicetype
+    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B /XO $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
+    - Invoke-Command -ComputerName $Url -ScriptBlock {C:\CARTA\StopStartService\StartService.ps1 -serviceName $args[0] -processType $args[1]} -ArgumentList $serviceName,$servicetype
+
+.clean_deploy:
+  stage: deploy
+  script:
+    - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse
+
+################################################  master pipe  ##################################### 
+build_master:
+  extends: .build
+  only :
+   refs :
+      - master
 
 
 deploy_prod:
-
-  variables:
-    Url : 'Peppv-gw1-01'
-    Destinationdeploy : '\\$Url\CARTA\WEBAPI\Carta.Api.External.Sepa\bin'
-    serviceName : ''
-    servicetype : ''
+  extends: .deploy
+  when: manual
   only:
     refs:
       - master
-  stage: deploy
-  when: manual
-  script:
-   # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StopService.ps1 -serviceName $serviceName -processType $servicetype"}
-    - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
-   # - Invoke-Command -ComputerName $Url -ScriptBlock {"C:\CARTA\StopStartService\StartService.ps1 -serviceName $serviceName -processType $servicetype"}
   environment:
     name: prod
     url: $Url  
 
-clean_deploy_file_master:
-  except :
-    changes:
-      - ".gitlab-ci.yml"  
+clean_deploy_file_prod:
+  extends: .clean_deploy
   needs:
     - deploy_prod
   only:
     refs:
       - master
-  stage: deploy
-  script:
-    - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse    
+
+
+#****************************staging
+
+build_staging:
+  extends: .build
+  only :
+   refs :
+      - master-Staging
+
+deploy_staging:
+  extends: .deploy
+  only:
+    refs:
+      - master-Staging
+  environment:
+    name: staging
+    url: $Url  
+
+clean_deploy_file_staging:
+  extends: .clean_deploy
+  needs:
+    - deploy_staging
+  only:
+    refs:
+      - master-Staging
+
+#******************************** NewUat
+build_newuat:
+  extends: .build
+  only :
+   refs :
+      - master-newUat
+
+deploy_newuat:
+  extends: .deploy
+  only:
+    refs:
+      - master-newUat
+  environment:
+    name: New_uat
+    url: $Url  
+
+
+clean_deploy_file_newuat:
+  extends: .clean_deploy
+  needs:
+    - deploy_newuat
+  only:
+    refs:
+      - master-newUat
+
+
+#******************************** uat
+build_uat:
+  extends: .build
+  only :
+   refs :
+      - master-uat
+  
+
+deploy_uat:
+  extends: .deploy
+  only:
+    refs:
+      - master-uat  
+  environment:
+    name: uat
+    url: $Url  
+
+
+clean_deploy_file_uat:
+  extends: .clean_deploy
+  needs:
+    - deploy_uat
+  only:
+    refs:
+      - master-uat 
+
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+
+code_quality:
+  stage:  test
+  tags:
+    - code
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master-newUat" || $CI_COMMIT_BRANCH == "master-uat" || $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    REPORT_FORMAT: html
+  artifacts:
+    paths: [gl-code-quality-report.html]   
+
+semgrep-sast:
+  tags:
+    - code 
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master-newUat" || $CI_COMMIT_BRANCH == "master-uat" || $CI_PIPELINE_SOURCE == "merge_request_event"
+  stage: test
+
