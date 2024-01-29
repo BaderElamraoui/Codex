@@ -232,6 +232,7 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             else if (externalStatusCode == HttpStatusCode.Unauthorized)
@@ -295,6 +296,7 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -398,6 +400,7 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -430,6 +433,7 @@ namespace Carta.Api.External
                 outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outpuResponse.ToString());
