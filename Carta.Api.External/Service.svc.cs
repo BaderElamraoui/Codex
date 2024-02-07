@@ -297,6 +297,8 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE_2 :
+
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -401,6 +403,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE_2 :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -434,6 +437,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE_2 :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outpuResponse.ToString());
