@@ -190,8 +190,8 @@ namespace Carta.Api.External.Logic.Processor
                                 jweObject.TryAsymmetricJweDecrypt(item.Value.ToString(), "RSA-OAEP-256", "A256CBC-HS512", privateKey, keyId, out clearValue);
 
                                 if (!string.IsNullOrWhiteSpace(clearValue)) continue;
-                                externalStatusCode = HttpStatusCode.Unauthorized;
-                                Log.InfoFormat("The pan is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
+                                externalStatusCode = HttpStatusCode.NotAcceptable;
+                                Log.InfoFormat("The cvx2 is not decrypted correctly, in this case we return the http status code {0}", externalStatusCode);
                                 return false;
                             }
                     }

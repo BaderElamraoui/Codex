@@ -240,6 +240,11 @@ namespace Carta.Api.External
                 outputResponse.Add("decision", decision.DECLINE);
                 outputResponse.Add("declineReason", DeclineReason.INVALID_PAN);
             }
+            else if (externalStatusCode == HttpStatusCode.NotAcceptable)
+            {
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", DeclineReason.CVX2_FAILURE);
+            }
             else
             {
                 outputResponse.Add("decision", decision.DECLINE);
