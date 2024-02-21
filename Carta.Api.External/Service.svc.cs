@@ -233,6 +233,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_REQUIRED ? DeclineReason.CVX2_REQUIRED :
                                                  DeclineReason.OTHER);
             }
             else if (externalStatusCode == HttpStatusCode.Unauthorized)

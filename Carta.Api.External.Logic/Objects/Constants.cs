@@ -67,6 +67,7 @@
         public const string CARD_EXPIRED = "H0008";
         public const string PAN_INELIGIBLE = "DPI01";
         public const string INVALID_PAN = "DIP01";
+        public const string CVX2_REQUIRED = "V0120";
     }
 
     public class DeclineReason
@@ -78,6 +79,7 @@
         public const string CVX2_FAILURE = "CVX2_FAILURE";
         public const string CVX2_VERIFICATION_RESULT = "INVALID";
         public const string OTHER = "OTHER";
+        public const string CVX2_REQUIRED = "CVX2_REQUIRED";
 
     }
 
