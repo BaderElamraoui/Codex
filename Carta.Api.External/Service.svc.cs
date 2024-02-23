@@ -232,12 +232,19 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_REQUIRED ? DeclineReason.CVX2_REQUIRED :
                                                  DeclineReason.OTHER);
             }
             else if (externalStatusCode == HttpStatusCode.Unauthorized)
             {
                 outputResponse.Add("decision", decision.DECLINE);
                 outputResponse.Add("declineReason", DeclineReason.INVALID_PAN);
+            }
+            else if (externalStatusCode == HttpStatusCode.NotAcceptable)
+            {
+                outputResponse.Add("decision", decision.DECLINE);
+                outputResponse.Add("declineReason", DeclineReason.CVX2_FAILURE);
             }
             else
             {
@@ -295,6 +302,9 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE :
+
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -398,6 +408,8 @@ namespace Carta.Api.External
                 outputResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outputResponse.ToString());
@@ -430,6 +442,8 @@ namespace Carta.Api.External
                 outpuResponse.Add("declineReason", serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
                                                  serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
                                                  serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                                                 serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE :
                                                  DeclineReason.OTHER);
             }
             log.Info("Final Response :" + outpuResponse.ToString());
