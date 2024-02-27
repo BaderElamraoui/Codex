@@ -456,7 +456,10 @@ namespace Carta.Api.External
             stopwatch.Start();
 
             if (streamRequest == null)
+            {
+                log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                 throw new WebFaultException(HttpStatusCode.BadRequest);
+            }
 
             var request = WebOperationContext.Current.IncomingRequest;
 
@@ -476,13 +479,19 @@ namespace Carta.Api.External
                 log.InfoFormat("EXTERNAL API JWS DECRYPTED REQUEST: {0}", sbRequest.ToString());
 
                 if (string.IsNullOrWhiteSpace(jwsDecrypted))
+                {
+                    log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                     throw new WebFaultException(HttpStatusCode.BadRequest);
+                }
 
                 var externalApiProcessor = new ExternalApiProcessor(jwsDecrypted);
 
                 string response;
                 if (!externalApiProcessor.TryProcess3dsChallengeRequest(request.Headers, guid, out response))
+                {
+                    log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                     throw new WebFaultException(HttpStatusCode.BadRequest);
+                }
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
@@ -496,7 +505,10 @@ namespace Carta.Api.External
             stopwatch.Start();
 
             if (streamRequest == null)
+            {
+                log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                 throw new WebFaultException(HttpStatusCode.BadRequest);
+            }
 
             IncomingWebRequestContext request = WebOperationContext.Current.IncomingRequest;
             var guid = Guid.NewGuid().ToString("N");
@@ -509,13 +521,19 @@ namespace Carta.Api.External
                 log.InfoFormat("EXTERNAL API REQUEST: {0}", sbRequest.ToString());
 
                 if (string.IsNullOrWhiteSpace(sbRequest.ToString()))
+                {
+                    log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                     throw new WebFaultException(HttpStatusCode.BadRequest);
+                }
 
                 var externalApiProcessor = new ExternalApiProcessor(sbRequest.ToString());
 
                 string response;
                 if (!externalApiProcessor.TryProcess3dsChallengeRequestCancel(request.Headers, guid, out response))
+                {
+                    log.Error($"Server StatusCode response: {HttpStatusCode.BadRequest}");
                     throw new WebFaultException(HttpStatusCode.BadRequest);
+                }
 
                 stopwatch.Stop();
                 log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
