@@ -163,12 +163,13 @@ namespace Carta.Api.External
 
                     string response;
                     HttpStatusCode externalStatusCode;
-                    externalApiProcessor.TryProcessCheckCard(guid, headers, out response, out externalStatusCode);
+                    bool isCvx2Provided;
+                    externalApiProcessor.TryProcessCheckCard(guid, headers, out response, out externalStatusCode, out isCvx2Provided);
 
                     stopwatch.Stop();
                     log.Info("REQUEST TIME DIFFERENCE : " + stopwatch.ElapsedMilliseconds);
                     var enc = new JweRsaEncryption();
-                    return GetCheckCardResponse(response, externalStatusCode);
+                    return GetCheckCardResponse(response, externalStatusCode, isCvx2Provided);
 
                 }
             }
@@ -215,7 +216,7 @@ namespace Carta.Api.External
 
         }
 
-        private static Stream GetCheckCardResponse(string response, HttpStatusCode externalStatusCode)
+        private static Stream GetCheckCardResponse(string response, HttpStatusCode externalStatusCode, bool isCvx2Provided)
         {
             var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
@@ -225,6 +226,8 @@ namespace Carta.Api.External
                 JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
                 outputResponse.Add("issuerCardId", issuerCardId.ToString());
                 outputResponse.Add("decision", decision.SUCCESS);
+                if (isCvx2Provided)
+                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.MATCH);
             }
             else if (serviceResponse != null)
             {
@@ -236,21 +239,31 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE :
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_REQUIRED ? DeclineReason.CVX2_REQUIRED :
                                                  DeclineReason.OTHER);
+
+                if((serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE || serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2)
+                   && isCvx2Provided)
+                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.INVALID);
             }
             else if (externalStatusCode == HttpStatusCode.Unauthorized)
             {
                 outputResponse.Add("decision", decision.DECLINE);
                 outputResponse.Add("declineReason", DeclineReason.INVALID_PAN);
+                if (isCvx2Provided)
+                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.NOT_PROCESSED);
             }
             else if (externalStatusCode == HttpStatusCode.NotAcceptable)
             {
                 outputResponse.Add("decision", decision.DECLINE);
                 outputResponse.Add("declineReason", DeclineReason.CVX2_FAILURE);
+                if (isCvx2Provided)
+                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.NOT_PROCESSED);
             }
             else
             {
                 outputResponse.Add("decision", decision.DECLINE);
                 outputResponse.Add("declineReason", DeclineReason.OTHER);
+                if (isCvx2Provided)
+                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.NOT_PROCESSED);
             }
 
             var resultByte = Encoding.UTF8.GetBytes(outputResponse.ToString());

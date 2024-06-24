@@ -89,4 +89,12 @@
         public const string SUCCESS = "SUCCESS";
         public const string DECLINE = "DECLINE";
     }
+    public class Cvx2VerificationResult
+    {
+        protected Cvx2VerificationResult() { }
+        public const string MATCH = "MATCH";
+        public const string INVALID = "INVALID";
+        public const string NOT_PROCESSED = "NOT_PROCESSED";
+
+    }
 }
