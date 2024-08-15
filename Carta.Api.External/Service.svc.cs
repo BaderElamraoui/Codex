@@ -221,13 +221,39 @@ namespace Carta.Api.External
             var serviceResponse = JsonConvert.DeserializeObject<ServiceResponse>(response);
 
             var outputResponse = new JObject();
-            if (serviceResponse != null && serviceResponse.serviceResponseCode == Constants.SUCCESS)
+            if (serviceResponse != null && (serviceResponse.serviceResponseCode == Constants.SUCCESS ||
+                                            serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ||
+                                            serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2))
             {
-                JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
-                outputResponse.Add("issuerCardId", issuerCardId.ToString());
-                outputResponse.Add("decision", decision.SUCCESS);
-                if (isCvx2Provided)
-                    outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.MATCH);
+
+                if (serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ||
+                    serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2)
+                {
+                    outputResponse.Add("decision", decision.DECLINE);
+                    JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
+                    outputResponse.Add("issuerCardId", issuerCardId.ToString());
+                    outputResponse.Add("declineReason",
+                        serviceResponse.serviceResponseCode == statusDecline.CARD_EXPIRED ? DeclineReason.CARD_EXPIRED :
+                        serviceResponse.serviceResponseCode == statusDecline.INVALID_PAN ? DeclineReason.INVALID_PAN :
+                        serviceResponse.serviceResponseCode == statusDecline.PAN_INELIGIBLE ? DeclineReason.PAN_INELIGIBLE :
+                        serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ? DeclineReason.CVX2_FAILURE :
+                        serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2 ? DeclineReason.CVX2_FAILURE :
+                        serviceResponse.serviceResponseCode == statusDecline.CVX2_REQUIRED ? DeclineReason.CVX2_REQUIRED :
+                        DeclineReason.OTHER);
+
+                    if ((serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE ||
+                         serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2)
+                        && isCvx2Provided)
+                        outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.INVALID);
+                }
+                else
+                {
+                    JToken issuerCardId = serviceResponse.serviceResponseData.SelectToken("issuerCardId");
+                    outputResponse.Add("issuerCardId", issuerCardId.ToString());
+                    outputResponse.Add("decision", decision.SUCCESS);
+                    if (isCvx2Provided)
+                        outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.MATCH);
+                }
             }
             else if (serviceResponse != null)
             {
@@ -240,7 +266,7 @@ namespace Carta.Api.External
                                                  serviceResponse.serviceResponseCode == statusDecline.CVX2_REQUIRED ? DeclineReason.CVX2_REQUIRED :
                                                  DeclineReason.OTHER);
 
-                if((serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE || serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2)
+                if ((serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE || serviceResponse.serviceResponseCode == statusDecline.CVX2_FAILURE_2)
                    && isCvx2Provided)
                     outputResponse.Add("cvx2VerificationResult", Cvx2VerificationResult.INVALID);
             }

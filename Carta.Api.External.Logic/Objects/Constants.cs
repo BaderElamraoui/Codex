@@ -58,6 +58,7 @@
         public const string SSCA_CHANNEL_TYPE = "SSCA_CHANNEL_TYPE";
         public const string SSCA_REQUESTOR_ID = "SSCA_REQUESTOR_ID";
         public const string SSCA_REQUESTOR_CREDENTIALS = "SSCA_REQUESTOR_CREDENTIALS";
+
     }
     public class statusDecline
     {
