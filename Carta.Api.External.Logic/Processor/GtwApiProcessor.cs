@@ -223,6 +223,10 @@ namespace Carta.Api.External.Logic.Processor
                 if (string.IsNullOrEmpty(_serviceRequest.serviceName))
                     return HttpStatusCode.BadRequest;
 
+                Log.Info("Validate Gtw Request");
+                if (!ValidateOrganisationData(header))
+                    return HttpStatusCode.Unauthorized;
+
                 Log.Info("Preparing Gtw Request");
                 var gtwRequest = PrepareGenesysGtwRequest(header, guid, _serviceRequest);
 
@@ -270,6 +274,14 @@ namespace Carta.Api.External.Logic.Processor
             ((IDictionary<string, object>)serviceData)["tokenId"] = header["token-Id"];
 
             return serviceData;
+        }
+
+        private static bool ValidateOrganisationData(NameValueCollection header)
+        {
+            var orgId = header["inin-organization-id"];
+            if (!ConfigurationManager.AppSettings["GENESYS_ORG_IDS"].Split('|').Contains(orgId))
+                return false;
+            return true;
         }
     }
 }
