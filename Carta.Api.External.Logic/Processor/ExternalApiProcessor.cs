@@ -139,11 +139,12 @@ namespace Carta.Api.External.Logic.Processor
         }
 
 
-        public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response, out HttpStatusCode externalStatusCode)
+        public bool TryProcessCheckCard(string guid, WebHeaderCollection Headers, out string response, out HttpStatusCode externalStatusCode, out bool isCvx2Provided)
         {
             Log.Info("Trying To process GTW Request");
             response = string.Empty;
             externalStatusCode = HttpStatusCode.BadRequest;
+            isCvx2Provided = false;
             try
             {
                 //dynamic externalServiceRequest = JsonConvert.DeserializeObject<dynamic>(_request);
@@ -182,6 +183,7 @@ namespace Carta.Api.External.Logic.Processor
                             }
                         case "cvx2":
                             {
+                                isCvx2Provided = true;
                                 var jweObject = new JweObject("");
                                 var privateKey = @ConfigurationManager.AppSettings[Constants.JWE_CARTA_PRIVATE_KEY];
                                 var keyId = ConfigurationManager.AppSettings[Constants.CARTA_KEY];
