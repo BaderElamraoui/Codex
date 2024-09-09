@@ -58,6 +58,7 @@
         public const string SSCA_CHANNEL_TYPE = "SSCA_CHANNEL_TYPE";
         public const string SSCA_REQUESTOR_ID = "SSCA_REQUESTOR_ID";
         public const string SSCA_REQUESTOR_CREDENTIALS = "SSCA_REQUESTOR_CREDENTIALS";
+
     }
     public class statusDecline
     {
@@ -88,5 +89,13 @@
         protected decision() { }
         public const string SUCCESS = "SUCCESS";
         public const string DECLINE = "DECLINE";
+    }
+    public class Cvx2VerificationResult
+    {
+        protected Cvx2VerificationResult() { }
+        public const string MATCH = "MATCH";
+        public const string INVALID = "INVALID";
+        public const string NOT_PROCESSED = "NOT_PROCESSED";
+
     }
 }
