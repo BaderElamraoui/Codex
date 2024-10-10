@@ -1,4 +1,7 @@
 ﻿using Carta.Api.External.Dal.Cache;
+using Carta.Api.External.Logger;
+using log4net.Repository.Hierarchy;
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +18,20 @@ namespace Carta.Api.External
         protected void Application_Start(object sender, EventArgs e)
         {
             log4net.Config.XmlConfigurator.Configure();
+            log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+            log.Info("Application started");
+            var repository = LogManager.GetRepository();
+            var appenders = repository.GetAppenders();
+
+            var maskingAppender = appenders.FirstOrDefault(a => a.Name == "MaskingAppender") as MaskingAppenderSkeleton;
+            if (maskingAppender != null)
+            {
+                var originalAppender = appenders.FirstOrDefault(a => a.Name == "RollingLogFileAppender");
+                if (originalAppender != null)
+                {
+                    maskingAppender.AddAppender(originalAppender);
+                }
+            }
             CacheContainer.Init();
         }
 

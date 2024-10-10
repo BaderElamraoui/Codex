@@ -100,6 +100,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="JwsTools\Jws.cs" />
+    <Compile Include="Logger\DataMasker.cs" />
+    <Compile Include="Logger\MaskingAppenderSkeleton.cs" />
     <Compile Include="Service.svc.cs">
       <DependentUpon>Service.svc</DependentUpon>
     </Compile>
@@ -126,6 +128,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
