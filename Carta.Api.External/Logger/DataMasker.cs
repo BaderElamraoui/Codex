@@ -10,7 +10,7 @@ namespace Carta.Api.External.Logger
     {
         private static readonly string[] SensitiveFields = new[]
         {
-            "pan", "pin", "cardNumber", "cvv2", "expiryDate", "previousExpiryDate"
+            "pan", "pin", "cardNumber", "cvv2", "cvx2", "expiryDate", "previousExpiryDate"
         };
 
         public static string MaskSensitiveData(string input)
