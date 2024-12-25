@@ -4,7 +4,6 @@ stages:
   - test
   - aftertest
   - deploy
-  - regression_test
 
 .build_MERGE:
   stage: test
@@ -141,7 +140,7 @@ deploy_prod:
 clean_deploy_file_prod:
   extends: .clean_deploy
   needs:
-    - deploy_uat
+    - deploy_prod
   only:
     refs:
       - tags
