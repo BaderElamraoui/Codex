@@ -1,35 +1,131 @@
 stages:
+  - release
   - build
   - test
+  - aftertest
   - deploy
+  - regression_test
+
+.build_MERGE:
+  stage: test
+  script:
+    - $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+    - $env:PATH = "C:\Program Files\Java\jdk-17\bin;$env:PATH"
+    - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"' # restore Nuget dependencies
+    - SonarScanner.MSBuild.exe begin /k:"$CI_PROJECT_NAME" /d:sonar.host.url=$sonarHostUrl /d:sonar.login="$sonarLogin" /d:sonar.password=$sonarPass
+    - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration' # build the project
+    - SonarScanner.MSBuild.exe end /d:sonar.login="$sonarLogin" /d:sonar.password=$sonarPass
 
 
 .build:
   stage: build
   script:
     - '& "$env:NUGET_PATH" restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config"'  # restore Nuget dependencies
-    - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration'  # build the project
+    - '& "$env:MSBUILD_PATH" /p:Configuration=$BuildConfiguration' 
+    - '& "$env:MSBUILD_PATH" .\$webAppFolder /p:DeployOnBuild=true  /p:PublishProfile="$PublishProfile"'
     - New-Item -ItemType Directory -Force -Path $Deploydir
-    - Copy-Item -path $ArtifactDir\* -Exclude ("*.config","appsettings.json","appsettings.Development.json")  -destination $Deploydir -recurse -force   
-    
+    - Copy-Item -path $ArtifactDir\* -Exclude ("*.config","appsettings.json","appsettings.Development.json")  -destination $Deploydir -recurse -force  
+
+
 .deploy:
   stage: deploy
   script:
-    - Invoke-Command -ComputerName $Url -ScriptBlock {C:\CARTA\StopStartService\StopService.ps1 -serviceName $args[0] -processType $args[1]} -ArgumentList  $serviceName,$servicetype
     - "robocopy /S /E /DCOPY:DA /COPY:DAT /R:10 /W:30 /B /XO $Sourcedeploy $Destinationdeploy  ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }"
-    - Invoke-Command -ComputerName $Url -ScriptBlock {C:\CARTA\StopStartService\StartService.ps1 -serviceName $args[0] -processType $args[1]} -ArgumentList $serviceName,$servicetype
 
 .clean_deploy:
   stage: deploy
   script:
-    - Remove-Item -LiteralPath "$CI_BUILDS_DIR/$CI_COMMIT_BRANCH$CI_PROJECT_ID/deploy$CI_PIPELINE_ID" -Force -Recurse
+    - Remove-Item -LiteralPath "$Deploydir" -Force -Recurse
+
+
+.create release:
+  stage: release
+  script: 
+    - $lastTag = git describe --tags (git rev-list --tags --max-count=1)
+    - echo $lastTag
+    - $feature_index= $lastTag.Split('.')[1]
+    - $cr_index= $lastTag.Split('.')[2]
+    - $defect_index= $lastTag.Split('.')[3]       
+
+    - $task_type = $CI_COMMIT_TITLE.Split('-')[3]
+    - echo $task_type
+    - if ($task_type -eq "DF") { $defect_index = [int]$defect_index + 1 }
+    - |
+      if ($task_type -eq "FT") { 
+        $defect_index = '0'
+        $cr_index = '0' 
+        $feature_index = [int]$feature_index + 1 
+        }
+    - |
+      if ($task_type -eq "CR") { 
+        $defect_index = '0'  
+        $cr_index = [int]$cr_index + 1
+         }
+    
+    - echo $feature_index
+    - echo $cr_index
+    - echo $defect_index
+    - $newTag = "master-V.$feature_index.$cr_index.$defect_index"
+    - |
+      if ($task_type -ne "CR" -and $task_type -ne "DF" -and $task_type -ne "FT" ) { 
+        $hot_change= $lastTag.Split('.')[4]
+        if ($hot_change -eq $null ){
+           $hot_change = '0'
+        } 
+        $hot_change = [int]$hot_change + 1
+        $newTag = "master-V.$feature_index.$cr_index.$defect_index.$hot_change"
+         }
+    - echo $newTag
+    - 'C:\gitlab-runner\Release-CLI\bin\release-cli.exe create  --description "descr" -tag-name $newTag --ref "$CI_COMMIT_SHA"'
+
 
 ################################################  master pipe  ##################################### 
+include:
+- template: Security/SAST.gitlab-ci.yml
+
+
+semgrep-sast:
+  rules:
+    - if:  $CI_PIPELINE_SOURCE == "merge_request_event"
+  tags:
+   - code
+  stage: test
+
+packages-version-update:
+  stage: aftertest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: never
+  script:
+    - echo $CI_PROJECT_PATH
+    - '& $env:NUGET_PATH restore -PackagesDirectory ".\packages" -DisableParallelProcessing -Recursive -configfile "C:\gitlab-runner\NuGet\newNuGet.config" '# restore Nuget dependencies
+    - C:\gitlab-runner\mrs2.ps1 -SourceFolderPath ".\" -CI_PROJECT_PATH $CI_PROJECT_PATH
+
+owasp-job:
+  script:
+    - C:\gitlab-runner\owasp.ps1 -GIT_CLONE_PATH $GIT_CLONE_PATH -CI_PROJECT_ID $CI_PROJECT_ID -CI_PROJECT_NAME $CI_PROJECT_NAME
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: never
+  artifacts:
+    when: on_success
+    paths:
+      - report*.html
+      
+create_release_master:
+  extends : .create release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
 build_master:
   extends: .build
   only :
    refs :
-      - master
+      - tags
 
 
 deploy_prod:
@@ -37,7 +133,7 @@ deploy_prod:
   when: manual
   only:
     refs:
-      - master
+      - tags
   environment:
     name: prod
     url: $Url  
@@ -45,70 +141,18 @@ deploy_prod:
 clean_deploy_file_prod:
   extends: .clean_deploy
   needs:
-    - deploy_prod
+    - deploy_uat
   only:
     refs:
-      - master
+      - tags
 
 
-#****************************staging
-
-build_staging:
-  extends: .build
-  only :
-   refs :
-      - master-Staging
-
-deploy_staging:
-  extends: .deploy
-  only:
-    refs:
-      - master-Staging
-  environment:
-    name: staging
-    url: $Url  
-
-clean_deploy_file_staging:
-  extends: .clean_deploy
-  needs:
-    - deploy_staging
-  only:
-    refs:
-      - master-Staging
-
-#******************************** NewUat
-build_newuat:
-  extends: .build
-  only :
-   refs :
-      - master-newUat
-
-deploy_newuat:
-  extends: .deploy
-  only:
-    refs:
-      - master-newUat
-  environment:
-    name: New_uat
-    url: $Url  
-
-
-clean_deploy_file_newuat:
-  extends: .clean_deploy
-  needs:
-    - deploy_newuat
-  only:
-    refs:
-      - master-newUat
-
-
-#******************************** uat
+#********************************
 build_uat:
   extends: .build
   only :
    refs :
-      - master-uat
-  
+      - master-uat 
 
 deploy_uat:
   extends: .deploy
@@ -118,6 +162,7 @@ deploy_uat:
   environment:
     name: uat
     url: $Url  
+    
 
 
 clean_deploy_file_uat:
@@ -129,25 +174,12 @@ clean_deploy_file_uat:
       - master-uat 
 
 
-include:
-  - template: Code-Quality.gitlab-ci.yml
-  - template: Security/SAST.gitlab-ci.yml
 
 code_quality:
-  stage:  test
-  tags:
-    - code
+  extends: 
+    - .build_MERGE
   rules:
-    - if: $CI_COMMIT_BRANCH == "master-newUat" || $CI_COMMIT_BRANCH == "master-uat" || $CI_PIPELINE_SOURCE == "merge_request_event"
-  variables:
-    REPORT_FORMAT: html
-  artifacts:
-    paths: [gl-code-quality-report.html]   
+    - if:  $CI_PIPELINE_SOURCE == "merge_request_event"  
 
-semgrep-sast:
-  tags:
-    - code 
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master-newUat" || $CI_COMMIT_BRANCH == "master-uat" || $CI_PIPELINE_SOURCE == "merge_request_event"
-  stage: test
+
 
