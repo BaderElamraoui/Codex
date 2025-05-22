@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Carta.Api.External.Dal.Core</AssemblyName>
+    <RootNamespace>Carta.Api.External.Dal</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Carta.Api.External.Dal\**\*.cs" />
+  </ItemGroup>
+</Project>

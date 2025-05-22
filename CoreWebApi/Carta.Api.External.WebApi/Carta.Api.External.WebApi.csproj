@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Carta.Api.External.Dal\Carta.Api.External.Dal.csproj" />
+    <ProjectReference Include="..\Carta.Api.External.Logic\Carta.Api.External.Logic.csproj" />
+  </ItemGroup>
+</Project>

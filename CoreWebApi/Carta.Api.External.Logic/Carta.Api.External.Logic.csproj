@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Carta.Api.External.Logic.Core</AssemblyName>
+    <RootNamespace>Carta.Api.External.Logic</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Carta.Api.External.Logic\**\*.cs" />
+    <ProjectReference Include="..\Carta.Api.External.Dal\Carta.Api.External.Dal.csproj" />
+  </ItemGroup>
+</Project>
